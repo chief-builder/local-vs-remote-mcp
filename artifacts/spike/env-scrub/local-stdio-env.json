@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-05-19T22:55:45.757Z",
+  "probe": "local-stdio-shaped child env",
+  "command": "env",
+  "grepEquivalent": "github|^gh_",
+  "pass": true,
+  "forbiddenKeys": [
+    "GITHUB_CONTROLLER_TOKEN",
+    "GITHUB_AGENT_TOKEN",
+    "GH_TOKEN",
+    "GITHUB_TOKEN"
+  ],
+  "forbiddenSurvivors": [],
+  "canaryForbiddenKeys": [
+    "HARMLESS_TOKEN"
+  ],
+  "canaryForbiddenSurvivors": [],
+  "expectedInjectedKeys": [
+    "GITHUB_PERSONAL_ACCESS_TOKEN"
+  ],
+  "redactedSurvivingGitHubLines": [
+    "GH_NO_UPDATE_NOTIFIER=***REDACTED***",
+    "GH_PAGER=***REDACTED***",
+    "GH_PROMPT_DISABLED=***REDACTED***",
+    "GITHUB_PERSONAL_ACCESS_TOKEN=***REDACTED***",
+    "GITHUB_TOOLSETS=***REDACTED***"
+  ]
+}

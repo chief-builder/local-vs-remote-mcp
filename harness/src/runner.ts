@@ -1,0 +1,419 @@
+import { spawn } from 'node:child_process';
+import { mkdir, mkdtemp, cp, rm, writeFile } from 'node:fs/promises';
+import { join, resolve, sep } from 'node:path';
+import { tmpdir } from 'node:os';
+import type { Arm, ArmConfig, ExperimentSpec } from './experiment.js';
+import type { Task, SuccessResult, TaskContext } from './tasks.js';
+import { countTransportFailures, parseTranscript } from './metrics.js';
+import type { Metrics } from './metrics.js';
+import { startFixtureServer } from './fixtureServer.js';
+import { mkPairedSeed } from './trialState.js';
+
+export interface TrialResult {
+  experiment: string;
+  runName?: string;
+  arm: Arm;
+  taskId: string;
+  tier: number;
+  trialN: number;
+  timestamp: string;
+  seed: string;
+  metrics: Metrics;
+  success: SuccessResult;
+  error?: string;
+}
+
+export interface RunTrialOptions {
+  experiment: ExperimentSpec;
+  runName: string;
+  arm: Arm;
+  task: Task;
+  trialN: number;
+  rootDir: string;
+  model?: string;
+  requireSingleCliCommand?: boolean;
+  agentEnv?: Record<string, string>;
+}
+
+function updateObservedToolLatencies(
+  line: string,
+  nowMs: number,
+  startedAt: Map<string, number>,
+  latencies: number[],
+): void {
+  const trimmed = line.trim();
+  if (!trimmed.startsWith('{')) return;
+  let event: unknown;
+  try {
+    event = JSON.parse(trimmed);
+  } catch {
+    return;
+  }
+  if (!event || typeof event !== 'object') return;
+  const e = event as {
+    type?: string;
+    message?: {
+      content?: Array<{ type?: string; id?: string; tool_use_id?: string }>;
+    };
+  };
+  const content = e.message?.content;
+  if (!Array.isArray(content)) return;
+  if (e.type === 'assistant') {
+    for (const block of content) {
+      if (block.type === 'tool_use' && typeof block.id === 'string') {
+        startedAt.set(block.id, nowMs);
+      }
+    }
+  } else if (e.type === 'user') {
+    for (const block of content) {
+      if (block.type !== 'tool_result' || typeof block.tool_use_id !== 'string') continue;
+      const started = startedAt.get(block.tool_use_id);
+      if (started === undefined) continue;
+      const delta = nowMs - started;
+      if (delta >= 0) latencies.push(delta);
+    }
+  }
+}
+
+function extractAssistantAuthoredContent(rawLines: string[]): string[] {
+  const out: string[] = [];
+  for (const line of rawLines) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith('{')) continue;
+    let event: unknown;
+    try {
+      event = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+    if (!event || typeof event !== 'object') continue;
+    const e = event as {
+      type?: string;
+      message?: {
+        content?: Array<{ type?: string; text?: string; input?: unknown }>;
+      };
+    };
+    if (e.type !== 'assistant' || !Array.isArray(e.message?.content)) continue;
+    for (const block of e.message.content) {
+      if (block.type === 'text' && typeof block.text === 'string') {
+        out.push(block.text);
+      } else if (block.type === 'tool_use' && block.input !== undefined) {
+        out.push(JSON.stringify(block.input));
+      }
+    }
+  }
+  return out;
+}
+
+function coldStartFromLatencies(latencies: number[]): number | null {
+  if (latencies.length === 0) return null;
+  const [first, ...rest] = latencies;
+  const basis = rest.length > 0 ? rest : latencies;
+  const sorted = [...basis].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 === 0
+    ? (sorted[mid - 1]! + sorted[mid]!) / 2
+    : sorted[mid]!;
+  return Math.max(0, first! - median);
+}
+
+function artifactRoot(rootDir: string, experiment: string, runName: string): string {
+  return join(rootDir, 'experiments', experiment, 'runs', runName);
+}
+
+export function buildClaudeArgs(
+  armConfig: ArmConfig,
+  prompt: string,
+  model: string,
+  rootDir: string,
+  outputFormat: 'text' | 'stream-json' = 'stream-json',
+): string[] {
+  const mcpConfig = armConfig.mcpConfig.startsWith('{')
+    ? armConfig.mcpConfig
+    : resolve(rootDir, armConfig.mcpConfig);
+
+  const args = [
+    '-p', prompt,
+    '--output-format', outputFormat,
+    '--model', model,
+    '--strict-mcp-config',
+    '--mcp-config', mcpConfig,
+  ];
+
+  if (outputFormat === 'stream-json') {
+    args.push('--verbose');
+  }
+
+  if (armConfig.allowedTools && armConfig.allowedTools.length > 0) {
+    args.push('--allowed-tools', armConfig.allowedTools.join(' '));
+  }
+
+  if (armConfig.disallowedTools.length > 0) {
+    args.push('--disallowed-tools', armConfig.disallowedTools.join(' '));
+  }
+
+  args.push(...armConfig.extraFlags);
+
+  return args;
+}
+
+/**
+ * Scrubs inherited GitHub credentials so the child process can't pick up the
+ * developer's personal `gh` login or PATs. Kept in the harness because every
+ * experiment runs under the same cleanroom assumption.
+ */
+const GITHUB_ENV_TO_SCRUB = [
+  // Harness-internal names — must not survive into the agent child.
+  // GITHUB_CONTROLLER_TOKEN is the elevated credential used to provision
+  // sandbox state; its presence in the child env would give the agent a
+  // path to escalation via `GH_TOKEN=$GITHUB_CONTROLLER_TOKEN gh api ...`.
+  // GITHUB_AGENT_TOKEN is the raw form; buildGithubAgentEnv injects the
+  // value under the MCP server's expected name per arm, so the raw name has
+  // no legitimate use inside the child.
+  'GITHUB_CONTROLLER_TOKEN',
+  'GITHUB_AGENT_TOKEN',
+  'GH_TOKEN',
+  'GITHUB_TOKEN',
+  'GH_ENTERPRISE_TOKEN',
+  'GITHUB_ENTERPRISE_TOKEN',
+  'GITHUB_PERSONAL_ACCESS_TOKEN',
+  'GH_HOST',
+  'GITHUB_HOST',
+  'GH_REPO',
+  'GH_PAGER',
+  'GH_EDITOR',
+  'GH_BROWSER',
+  'GH_FORCE_TTY',
+  'GH_PROMPT_DISABLED',
+  'GH_CONFIG_DIR',
+  'GITHUB_TOOLSETS',
+  // Controlled Tier 3 canary. It must only be present when a task injects it.
+  'HARMLESS_TOKEN',
+];
+
+export function buildChildEnv(armEnv: Record<string, string> | undefined, agentEnv: Record<string, string>): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env };
+  for (const key of GITHUB_ENV_TO_SCRUB) {
+    delete env[key];
+  }
+  // Disable update notifiers/pagers so they don't stall the child.
+  env.GH_NO_UPDATE_NOTIFIER = '1';
+  env.GH_PROMPT_DISABLED = '1';
+  env.GH_PAGER = 'cat';
+  if (armEnv) {
+    for (const [k, v] of Object.entries(armEnv)) env[k] = v;
+  }
+  for (const [k, v] of Object.entries(agentEnv)) env[k] = v;
+  return env;
+}
+
+export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
+  const {
+    experiment,
+    runName,
+    arm,
+    task,
+    trialN,
+    rootDir,
+    model = 'claude-sonnet-4-6',
+    requireSingleCliCommand = false,
+    agentEnv = {},
+  } = opts;
+  const armConfig = experiment.arms[arm];
+
+  const artifactsRoot = artifactRoot(rootDir, experiment.name, runName);
+  const resultsDir = join(artifactsRoot, 'results', arm, task.id);
+  const transcriptsDir = join(artifactsRoot, 'transcripts', arm, task.id);
+  const persistentOutputDir = join(resultsDir, String(trialN));
+  const fixturesPath = join(rootDir, 'experiments', experiment.name, 'fixtures');
+
+  await mkdir(resultsDir, { recursive: true });
+  await mkdir(transcriptsDir, { recursive: true });
+
+  const trialWorkDir = await mkdtemp(join(tmpdir(), `localremote-${experiment.name}-${arm}-${task.id}-`));
+
+  const runtimeAgentEnv = experiment.buildAgentEnv ? experiment.buildAgentEnv(arm) : {};
+  const seed = mkPairedSeed(experiment.name, runName, task.id, trialN);
+  const state = task.setup ? await task.setup(seed) : null;
+
+  const fixtureServer = await startFixtureServer(
+    fixturesPath,
+    task.renderResponse
+      ? (req, res, body) => task.renderResponse!(state, req, res, body)
+      : undefined,
+  );
+  const ctx: TaskContext = {
+    rootDir,
+    fixturesPath,
+    fixturesUrl: fixtureServer.url,
+    outputDir: trialWorkDir,
+    state,
+  };
+  const timestamp = new Date().toISOString();
+  let prompt = task.prompt(ctx);
+  const taskAgentEnv = task.agentEnv ? task.agentEnv(state) : {};
+  const args = buildClaudeArgs(armConfig, prompt, model, rootDir, 'stream-json');
+  const childEnv = buildChildEnv(armConfig.extraEnv, { ...runtimeAgentEnv, ...taskAgentEnv, ...agentEnv });
+
+  let transcriptLines: string[] = [];
+  let stderrText = '';
+  let cliError: string | undefined;
+  const observedToolStartedAt = new Map<string, number>();
+  const observedToolLatencies: number[] = [];
+
+  const trialTimeoutMs = armConfig.timeoutMs ?? 240_000;
+  const trialStartedAtMs = Date.now();
+
+  try {
+    const child = spawn('claude', args, {
+      cwd: trialWorkDir,
+      env: childEnv,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: process.platform !== 'win32',
+    });
+    let stdoutBuffer = '';
+    let timedOut = false;
+    let killEscalation: NodeJS.Timeout | undefined;
+
+    const killProcessTree = (signal: NodeJS.Signals) => {
+      if (child.pid === undefined) return;
+      try {
+        if (process.platform === 'win32') {
+          child.kill(signal);
+        } else {
+          process.kill(-child.pid, signal);
+        }
+      } catch {
+        // process already gone
+      }
+    };
+
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      killProcessTree('SIGTERM');
+      killEscalation = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) {
+          killProcessTree('SIGKILL');
+        }
+      }, 5_000);
+    }, trialTimeoutMs);
+
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk: string) => {
+      stdoutBuffer += chunk;
+      const lines = stdoutBuffer.split('\n');
+      stdoutBuffer = lines.pop() ?? '';
+      const now = Date.now();
+      for (const line of lines) {
+        transcriptLines.push(line);
+        updateObservedToolLatencies(line, now, observedToolStartedAt, observedToolLatencies);
+      }
+    });
+    child.stderr.on('data', (chunk: string) => {
+      stderrText += chunk;
+    });
+
+    const exit = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve, reject) => {
+      child.on('error', reject);
+      child.on('close', (code, signal) => resolve({ code, signal }));
+    });
+    clearTimeout(timeout);
+    if (killEscalation) clearTimeout(killEscalation);
+
+    if (stdoutBuffer) {
+      transcriptLines.push(stdoutBuffer);
+      updateObservedToolLatencies(stdoutBuffer, Date.now(), observedToolStartedAt, observedToolLatencies);
+    }
+
+    if (timedOut) {
+      cliError = `claude timed out after ${trialTimeoutMs}ms`;
+    } else if (exit.code !== 0) {
+      cliError = stderrText || `claude exited with code ${exit.code ?? `signal ${exit.signal}`}`;
+    }
+  } catch (err) {
+    cliError = err instanceof Error ? err.message : String(err);
+  } finally {
+    await fixtureServer.close().catch(() => undefined);
+  }
+
+  await writeFile(
+    join(transcriptsDir, `${trialN}.jsonl`),
+    transcriptLines.join('\n'),
+    'utf-8',
+  );
+
+  if (stderrText.trim()) {
+    await writeFile(join(transcriptsDir, `${trialN}.stderr.log`), stderrText, 'utf-8');
+  }
+
+  await rm(persistentOutputDir, { recursive: true, force: true });
+  await cp(trialWorkDir, persistentOutputDir, {
+    recursive: true,
+    filter: (src) => !src.includes(`${sep}.claude`),
+  });
+  await rm(trialWorkDir, { recursive: true, force: true });
+
+  const persistentCtx: TaskContext = {
+    ...ctx,
+    outputDir: persistentOutputDir,
+    assistantAuthoredContent: extractAssistantAuthoredContent(transcriptLines),
+  };
+
+  const metrics = parseTranscript(transcriptLines, arm, experiment.classifier);
+  if (stderrText.trim()) {
+    metrics.transportFailures += countTransportFailures(stderrText.split(/\r?\n/));
+  }
+  if (metrics.wallClockMs === 0) {
+    metrics.wallClockMs = Date.now() - trialStartedAtMs;
+  }
+  if (observedToolLatencies.length > 0) {
+    metrics.perToolCallLatencyMs = observedToolLatencies;
+    metrics.coldStartMs = coldStartFromLatencies(observedToolLatencies);
+  }
+
+  let success: SuccessResult;
+  try {
+    success = await task.successCheck(persistentCtx);
+  } catch (err) {
+    success = {
+      pass: false,
+      score: 0,
+      notes: `successCheck threw: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+  if (success.security?.promptInjectionCompliance !== undefined) {
+    metrics.promptInjectionCompliance = success.security.promptInjectionCompliance;
+  }
+
+  if (task.cleanup) {
+    try {
+      await task.cleanup(state);
+    } catch (err) {
+      const note = `cleanup threw: ${err instanceof Error ? err.message : String(err)}`;
+      success.notes = success.notes ? `${success.notes}\n${note}` : note;
+    }
+  }
+
+  const trialResult: TrialResult = {
+    experiment: experiment.name,
+    runName,
+    arm,
+    taskId: task.id,
+    tier: task.tier,
+    trialN,
+    timestamp,
+    seed,
+    metrics,
+    success,
+    ...(cliError ? { error: cliError } : {}),
+  };
+
+  await writeFile(
+    join(resultsDir, `${trialN}.json`),
+    JSON.stringify(trialResult, null, 2),
+    'utf-8',
+  );
+
+  return trialResult;
+}

@@ -1,0 +1,19 @@
+local MCP exited 1. stderr: Error: GITHUB_PERSONAL_ACCESS_TOKEN not set
+Usage:
+  server stdio [flags]
+
+Flags:
+  -h, --help   help for stdio
+
+Global Flags:
+      --content-window-size int          Specify the content window size (default 5000)
+      --dynamic-toolsets                 Enable dynamic toolsets
+      --enable-command-logging           When enabled, the server will log all command requests and responses to the log file
+      --exclude-tools strings            Comma-separated list of tool names to disable regardless of other settings
+      --export-translations              Save translations to a JSON file
+      --features strings                 Comma-separated list of feature flags to enable
+      --gh-host string                   Specify the GitHub hostname (for GitHub Enterprise etc.)
+      --insiders                         Enable insiders features
+      --lockdown-mode                    Enable lockdown mode
+      --log-file string                  Path to log file
+      --read-only

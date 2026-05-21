@@ -1,0 +1,2 @@
+remote HTTP 401 (Bearer error="invalid_request", error_description="No access token was provided in this request", resource_metadata="https://api.githubcopilot.com/.well-known/oauth-protected-resource/mcp/"): bad request: missing required Authorization header
+

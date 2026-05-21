@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-05-19T21:35:39.792Z",
+  "envHasGitHubToken": true,
+  "autoTokenAvailable": true,
+  "ghAuthStatus": {
+    "ok": false,
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "github.com\n  X Failed to log in to github.com account chief-builder (default)\n  - Active account: true\n  - The token in default is invalid.\n  - To re-authenticate, run: gh auth login -h github.com\n  - To forget about this account, run: gh auth logout -h github.com -u chief-builder\n"
+  },
+  "claudeMcpList": {
+    "ok": true,
+    "exitCode": 0,
+    "stdout": "No MCP servers configured. Use `claude mcp add` to add a server.\n",
+    "stderr": ""
+  },
+  "remoteProtectedResourceMetadata": {
+    "ok": false,
+    "error": "fetch failed"
+  },
+  "nextSteps": [
+    "Set GITHUB_PERSONAL_ACCESS_TOKEN in .env or repair gh auth login.",
+    "Then run npm run probe:tools -- --arm local and npm run probe:tools -- --arm remote.",
+    "If using Claude Code OAuth, configure github-remote and capture artifacts/spike/auth/remote-smoke.json."
+  ]
+}

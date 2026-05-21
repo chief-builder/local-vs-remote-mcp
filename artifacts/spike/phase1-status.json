@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-05-21T01:08:54.847Z",
+  "pass": true,
+  "gates": [
+    {
+      "id": "gate1",
+      "name": "tools/list local+remote overlap computed",
+      "pass": true,
+      "evidence": [
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/local.error.txt",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.error.txt",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/local.json",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.json",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/overlap.json",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/overlap.md"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "gate2",
+      "name": "non-interactive remote auth smoke",
+      "pass": true,
+      "evidence": [
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.error.txt",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.json",
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/auth/remote-smoke.json"
+      ],
+      "blockers": []
+    },
+    {
+      "id": "gate3",
+      "name": "local-stdio env scrub probe",
+      "pass": true,
+      "evidence": [
+        "/Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/env-scrub/local-stdio-env.json"
+      ],
+      "blockers": []
+    }
+  ]
+}

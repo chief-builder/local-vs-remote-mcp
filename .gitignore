@@ -1,0 +1,22 @@
+node_modules/
+harness/dist/
+
+# Local secrets and OAuth/session material
+.env
+.env.*
+!.env.example
+.claude/
+*.log
+*.stderr.log
+
+# Trial outputs can contain transcripts. Commit only curated, scanned summaries.
+experiments/**/runs/
+artifacts/**/*.jsonl
+
+# MCP / browser session workdirs
+.playwright-cli/
+.playwright-mcp/
+
+# macOS noise
+.DS_Store
+
