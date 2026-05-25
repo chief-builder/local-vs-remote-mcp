@@ -126,7 +126,9 @@ let verifyArmsOk = false;
 let verifyArmsFresh = false;
 try {
   const verifyArms = await readJson(verifyArmsPath);
-  const verifyArmsGeneratedAt = Date.parse(String(verifyArms.generatedAt ?? ''));
+  // Freshness uses the artifact file's mtime, not its self-reported
+  // `generatedAt` field, so a hand-edited timestamp can't pass the gate.
+  const verifyArmsMtimeMs = await newestMtimeMs(verifyArmsPath);
   const newestVerifyArmsDependency = Math.max(
     await newestMtimeMs(join(root, 'harness', 'src', 'cli.ts')),
     await newestMtimeMs(join(root, 'harness', 'src', 'runner.ts')),
@@ -135,8 +137,8 @@ try {
     await newestMtimeMs(join(root, '.mcp.github.remote.json')),
     await newestMtimeMs(overlapPath),
   );
-  verifyArmsFresh = Number.isFinite(verifyArmsGeneratedAt)
-    && verifyArmsGeneratedAt + 1000 >= newestVerifyArmsDependency;
+  verifyArmsFresh = verifyArmsMtimeMs > 0
+    && verifyArmsMtimeMs + 1000 >= newestVerifyArmsDependency;
   verifyArmsOk = claudeAuthOk
     && verifyArmsFresh
     && verifyArms.pass === true

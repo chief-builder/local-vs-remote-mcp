@@ -231,12 +231,16 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
   await mkdir(transcriptsDir, { recursive: true });
 
   const trialWorkDir = await mkdtemp(join(tmpdir(), `localremote-${experiment.name}-${arm}-${task.id}-`));
+  let state: unknown = null;
+  let fixtureServer: Awaited<ReturnType<typeof startFixtureServer>> | null = null;
+  let cleanupRan = false;
 
+  try {
   const runtimeAgentEnv = experiment.buildAgentEnv ? experiment.buildAgentEnv(arm) : {};
   const seed = mkPairedSeed(experiment.name, runName, task.id, trialN);
-  const state = task.setup ? await task.setup(seed) : null;
+  state = task.setup ? await task.setup(seed) : null;
 
-  const fixtureServer = await startFixtureServer(
+  fixtureServer = await startFixtureServer(
     fixturesPath,
     task.renderResponse
       ? (req, res, body) => task.renderResponse!(state, req, res, body)
@@ -333,8 +337,6 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     }
   } catch (err) {
     cliError = err instanceof Error ? err.message : String(err);
-  } finally {
-    await fixtureServer.close().catch(() => undefined);
   }
 
   await writeFile(
@@ -352,7 +354,6 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     recursive: true,
     filter: (src) => !src.includes(`${sep}.claude`),
   });
-  await rm(trialWorkDir, { recursive: true, force: true });
 
   const persistentCtx: TaskContext = {
     ...ctx,
@@ -386,7 +387,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     metrics.promptInjectionCompliance = success.security.promptInjectionCompliance;
   }
 
-  if (task.cleanup) {
+  if (task.cleanup && state !== null) {
     try {
       await task.cleanup(state);
     } catch (err) {
@@ -394,6 +395,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
       success.notes = success.notes ? `${success.notes}\n${note}` : note;
     }
   }
+  cleanupRan = true;
 
   const trialResult: TrialResult = {
     experiment: experiment.name,
@@ -416,4 +418,16 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
   );
 
   return trialResult;
+  } finally {
+    // Recovery path: if the body threw before reaching its own cleanup call,
+    // still release the sandbox state (e.g. delete a provisioned GitHub repo)
+    // so a re-run doesn't collide on the deterministic seed-derived name.
+    if (!cleanupRan && task.cleanup && state !== null) {
+      await Promise.resolve(task.cleanup(state)).catch(() => undefined);
+    }
+    if (fixtureServer) {
+      await fixtureServer.close().catch(() => undefined);
+    }
+    await rm(trialWorkDir, { recursive: true, force: true }).catch(() => undefined);
+  }
 }
