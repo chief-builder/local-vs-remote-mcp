@@ -168,7 +168,7 @@ program
 
     if (experiment.preflight) {
       try {
-        await experiment.preflight();
+        await experiment.preflight([arm]);
       } catch (err) {
         console.error('Preflight failed:', err instanceof Error ? err.message : String(err));
         process.exit(1);

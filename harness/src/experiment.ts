@@ -40,10 +40,12 @@ export interface ExperimentSpec {
   classifier: ExperimentClassifier;
   /**
    * Optional pre-flight check run once before the first trial of a given run.
-   * Use it to assert credentials, container images, or external services are
-   * reachable. Throwing aborts the run.
+   * Receives the arms that will actually be exercised in this invocation so
+   * an experiment can skip checks for arms it isn't running (e.g., not
+   * requiring a remote service to be up when only the local arm is targeted).
+   * Throwing aborts the run.
    */
-  preflight?: () => Promise<void>;
+  preflight?: (arms: Arm[]) => Promise<void>;
   /**
    * Loaded lazily by the runner — keeps the experiment registry decoupled
    * from per-experiment task definitions.

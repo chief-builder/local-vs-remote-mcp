@@ -1,10 +1,12 @@
 import { githubExperiment } from './github.js';
+import { playwrightExperiment } from './playwright.js';
 import type { ExperimentSpec } from '../experiment.js';
 
-export type ExperimentName = 'github';
+export type ExperimentName = 'github' | 'playwright';
 
 export const experiments: Record<ExperimentName, ExperimentSpec> = {
   github: githubExperiment,
+  playwright: playwrightExperiment,
 };
 
 export function getExperiment(name: string): ExperimentSpec {
