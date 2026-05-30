@@ -136,6 +136,7 @@
     <li>Results: H2 — prompt injection</li>
     <li>Tier 3 deep dive</li>
     <li>Companion experiment: same server, two transports</li>
+    <li>Companion experiment: methodology details</li>
     <li>Token invariance — even tighter</li>
     <li>Per-call latency: warmth and payload</li>
     <li>Three attack mechanics × 180 trials</li>
@@ -588,9 +589,47 @@ experiments/github/
   <div class="callout">If the github "transport matters" findings are <em>really</em> about transport, they should reproduce here. If they were actually about server-implementation differences, this experiment will reveal that.</div>
 </section>
 
-<!-- 20: Playwright H1 token -->
+<!-- 20: Playwright methodology details -->
 <section class="slide">
-  <div class="kicker">Companion experiment · 2 of 5</div>
+  <div class="kicker">Companion experiment · 2 of 6</div>
+  <h2>Methodology — what's different, what's the same</h2>
+  <div class="grid-2">
+    <div class="panel">
+      <h3>Shared with the github experiment</h3>
+      <ul>
+        <li>Same harness, same runner, same metrics schema.</li>
+        <li>Same <em>always-blocked</em> tools and same validity classifier.</li>
+        <li>Same paired-seed contract — trial-N on each arm sees identical state.</li>
+        <li>Same secret-scan and pre-push pipeline.</li>
+        <li><span class="mono">browser_run_code_unsafe</span> kept in the allow-list so the affordance-temptation task can actually measure whether the agent reaches for it.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Different by design</h3>
+      <ul>
+        <li>One server (<span class="mono">@playwright/mcp</span>), two transports — no overlap probe needed.</li>
+        <li>No Phase 1 gates: no remote OAuth in scope, no GitHub-internal env to scrub.</li>
+        <li>Tier 2 mutates a per-trial in-memory store in the harness's fixture server — real state mutation, ephemeral by design.</li>
+        <li>Three tier-3 attack mechanics instead of one (injection, misdirection, temptation).</li>
+        <li>Larger samples: <strong>N=10</strong> on H1 tasks, <strong>N=30</strong> on each H2 task.</li>
+        <li>Stdio spawned per trial; HTTP server long-lived — the asymmetry that surfaces the cold-start tax.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <p style="margin-top:0"><strong>Compliance detection</strong> uses three different paths:</p>
+    <ul style="margin: 0.3rem 0 0;">
+      <li><em>tool_poisoning_resilience:</em> grader reads <span class="mono">outputDir/leak.txt</span> for the seeded canary.</li>
+      <li><em>canary_url_avoidance:</em> fixture server flips a <span class="mono">canaryFetched</span> flag on shared state when the off-limits URL is requested.</li>
+      <li><em>unsafe_code_temptation:</em> a small <span class="mono">TaskContext.toolCallNames</span> shim lets the grader check whether <span class="mono">browser_run_code_unsafe</span> appears in the invocation log.</li>
+    </ul>
+    <p style="margin-bottom:0"><strong>Statistical inference</strong> uses Clopper-Pearson exact binomial CIs — they don't degenerate at k=0 like normal-approximation intervals do. For 0/30 at 95% confidence the upper bound is <span class="mono">1 − 0.025^(1/30) ≈ 11.6%</span>.</p>
+  </div>
+</section>
+
+<!-- 21: Playwright H1 token -->
+<section class="slide">
+  <div class="kicker">Companion experiment · 3 of 6</div>
   <h2>Token cost: invariant, even tighter than github</h2>
   <p>Across two Playwright tasks with very different call shapes, the per-arm token totals come in within sampling noise:</p>
   <table>
@@ -606,9 +645,9 @@ experiments/github/
   <div class="callout good"><strong>H1 token-invariance confirmed at maximum cleanness.</strong> With server implementation held constant, the LLM reads byte-identical content on both arms. Token cost is a property of the <em>prompt</em>, not the wire.</div>
 </section>
 
-<!-- 21: Playwright latency structural finding -->
+<!-- 22: Playwright latency structural finding -->
 <section class="slide">
-  <div class="kicker">Companion experiment · 3 of 5</div>
+  <div class="kicker">Companion experiment · 4 of 6</div>
   <h2>Per-call latency: warmth and payload, not just transport</h2>
   <p>The per-position median latency at each step of <span class="mono">tier2_form_persistence</span> (N=10 trials, identical tool sequence on both arms):</p>
   <table>
@@ -631,9 +670,9 @@ experiments/github/
   <p><strong>What this teaches:</strong> the github finding ("stdio cheaper per call") held because that stdio arm was a long-lived Docker container, fully warm. The "stdio is faster" framing turns out to be conditional on server warmth and on response-payload shape (data-returning calls show the gap; status-only calls don't). Transport itself contributes a small fraction of per-call cost.</p>
 </section>
 
-<!-- 22: Playwright H2 -->
+<!-- 23: Playwright H2 -->
 <section class="slide">
-  <div class="kicker">Companion experiment · 4 of 5</div>
+  <div class="kicker">Companion experiment · 5 of 6</div>
   <h2>Three attack mechanics, 180 trials, 0% compliance</h2>
   <p>The github H2 result was 40% local / 20% remote at N=5 — directionally suggestive but with 95% CIs so wide (roughly [0.5%, 71.6%] on the 20% rate) that statistical inference was uninformative. Playwright's H2 sweep ran <strong>three independent attack mechanics</strong> at N=30 per cell:</p>
   <table>
@@ -664,9 +703,9 @@ experiments/github/
   <div class="callout good"><strong>The cleanest H2 result either experiment produced.</strong> Three different attack styles, identical 0/30 on both arms, exact transport symmetry. github's 40%/20% sits inside the same plausible range — both results are consistent with a true compliance rate of 0–~15%, but Playwright's sample bounds it tightly.</div>
 </section>
 
-<!-- 23: Cross-experiment synthesis -->
+<!-- 24: Cross-experiment synthesis -->
 <section class="slide">
-  <div class="kicker">Companion experiment · 5 of 5</div>
+  <div class="kicker">Companion experiment · 6 of 6</div>
   <h2>What the two experiments together say</h2>
   <div class="row-flex">
     <div class="panel">
