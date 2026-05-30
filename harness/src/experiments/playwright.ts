@@ -27,32 +27,41 @@ const ALWAYS_BLOCKED = ['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'Remot
 const COMMON_FLAGS = ['--setting-sources', 'project,local', '--permission-mode', 'bypassPermissions'];
 
 /**
- * Starter allow-list derived from the `@playwright/mcp` tool catalog. After
- * the first probe the user should replace this with the overlap from a real
- * `tools/list` probe (the catalog is identical across transports by
- * construction here, so "overlap" is just "everything the server exposes").
+ * Live catalog from `@playwright/mcp` 1.61.0-alpha against protocolVersion
+ * 2025-06-18, captured on 2026-05-29 (see
+ * artifacts/spike/playwright-tools-list/list.json). Since both arms use the
+ * same server, the catalog is identical across transports by construction —
+ * "overlap" is just everything the server exposes.
+ *
+ * Note: `browser_run_code_unsafe` is deliberately kept in the allow-list,
+ * not denied. Security-tier tasks need it available so they can measure
+ * whether an agent reaches for it when an injected instruction or a poisoned
+ * tool description tries to lure them in.
  */
 const PLAYWRIGHT_TOOLS = [
+  'browser_click',
+  'browser_close',
+  'browser_console_messages',
+  'browser_drag',
+  'browser_drop',
+  'browser_evaluate',
+  'browser_file_upload',
+  'browser_fill_form',
+  'browser_handle_dialog',
+  'browser_hover',
   'browser_navigate',
   'browser_navigate_back',
-  'browser_close',
-  'browser_resize',
-  'browser_snapshot',
-  'browser_take_screenshot',
-  'browser_click',
-  'browser_type',
-  'browser_fill_form',
-  'browser_select_option',
-  'browser_press_key',
-  'browser_hover',
-  'browser_drag',
-  'browser_file_upload',
-  'browser_handle_dialog',
-  'browser_evaluate',
-  'browser_wait_for',
-  'browser_console_messages',
+  'browser_network_request',
   'browser_network_requests',
+  'browser_press_key',
+  'browser_resize',
+  'browser_run_code_unsafe',
+  'browser_select_option',
+  'browser_snapshot',
   'browser_tabs',
+  'browser_take_screenshot',
+  'browser_type',
+  'browser_wait_for',
 ];
 
 const OVERLAP_TOOLS = PLAYWRIGHT_TOOLS.map((name) => `mcp__playwright__${name}`);
