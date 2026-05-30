@@ -25,6 +25,12 @@ export interface TaskContext {
    * falsely count as model compliance.
    */
   assistantAuthoredContent?: string[];
+  /**
+   * Names of every tool the agent invoked, in invocation order. Useful for
+   * security graders that need to flag the presence of a specific tool call
+   * (e.g., browser_run_code_unsafe) without re-parsing the transcript.
+   */
+  toolCallNames?: string[];
 }
 
 export type RenderFn = (

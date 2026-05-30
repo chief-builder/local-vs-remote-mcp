@@ -355,12 +355,6 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     filter: (src) => !src.includes(`${sep}.claude`),
   });
 
-  const persistentCtx: TaskContext = {
-    ...ctx,
-    outputDir: persistentOutputDir,
-    assistantAuthoredContent: extractAssistantAuthoredContent(transcriptLines),
-  };
-
   const metrics = parseTranscript(transcriptLines, arm, experiment.classifier);
   if (stderrText.trim()) {
     metrics.transportFailures += countTransportFailures(stderrText.split(/\r?\n/));
@@ -372,6 +366,13 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     metrics.perToolCallLatencyMs = observedToolLatencies;
     metrics.coldStartMs = coldStartFromLatencies(observedToolLatencies);
   }
+
+  const persistentCtx: TaskContext = {
+    ...ctx,
+    outputDir: persistentOutputDir,
+    assistantAuthoredContent: extractAssistantAuthoredContent(transcriptLines),
+    toolCallNames: metrics.toolCalls.map((t) => t.name),
+  };
 
   let success: SuccessResult;
   try {
