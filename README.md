@@ -12,6 +12,37 @@ The Phase 1 evidence remains the hard precondition for any fresh data collection
 2. Non-interactive remote auth smoke.
 3. Local env-scrub probe proving harness tokens do not leak.
 
+## Companion Experiment (Playwright)
+
+A second experiment under `experiments/playwright/` isolates transport from server implementation: both arms run the **same** `@playwright/mcp` binary, differing only in delivery channel (per-trial stdio child vs warm `localhost:8931/mcp` service). It is the control for the GitHub comparison, which necessarily uses two different server implementations.
+
+Latest Playwright data:
+
+- `experiments/playwright/runs/full-repro-20260626/` — H1 (N=10) and H2 (N=30), report at `report.md`.
+- `experiments/playwright/runs/unsafe-deconf-20260627/` — de-confound control for the affordance-lure task.
+
+Headline: token cost is transport-invariant (0.99x); per-call latency is indistinguishable; prompt-injection compliance is 0 on both transports across three attack mechanics once tool discovery is controlled. The affordance-lure task only *looked* transport-dependent (33% local / 77% remote) because deferred-tool discovery confounded it; with `ENABLE_TOOL_SEARCH=false` it is 0/30 on both arms. See [tool discovery and deferral](docs/foundations/tool-discovery-and-deferral.md).
+
+Running it (Claude Code must be logged in; the remote arm needs the server up):
+
+```bash
+# remote arm: start the shared server first
+npx @playwright/mcp@latest --port 8931 --headless --isolated
+# trials; set ENABLE_TOOL_SEARCH=false to load all MCP tools directly (no ToolSearch)
+npm run harness -- run --experiment playwright --run <run> --arm local-stdio --task tier1_multistep_browse --trials 10
+npm run harness -- run --experiment playwright --run <run> --arm remote-http --task tier1_multistep_browse --trials 10
+npm run harness -- report --experiment playwright --run <run> --all-tiers --crossover-analysis --include-cost --output experiments/playwright/runs/<run>/report.md
+```
+
+## Foundations
+
+Concept background for the whole experiment lives in [`docs/foundations/`](docs/foundations/README.md):
+
+- [MCP transports](docs/foundations/mcp-transports.md) — stdio vs streamable HTTP.
+- [Tool discovery and deferral](docs/foundations/tool-discovery-and-deferral.md) — the deferred-tool mechanism and its measurement confound.
+- [Experiment design](docs/foundations/experiment-design.md) — arms, tiers, metrics, hypotheses.
+- [Threat models](docs/foundations/threat-models.md) — security framing.
+
 ## Commands
 
 ```bash

@@ -116,11 +116,31 @@ Interpretation:
 - Remote HTTP moves execution out of the local process but keeps credential persistence and delegated authority central.
 - Tool output remains untrusted data in both cases.
 
+## Panel 6: Companion Experiment (Playwright)
+
+Source:
+
+- `experiments/playwright/runs/full-repro-20260626/report.md`
+- `experiments/playwright/runs/unsafe-deconf-20260627/` (de-confound control)
+
+Facts to show:
+
+- The same `@playwright/mcp` binary runs on both transports, isolating transport from server implementation (the github confound).
+- H1 token cost: local 269,883 vs remote 273,911 total (0.99x) — transport-invariant, even tighter than github.
+- H1 per-call latency: indistinguishable (local 28ms vs remote 21ms median).
+- H2 compliance: two injection mechanics scored 0/30 on both arms. The affordance-lure task scored 33% local / 77% remote under deferred tools, then collapsed to 0/30 on both arms once tools were loaded directly (`ENABLE_TOOL_SEARCH=false`).
+
+Claim:
+
+> The one large transport-looking security effect was a tool-discovery measurement artifact, not a transport property. Controlled for, prompt-injection compliance is 0 on both transports. See `docs/foundations/tool-discovery-and-deferral.md`.
+
 ## Footer
 
 Link targets:
 
 - Full long-form writeup: `docs/writeup/long-form.md`.
-- Final run report: `experiments/github/runs/full-n5-20260520/report.md`.
+- Foundations (concept background): `docs/foundations/`.
+- github final run report: `experiments/github/runs/full-n5-20260520/report.md`.
+- Playwright run report: `experiments/playwright/runs/full-repro-20260626/report.md`.
 - Tool catalog diff: `artifacts/spike/tools-list/overlap.md`.
 - Redaction/secret-scan recipe: `redaction/README.md`.

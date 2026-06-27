@@ -8,6 +8,13 @@ Artifacts:
 - `long-form.md` - full methodology, results, caveats, and security framing.
 - `evidence-matrix.md` - requirement-by-requirement evidence checklist.
 
+Companion experiment (Playwright) data, summarized in `long-form.md`:
+
+- `experiments/playwright/runs/full-repro-20260626/report.md` (H1 N=10, H2 N=30)
+- `experiments/playwright/runs/unsafe-deconf-20260627/` (de-confound control)
+
+Concept background for both experiments lives in `../foundations/`.
+
 Do not promote smoke-run numbers to headline claims. Smoke reports prove the harness works; final claims require a fresh full N=5 run and report.
 
 Final data inputs:
