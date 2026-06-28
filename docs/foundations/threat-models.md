@@ -26,15 +26,18 @@ The server runs as the user. Its trust boundary is the user's trust boundary.
 The server runs on provider infrastructure. The blast radius moves to auth and
 the backend.
 
-- **OAuth confused-deputy.** If a remote proxy uses a static client ID and allows
-  dynamic registration, an attacker can trick a user into an OAuth flow and
-  exchange the code for tokens against the third-party API as the victim. OAuth
-  2.1 with per-client consent is the mitigation; many servers do not implement it
-  cleanly.
+- **OAuth confused-deputy.** A misconfigured remote proxy (e.g. a static client ID
+  with open dynamic registration) can be tricked into handing an attacker tokens
+  that act on the victim's behalf against the real API — the victim only has to
+  click one malicious login flow. OAuth 2.1 with per-client consent is the fix
+  ([MCP security best practices — Confused Deputy](https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices#confused-deputy-problem));
+  many servers do not implement it cleanly.
 - **Persistent credential compromise.** Long-lived refresh tokens sit in the OS
   keychain; exfiltration grants indefinite, consent-scoped access.
 - **Over-broad scopes.** A token scoped wider than the task needs is latent
-  authority an attacker (or a confused agent) can use.
+  authority an attacker (or a confused agent) can use. Prevent with
+  least-privilege, progressive scopes
+  ([MCP scope minimization](https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices#scope-minimization)).
 - **Multi-tenant blast radius.** One CVE in a hosted server hits every consumer;
   cross-tenant leakage is a documented pattern.
 - **Data residency.** Every tool call ships conversation context to a third party.
@@ -46,9 +49,11 @@ These depend only on what the model reads, so they are transport-agnostic
 
 - **Tool poisoning.** Hidden instructions in tool *descriptions* or returned
   data. The model treats tool results as trusted unless prompted otherwise. A
-  poisoned tool only has to be poisoned once to affect every session.
+  poisoned tool only has to be poisoned once to affect every session
+  ([OWASP: MCP Tool Poisoning](https://owasp.org/www-community/attacks/MCP_Tool_Poisoning)).
 - **Indirect prompt injection.** The same shape, delivered through third-party
-  content a tool fetches.
+  content a tool fetches
+  ([Willison: MCP prompt-injection problems](https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/)).
 - **Affordance lures.** No instruction to obey — the content simply makes a
   powerful/"unsafe" tool available and recommends it, tempting the agent to use it
   on its own (temptation by availability, not by command). (Our
@@ -71,4 +76,12 @@ and stored credentials on remote.
 - The asymmetry is not about transport; it is about **trust origin × blast
   radius.** stdio amplifies trust failures locally; HTTP shifts the failure
   surface to OAuth and the provider.
+
+## Further reading
+
+- [MCP security best practices](https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices)
+  — confused deputy, scope minimization, token passthrough, SSRF, and local
+  server compromise, each with concrete mitigations.
+- [OWASP: MCP Tool Poisoning](https://owasp.org/www-community/attacks/MCP_Tool_Poisoning).
+- [Simon Willison: MCP has prompt-injection security problems](https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/).
 </content>

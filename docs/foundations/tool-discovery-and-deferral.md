@@ -15,7 +15,9 @@ in one of two modes:
   tool and must query it to load a tool's schema before calling that tool. This
   saves context on large catalogs, at the cost of an extra discovery step.
 
-The mode is set by the `ENABLE_TOOL_SEARCH` environment variable (Claude Code ≥ 2.1):
+The mode is set by the `ENABLE_TOOL_SEARCH` environment variable — see
+[Claude Code: Scale with MCP tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)
+(Claude Code ≥ 2.1):
 
 | Value | Behavior |
 |---|---|

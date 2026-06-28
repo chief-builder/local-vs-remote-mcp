@@ -1,7 +1,8 @@
 # MCP Transports: stdio vs streamable HTTP
 
-The Model Context Protocol (MCP) lets an agent (here, the Claude Code CLI) call
-tools hosted by an external **server**. The protocol defines the messages; the
+The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction)
+lets an agent (here, the Claude Code CLI) call tools hosted by an external
+**server**. The protocol defines the messages; the
 **transport** defines how those messages travel between the agent and the
 server. This experiment compares the two transports that matter in 2026.
 
@@ -48,22 +49,24 @@ After a message is delivered, the model sees the **same bytes** either way:
 - The same tool **descriptions** (the server's advertised schema).
 - The same tool **results** (whatever the tool returned).
 
-So anything that depends only on what the model reads — token cost, and
-susceptibility to instructions hidden in tool descriptions or results — is
-expected to be transport-invariant. Anything that depends on *how* the bytes
-arrive — latency, connection reliability, where credentials live, whether data
-leaves the machine — can differ. The two experiment hypotheses
+So anything that depends only on what the model reads should be the same on both
+transports: token cost, and how easily the model is fooled by instructions hidden
+in tool descriptions or results. Anything that depends on *how* the bytes arrive
+can differ: latency, connection reliability, where credentials live, whether data
+leaves the machine. The two hypotheses
 ([experiment design](./experiment-design.md)) split exactly along this line.
 
 ## How the two experiments use transports
 
 - **GitHub** compares two *different server implementations* (a digest-pinned
-  Docker image over stdio vs GitHub's hosted endpoint over HTTP). That is the
+  [github/github-mcp-server](https://github.com/github/github-mcp-server) Docker
+  image over stdio vs GitHub's hosted endpoint over HTTP). That is the
   realistic deployment choice, but it confounds transport with server build,
   network path, and vendor infrastructure.
-- **Playwright** compares the *same* `@playwright/mcp` binary over both
-  transports, isolating transport from server implementation. It is the control
-  for the GitHub comparison.
+- **Playwright** compares the *same*
+  [`@playwright/mcp`](https://www.npmjs.com/package/@playwright/mcp) binary over
+  both transports, isolating transport from server implementation. It is the
+  control for the GitHub comparison.
 
 See [threat models](./threat-models.md) for the security consequences of each
 transport, and [experiment design](./experiment-design.md) for how the arms are

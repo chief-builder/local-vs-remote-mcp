@@ -7,11 +7,13 @@ How the harness turns a hypothesis into trial data.
 The shared runner lives in `harness/src/`; each experiment supplies its own arms,
 tasks, and fixtures.
 
-- **`github`** (primary) — realistic transport choice: a digest-pinned GitHub MCP
-  Docker image over stdio vs GitHub's hosted endpoint over streamable HTTP. It
+- **`github`** (primary) — realistic transport choice: a digest-pinned
+  [github/github-mcp-server](https://github.com/github/github-mcp-server) Docker
+  image over stdio vs GitHub's hosted endpoint over streamable HTTP. It
   answers "what does the deployment I would actually pick cost me?" but confounds
   transport with server implementation, network path, and vendor backend.
-- **`playwright`** (companion / control) — the *same* `@playwright/mcp` binary
+- **`playwright`** (companion / control) — the *same*
+  [`@playwright/mcp`](https://www.npmjs.com/package/@playwright/mcp) binary
   over both transports, isolating transport from server implementation. It exists
   to check whether the GitHub effects are about the wire or about the servers.
 

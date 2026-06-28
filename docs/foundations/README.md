@@ -23,4 +23,12 @@ The findings these support:
 - Visual brief: [`../writeup/visual-brief.md`](../writeup/visual-brief.md)
 - Long-form writeup: [`../writeup/long-form.md`](../writeup/long-form.md)
 - Slide deck: [`../presentation.html`](../presentation.html)
+
+## Key external references
+
+- [Claude Code: Scale with MCP tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)
+  — the `ENABLE_TOOL_SEARCH` / deferred-tool mechanism.
+- [MCP security best practices](https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices)
+  — confused deputy, scope minimization, and more, with mitigations.
+- [Model Context Protocol](https://modelcontextprotocol.io/introduction) — the protocol itself.
 </content>
