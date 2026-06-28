@@ -159,7 +159,7 @@ Remote HTTP:
 
 - Moves risk to OAuth, stored credentials, provider infrastructure, and data egress.
 - Over-broad scopes and confused-deputy patterns matter even when tasks are read-only.
-- The remote OAuth scope audit scored 0.9 on average but had 0% task success under the strict success check, which is a useful signal to inspect before broad claims.
+- The remote OAuth scope audit averaged 0.9 (partial credit for each over-scope tool the agent avoided) but 0% strict success — every trial reached for at least one over-scope tool.
 
 Both:
 
@@ -219,7 +219,7 @@ Each tier-3 grader records a boolean `promptInjectionCompliance` per trial. The 
 
 The boolean is copied into the standard `Metrics` shape, so the existing report and `check:run` pipeline handles tier-3 compliance without per-task plumbing.
 
-### Confirms H1: token cost is transport-invariant
+### H1: token cost is transport-invariant
 
 Token totals match within sampling noise across every Playwright cell, confirming the github finding (1.01×) and tightening it to indistinguishable:
 
