@@ -1,10 +1,10 @@
 # Local vs Remote MCP
 
-Research harness for comparing GitHub MCP over local stdio vs remote streamable HTTP. The experiment follows `cli-vs-mcp`'s shared-harness shape, but the first committed work is the spike and safety baseline.
+Research harness comparing GitHub MCP over local stdio vs remote streamable HTTP, with a Playwright companion experiment that isolates transport from server implementation. Built on the `cli-vs-mcp` shared-harness shape.
 
 ## Current Phase
 
-Phase 1 gates pass, the shared harness is implemented, and the current final-run candidate is `full-n5-20260520`. The N=5 result matrix, final report, run-artifact secret scan, visual brief, and long-form writeup now pass the completion audit; final completion is blocked by the local Claude Code CLI being logged out, which prevents current live `verify-arms` refresh.
+Phase 1 gates pass, the shared harness is implemented, and the final-run candidate is `full-n5-20260520`. The N=5 result matrix, final report, run-artifact secret scan, visual brief, and long-form writeup pass the completion audit. The remaining step before publishing a regenerated report is a fresh live `verify-arms` refresh under current Claude Code auth.
 
 The Phase 1 evidence remains the hard precondition for any fresh data collection:
 
@@ -54,27 +54,7 @@ npm run probe:env-scrub
 npm run phase1:status
 npm run check:arms
 npm run check:claude-auth
-npm run check:static
-npm run check:scripts
-npm run check:hooks
-npm run check:metrics
-npm run check:report-generation
-npm run check:completion-audit-coverage
-npm run check:evidence-matrix
-npm run check:docs-runbook
-npm run check:phase1-freshness
-npm run check:performance-smoke-audit
-npm run check:result-invariants
-npm run check:run-audit
-npm run check:run-final-plan
-npm run check:run-final-resume
-npm run check:run-matrix
-npm run check:artifact-sanitization
-npm run check:secret-patterns
-npm run check:security-framing
-npm run check:harness-shape
-npm run check:provider-config
-npm run check:whitespace
+npm run check:static          # full non-live gate set; see package.json for the individual check:* scripts it runs
 npm run check:completion -- --run <final-run> --trials 5
 npm run plan:run -- --run <final-run> --trials 5
 npm run run:final -- --run <final-run> --trials 5 --dry-run
@@ -98,7 +78,7 @@ By default, `probe:tools` uses `--auth-source auto`: `.env` token first, then `g
 `check:arms` verifies that the baseline exposes zero GitHub MCP tools, both MCP transports expose exactly the overlap allow-list, non-overlap tools are disallowed, configured timeouts match the run policy, and the default task export excludes the workflow coverage-gap task.
 `check:claude-auth` verifies the local Claude Code CLI login needed by `verify-arms` and live trials.
 `check:static` runs the non-live gate set: Phase 1 strict status, arm policy, TypeScript, metric parser regression, report-generation regression, completion report/writeup freshness regressions, completion-audit coverage, evidence-matrix audit, docs/runbook audit, Phase 1 freshness regression, performance-smoke audit regression, final-run artifact regressions, full-plan/resume driver regressions, run-matrix audit, static-gate coverage audit, artifact sanitization, secret-pattern drift, security-framing drift, shared-harness shape drift, provider-config drift, script syntax, hook installation, secret scan, and an explicit whitespace/conflict-marker scan over tracked and untracked files.
-`check:completion` is expected to pass only after current Claude Code auth, live `verify-arms`, Phase 2 smoke evidence, the full final run, final report, run-artifact secret scan, and final writeups all pass. For `full-n5-20260520`, the remaining expected failures are current Claude Code auth and live `verify-arms` freshness.
+`check:completion` is expected to pass only after current Claude Code auth, live `verify-arms`, Phase 2 smoke evidence, the full final run, final report, run-artifact secret scan, and final writeups all pass. For `full-n5-20260520`, the remaining expected gap is a fresh live `verify-arms` refresh under current Claude Code auth.
 `plan:run` prints the arm/task/tier matrix and exact final-run commands from task metadata.
 `run:final` executes the static preflight, Phase 2 latency smoke, metadata-derived final run, report, run check, artifact secret scan, and completion audit; use `--dry-run` first and `--resume` after interruptions to run only smoke/final cells missing complete current evidence.
 If live execution stops at Claude Code auth, run `claude auth login` in a terminal or `/login` in Claude Code, then resume with `npm run run:final -- --run <final-run> --trials 5 --resume`.
