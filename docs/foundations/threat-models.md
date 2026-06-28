@@ -49,9 +49,11 @@ These depend only on what the model reads, so they are transport-agnostic
   poisoned tool only has to be poisoned once to affect every session.
 - **Indirect prompt injection.** The same shape, delivered through third-party
   content a tool fetches.
-- **Affordance lures.** Content that endorses using a powerful/"unsafe" tool,
-  with no explicit instruction. (Our `tier3_unsafe_code_temptation` task — and
-  the [measurement caveat](./tool-discovery-and-deferral.md) that comes with it.)
+- **Affordance lures.** No instruction to obey — the content simply makes a
+  powerful/"unsafe" tool available and recommends it, tempting the agent to use it
+  on its own (temptation by availability, not by command). (Our
+  `tier3_unsafe_code_temptation` task — and the
+  [measurement caveat](./tool-discovery-and-deferral.md) that comes with it.)
 - **Schema drift.** A server can change tool behavior after the user approved it.
 
 H2 predicts these protocol-level attacks hit both arms equally. The experiments
