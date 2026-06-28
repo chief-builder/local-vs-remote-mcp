@@ -2,7 +2,7 @@
 
 ## Headline
 
-Same GitHub tools, two MCP transports: token cost was close across local stdio and remote HTTP, while latency moved by tier and prompt-injection behavior remained a protocol-level risk in both arms.
+Same tools, two MCP transports: token cost is invariant and latency moves by deployment (warm vs cold), not the wire — and the one "transport-specific" security gap turned out to be a tool-discovery measurement artifact, not a property of the transport. Prompt injection stays a protocol-level risk on both.
 
 ## First Screen
 
