@@ -1,6 +1,6 @@
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { TOKEN_PATTERNS, lineNumber } from './secret-patterns.mjs';
+import { TOKEN_PATTERNS, lineNumber } from '../../harness/src/secretPatterns.ts';
 
 export function hasTokenShapedSecret(text) {
   return TOKEN_PATTERNS.some((pattern) => {

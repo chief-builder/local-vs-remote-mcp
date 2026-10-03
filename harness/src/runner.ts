@@ -8,6 +8,7 @@ import { countTransportFailures, parseTranscript } from './metrics.js';
 import type { Metrics } from './metrics.js';
 import { startFixtureServer } from './fixtureServer.js';
 import { mkPairedSeed } from './trialState.js';
+import { buildChildEnv } from './env.js';
 
 export interface TrialResult {
   experiment: string;
@@ -161,56 +162,6 @@ export function buildClaudeArgs(
   args.push(...armConfig.extraFlags);
 
   return args;
-}
-
-/**
- * Scrubs inherited GitHub credentials so the child process can't pick up the
- * developer's personal `gh` login or PATs. Kept in the harness because every
- * experiment runs under the same cleanroom assumption.
- */
-const GITHUB_ENV_TO_SCRUB = [
-  // Harness-internal names — must not survive into the agent child.
-  // GITHUB_CONTROLLER_TOKEN is the elevated credential used to provision
-  // sandbox state; its presence in the child env would give the agent a
-  // path to escalation via `GH_TOKEN=$GITHUB_CONTROLLER_TOKEN gh api ...`.
-  // GITHUB_AGENT_TOKEN is the raw form; buildGithubAgentEnv injects the
-  // value under the MCP server's expected name per arm, so the raw name has
-  // no legitimate use inside the child.
-  'GITHUB_CONTROLLER_TOKEN',
-  'GITHUB_AGENT_TOKEN',
-  'GH_TOKEN',
-  'GITHUB_TOKEN',
-  'GH_ENTERPRISE_TOKEN',
-  'GITHUB_ENTERPRISE_TOKEN',
-  'GITHUB_PERSONAL_ACCESS_TOKEN',
-  'GH_HOST',
-  'GITHUB_HOST',
-  'GH_REPO',
-  'GH_PAGER',
-  'GH_EDITOR',
-  'GH_BROWSER',
-  'GH_FORCE_TTY',
-  'GH_PROMPT_DISABLED',
-  'GH_CONFIG_DIR',
-  'GITHUB_TOOLSETS',
-  // Controlled Tier 3 canary. It must only be present when a task injects it.
-  'HARMLESS_TOKEN',
-];
-
-export function buildChildEnv(armEnv: Record<string, string> | undefined, agentEnv: Record<string, string>): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
-  for (const key of GITHUB_ENV_TO_SCRUB) {
-    delete env[key];
-  }
-  // Disable update notifiers/pagers so they don't stall the child.
-  env.GH_NO_UPDATE_NOTIFIER = '1';
-  env.GH_PROMPT_DISABLED = '1';
-  env.GH_PAGER = 'cat';
-  if (armEnv) {
-    for (const [k, v] of Object.entries(armEnv)) env[k] = v;
-  }
-  for (const [k, v] of Object.entries(agentEnv)) env[k] = v;
-  return env;
 }
 
 export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {

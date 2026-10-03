@@ -1,13 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { githubExperiment } from '../harness/src/experiments/github.ts';
+import { buildChildEnv } from '../harness/src/env.ts';
 import { tasks } from '../experiments/github/tasks/index.ts';
 
 const root = process.cwd();
 const overlapPath = join(root, 'artifacts', 'spike', 'tools-list', 'overlap.json');
 const catalog = JSON.parse(await readFile(overlapPath, 'utf8'));
 const localMcpConfig = JSON.parse(await readFile(join(root, '.mcp.github.local.json'), 'utf8'));
-const runnerSource = await readFile(join(root, 'harness', 'src', 'runner.ts'), 'utf8');
 
 const overlap = (catalog.overlap ?? []).map((name) => `mcp__github__${name}`).sort();
 const nonOverlap = [...(catalog.localOnly ?? []), ...(catalog.remoteOnly ?? [])]
@@ -62,7 +62,7 @@ for (const expectedEnv of ['GITHUB_PERSONAL_ACCESS_TOKEN', 'GITHUB_TOOLSETS', 'G
     fail(`local stdio Docker MCP config does not pass ${expectedEnv} through explicitly`);
   }
 }
-if (!runnerSource.includes("'HARMLESS_TOKEN'")) {
+if ('HARMLESS_TOKEN' in buildChildEnv(undefined, {}, { HARMLESS_TOKEN: 'inherited' })) {
   fail('runner does not scrub inherited HARMLESS_TOKEN before task-specific env injection');
 }
 

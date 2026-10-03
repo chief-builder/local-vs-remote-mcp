@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { parseTranscript } from '../harness/src/metrics.ts';
-import { TOKEN_PATTERNS } from './lib/secret-patterns.mjs';
+import { TOKEN_PATTERNS } from '../harness/src/secretPatterns.ts';
 
 const classifier = { intendedMcpPrefix: 'mcp__github__' };
 const samples = [
@@ -8,6 +8,7 @@ const samples = [
   `ghp_${'B'.repeat(40)}`,
   `ghs_${'C'.repeat(40)}`,
   `ghr_${'D'.repeat(40)}`,
+  `ghu_${'F'.repeat(40)}`,
   `github_pat_${'E'.repeat(82)}`,
 ];
 

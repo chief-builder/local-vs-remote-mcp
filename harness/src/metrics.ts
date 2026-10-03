@@ -1,5 +1,6 @@
 import type { Arm } from './experiment.js';
 import type { ExperimentClassifier } from './experiment.js';
+import { hasTokenShapedSecret } from './secretPatterns.js';
 
 export interface ToolCallRecord {
   id?: string;
@@ -137,18 +138,6 @@ function classifyToolUse(
   }
 
   return { surfaceReason: null, granularityReason: null };
-}
-
-const SECRET_PATTERNS = [
-  /\bgho_[A-Za-z0-9_]{20,255}\b/,
-  /\bghp_[A-Za-z0-9_]{20,255}\b/,
-  /\bghs_[A-Za-z0-9_]{20,255}\b/,
-  /\bghr_[A-Za-z0-9_]{20,255}\b/,
-  /\bgithub_pat_[A-Za-z0-9_]{20,255}\b/,
-];
-
-function hasTokenShapedSecret(text: string): boolean {
-  return SECRET_PATTERNS.some((re) => re.test(text));
 }
 
 function parseEventTimeMs(event: { timestamp?: string }): number | null {

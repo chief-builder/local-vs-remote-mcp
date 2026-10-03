@@ -5,7 +5,8 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { execa } from 'execa';
 import { ArmSchema } from './experiment.js';
 import type { Arm } from './experiment.js';
-import { runTrial, buildClaudeArgs, buildChildEnv } from './runner.js';
+import { runTrial, buildClaudeArgs } from './runner.js';
+import { buildChildEnv, loadDotEnv } from './env.js';
 import type { Task } from './tasks.js';
 import { generateReport } from './report.js';
 import { countTransportFailures, mergeRecomputedMetrics, parseTranscript } from './metrics.js';
@@ -16,27 +17,6 @@ const require = createRequire(import.meta.url);
 const pkg = require('../../package.json') as { version: string };
 
 const program = new Command();
-
-async function loadDotEnv(rootDir: string): Promise<void> {
-  let text = '';
-  try {
-    text = await readFile(join(rootDir, '.env'), 'utf8');
-  } catch {
-    return;
-  }
-  for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq <= 0) continue;
-    const key = trimmed.slice(0, eq).trim();
-    let value = trimmed.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!process.env[key]) process.env[key] = value;
-  }
-}
 
 program
   .name('harness')

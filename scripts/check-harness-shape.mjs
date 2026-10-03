@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { buildChildEnv } from '../harness/src/env.ts';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -41,8 +42,8 @@ async function findDirsNamed(root, name, out = []) {
 
 const packageJson = JSON.parse(await readFile('package.json', 'utf8'));
 assert(packageJson.scripts?.harness === 'node --import tsx harness/src/cli.ts', 'package harness script must use shared harness/src/cli.ts');
-assert(packageJson.scripts?.['scan:secrets'] === 'node scripts/secret-scan.mjs', 'package scan:secrets script must exist');
-assert(packageJson.scripts?.['hooks:install'] === 'node scripts/install-pre-push-hook.mjs', 'package hooks:install script must exist');
+assert(packageJson.scripts?.['scan:secrets'] === 'node --import tsx scripts/secret-scan.mjs', 'package scan:secrets script must exist');
+assert(packageJson.scripts?.['hooks:install'] === 'node --import tsx scripts/install-pre-push-hook.mjs', 'package hooks:install script must exist');
 
 for (const path of [
   'harness/src/cli.ts',
@@ -88,7 +89,8 @@ const runnerSource = await readFile('harness/src/runner.ts', 'utf8');
 assert(runnerSource.includes("import { mkPairedSeed } from './trialState.js'"), 'runner must import mkPairedSeed from shared trialState');
 assert(/mkPairedSeed\(experiment\.name,\s*runName,\s*task\.id,\s*trialN\)/.test(runnerSource), 'runner must use paired seed for every arm/task/trial');
 assert(runnerSource.includes('buildChildEnv'), 'runner must centralize child env scrubbing');
-assert(runnerSource.includes('GITHUB_CONTROLLER_TOKEN') && runnerSource.includes('GITHUB_AGENT_TOKEN'), 'runner scrub list must include harness-internal GitHub tokens');
+const scrubbed = buildChildEnv(undefined, {}, { GITHUB_CONTROLLER_TOKEN: 'x', GITHUB_AGENT_TOKEN: 'x' });
+assert(!('GITHUB_CONTROLLER_TOKEN' in scrubbed) && !('GITHUB_AGENT_TOKEN' in scrubbed), 'child env scrub must remove harness-internal GitHub tokens');
 assert(runnerSource.includes('parseTranscript(transcriptLines, arm, experiment.classifier)'), 'runner must feed transcript through shared validity/metric parser');
 
 const metricsSource = await readFile('harness/src/metrics.ts', 'utf8');
