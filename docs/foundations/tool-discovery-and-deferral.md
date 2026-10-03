@@ -91,4 +91,3 @@ Data: [`full-repro-20260626/report.md`](../../experiments/playwright/runs/full-r
 [`unsafe-deconf-20260627/report.md`](../../experiments/playwright/runs/unsafe-deconf-20260627/report.md)
 (deferral off), with per-trial result JSON alongside each report. Synthesis in
 [`../writeup/long-form.md`](../writeup/long-form.md).
-</content>

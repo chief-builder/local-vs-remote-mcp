@@ -31,4 +31,3 @@ The findings these support:
 - [MCP security best practices](https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices)
   — confused deputy, scope minimization, and more, with mitigations.
 - [Model Context Protocol](https://modelcontextprotocol.io/introduction) — the protocol itself.
-</content>
