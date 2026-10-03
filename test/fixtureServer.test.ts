@@ -58,8 +58,14 @@ describe('startFixtureServer', () => {
     assert.deepEqual(await rawRequest(server.port, '/dynamic'), { status: 200, text: 'rendered' });
   });
 
-  it('returns 500 when the renderer throws', async () => {
-    assert.equal((await rawRequest(server.port, '/boom')).status, 500);
+  it('returns 500 when the renderer throws, without echoing the error text', async () => {
+    const res = await rawRequest(server.port, '/boom');
+    assert.equal(res.status, 500);
+    assert.equal(res.text, 'internal error');
+  });
+
+  it('returns 400 for malformed percent-encoding', async () => {
+    assert.deepEqual(await rawRequest(server.port, '/%E0%A4%A'), { status: 400, text: 'bad request' });
   });
 
   it('returns 404 for missing files', async () => {
@@ -81,6 +87,7 @@ describe('startFixtureServer', () => {
   it('rejects request bodies over 1 MB', async () => {
     const res = await rawRequest(server.port, '/dynamic', 'POST', Buffer.alloc(1_000_001));
     assert.equal(res.status, 413);
+    assert.equal(res.text, 'request body too large');
   });
 
   it('advertises a localhost URL', () => {
