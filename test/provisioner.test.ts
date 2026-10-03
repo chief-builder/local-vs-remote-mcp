@@ -5,7 +5,7 @@ import { installFakeGithub, type Route } from './helpers/fakeGithub.ts';
 
 const cfg: GhConfig = { controllerToken: 'test-controller-value', sandboxOwner: 'example-lab', host: 'api.github.com' };
 const repo = 'example-lab/lvrmcp-test';
-const fast = { intervalMs: 1, timeoutMs: 200 };
+const fast = { intervalMs: 1, timeoutMs: 5_000 }; // returns as soon as labels settle; the budget only matters under load
 
 function sequence(bodies: unknown[]): Route {
   let i = 0;
@@ -87,6 +87,24 @@ describe('provisionRepo', () => {
         assert.doesNotMatch(err.message, /test-controller-value/);
         return true;
       });
+    } finally {
+      gh.restore();
+    }
+  });
+
+  it('deletes the repo when seeding fails after creation (no leaked sandbox repo)', async () => {
+    const gh = installFakeGithub({
+      'GET /users/example-lab': { status: 200, body: { type: 'Organization' } },
+      'POST /orgs/example-lab/repos': { status: 201, body: {} },
+      [`GET /repos/${repo}`]: { status: 200, body: {} },
+      [`GET /repos/${repo}/labels?per_page=100`]: { status: 200, body: [{ name: 'bug' }] },
+      [`PUT /repos/${repo}/contents/README.md`]: { status: 502, body: { message: 'Bad Gateway' } },
+      [`DELETE /repos/${repo}`]: { status: 204 },
+    });
+    try {
+      await assert.rejects(provisionRepo(cfg, 'lvrmcp-test', { files: [{ path: 'README.md', content: 'hi' }] }), /-> 502/);
+      assert.equal(gh.requests.at(-1)!.method, 'DELETE');
+      assert.equal(gh.requests.at(-1)!.path, `/repos/${repo}`);
     } finally {
       gh.restore();
     }

@@ -102,74 +102,81 @@ export interface RepoSeed {
 export async function provisionRepo(cfg: GhConfig, repoName: string, seed: RepoSeed): Promise<ProvisionedRepo> {
   const isOrg = await isOrganization(cfg, cfg.sandboxOwner);
 
-  const createPath = isOrg ? `/orgs/${cfg.sandboxOwner}/repos` : `/user/repos`;
-  await ghRequest(cfg, {
-    method: 'POST',
-    path: createPath,
-    body: {
-      name: repoName,
-      private: true,
-      description: seed.description ?? 'local-vs-remote-mcp experiment sandbox',
-      auto_init: false,
-    },
-  });
-
   const fullName = `${cfg.sandboxOwner}/${repoName}`;
-
-  await waitForRepoReady(cfg, fullName);
-  // GitHub adds its default labels asynchronously after creation. Wait for
-  // them so tasks that snapshot labels don't mistake them for agent changes.
-  await waitForLabelsStable(cfg, fullName);
-
-  if (seed.topics && seed.topics.length > 0) {
+  const createPath = isOrg ? `/orgs/${cfg.sandboxOwner}/repos` : `/user/repos`;
+  try {
     await ghRequest(cfg, {
-      method: 'PUT',
-      path: `/repos/${fullName}/topics`,
-      body: { names: seed.topics },
-    });
-  }
-
-  for (const file of seed.files) {
-    await ghRequest(cfg, {
-      method: 'PUT',
-      path: `/repos/${fullName}/contents/${encodeURI(file.path)}`,
+      method: 'POST',
+      path: createPath,
       body: {
-        message: `seed ${file.path}`,
-        content: Buffer.from(file.content, 'utf-8').toString('base64'),
+        name: repoName,
+        private: true,
+        description: seed.description ?? 'local-vs-remote-mcp experiment sandbox',
+        auto_init: false,
       },
     });
-  }
 
-  if (seed.labels) {
-    for (const label of seed.labels) {
+    await waitForRepoReady(cfg, fullName);
+    // GitHub adds its default labels asynchronously after creation. Wait for
+    // them so tasks that snapshot labels don't mistake them for agent changes.
+    await waitForLabelsStable(cfg, fullName);
+
+    if (seed.topics && seed.topics.length > 0) {
       await ghRequest(cfg, {
-        method: 'POST',
-        path: `/repos/${fullName}/labels`,
-        body: { name: label.name, color: label.color },
-        acceptConflict: true,
+        method: 'PUT',
+        path: `/repos/${fullName}/topics`,
+        body: { names: seed.topics },
       });
     }
-  }
 
-  if (seed.issues) {
-    for (const issue of seed.issues) {
-      const created = await ghRequest<{ number: number }>(cfg, {
-        method: 'POST',
-        path: `/repos/${fullName}/issues`,
+    for (const file of seed.files) {
+      await ghRequest(cfg, {
+        method: 'PUT',
+        path: `/repos/${fullName}/contents/${encodeURI(file.path)}`,
         body: {
-          title: issue.title,
-          body: issue.body,
-          ...(issue.labels ? { labels: issue.labels } : {}),
+          message: `seed ${file.path}`,
+          content: Buffer.from(file.content, 'utf-8').toString('base64'),
         },
       });
-      if (issue.closeAfter && created) {
+    }
+
+    if (seed.labels) {
+      for (const label of seed.labels) {
         await ghRequest(cfg, {
-          method: 'PATCH',
-          path: `/repos/${fullName}/issues/${created.number}`,
-          body: { state: 'closed' },
+          method: 'POST',
+          path: `/repos/${fullName}/labels`,
+          body: { name: label.name, color: label.color },
+          acceptConflict: true,
         });
       }
     }
+
+    if (seed.issues) {
+      for (const issue of seed.issues) {
+        const created = await ghRequest<{ number: number }>(cfg, {
+          method: 'POST',
+          path: `/repos/${fullName}/issues`,
+          body: {
+            title: issue.title,
+            body: issue.body,
+            ...(issue.labels ? { labels: issue.labels } : {}),
+          },
+        });
+        if (issue.closeAfter && created) {
+          await ghRequest(cfg, {
+            method: 'PATCH',
+            path: `/repos/${fullName}/issues/${created.number}`,
+            body: { state: 'closed' },
+          });
+        }
+      }
+    }
+  } catch (err) {
+    // Setup failed after (or while) creating the repo, so the task never got a
+    // cleanup handle. Delete it here or it leaks (seen 2026-10-03 when a network
+    // reset hit seeding). A 404 means it was never created.
+    await deleteRepo(cfg, fullName).catch(() => undefined);
+    throw err;
   }
 
   return {
