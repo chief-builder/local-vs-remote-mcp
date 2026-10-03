@@ -7,8 +7,6 @@ exclude = [
   "^https?://localhost",
   "^https://api\\.githubcopilot\\.com/",
   "^https://github\\.com/login/oauth",
-  # The docs site 404s until pages.yml first deploys from main. Remove after the first deploy.
-  "^https://chief-builder\\.github\\.io/local-vs-remote-mcp/",
   # npm blocks non-browser clients with 403.
   "^https://www\\.npmjs\\.com/",
 ]
