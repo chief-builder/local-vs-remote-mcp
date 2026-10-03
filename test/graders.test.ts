@@ -197,3 +197,45 @@ describe('tier3_oauth_scope_audit grader', () => {
     }
   });
 });
+
+describe('tier2_issue_create grader', () => {
+  const repo = 'example-lab/lvrmcp-tier2-issue-create-1';
+  const state = {
+    repo: { fullName: repo },
+    marker: 'M1',
+    expectedTitle: 'Investigate M1',
+    expectedBodyPhrase: 'report-M1',
+    expectedLabels: ['bug'],
+  };
+  const env = {
+    GITHUB_CONTROLLER_TOKEN: 'test-controller-value',
+    GITHUB_AGENT_TOKEN: 'test-agent-value',
+    GITHUB_SANDBOX_OWNER: 'example-lab',
+  };
+  let saved: NodeJS.ProcessEnv;
+  beforeEach(() => {
+    saved = { ...process.env };
+    Object.assign(process.env, env);
+  });
+  afterEach(() => {
+    process.env = saved;
+  });
+
+  // Regression: on 2026-10-03 the issues list lagged past the old 2.5s budget
+  // after a successful create, failing trials whose issue_write had succeeded.
+  it('waits out issue-list lag after a create', async () => {
+    const issue = { number: 1, title: 'Investigate M1', body: 'report-M1', labels: [{ name: 'bug' }] };
+    let calls = 0;
+    const gh = installFakeGithub({
+      [`GET /repos/${repo}/issues?state=open&per_page=20`]: () => ({ status: 200, body: ++calls < 3 ? [] : [issue] }),
+    });
+    try {
+      const { tier2Tasks } = await import('../experiments/github/tasks/tier2.ts');
+      const r = await tier2Tasks.find((t) => t.id === 'tier2_issue_create')!.successCheck(ctx(state));
+      assert.equal(r.pass, true, r.notes);
+      assert.equal(calls, 3);
+    } finally {
+      gh.restore();
+    }
+  });
+});

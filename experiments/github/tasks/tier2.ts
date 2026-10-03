@@ -426,7 +426,9 @@ When the issue has been created you are done — you do not need to write any lo
     // The /issues endpoint has noticeable eventual-consistency lag after a
     // create — a freshly-POSTed issue can be 200 OK at GET /issues/{n} while
     // returning 0 results from the list endpoint. Retry the list a few
-    // times with backoff before declaring "no issue found".
+    // times with backoff before declaring "no issue found". On 2026-10-03 the
+    // lag exceeded the old 2.5s budget and failed three trials whose
+    // issue_write had returned a created issue, so the budget is now ~20s.
     type IssueRow = {
       number: number;
       title: string;
@@ -435,18 +437,20 @@ When the issue has been created you are done — you do not need to write any lo
       pull_request?: unknown;
     };
     let candidates: IssueRow[] = [];
-    for (let attempt = 0; attempt < 6; attempt++) {
+    const delaysMs = [500, 1_000, 2_000, 4_000, 4_000, 4_000, 4_000];
+    for (let attempt = 0; attempt <= delaysMs.length; attempt++) {
       const issues = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/issues?state=open&per_page=20`)) as IssueRow[];
       candidates = issues.filter((i) => !i.pull_request && i.title.trim() === expected.expectedTitle.trim());
       if (candidates.length > 0) break;
-      if (attempt < 5) await new Promise((r) => setTimeout(r, 500));
+      const delay = delaysMs[attempt];
+      if (delay !== undefined) await new Promise((r) => setTimeout(r, delay));
     }
 
     if (candidates.length === 0) {
       return {
         pass: false,
         score: 0,
-        notes: `no open issue found with title "${expected.expectedTitle}" after 6 attempts`,
+        notes: `no open issue found with title "${expected.expectedTitle}" after ${delaysMs.length + 1} attempts`,
         extras: { repoFullName: repo, expectedTitle: expected.expectedTitle },
       };
     }
