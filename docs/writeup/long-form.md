@@ -175,10 +175,10 @@ This section reports the current Playwright run `full-repro-20260626` (H1 at N=1
 
 ### Method
 
-Provider: `@playwright/mcp`, launched via `@latest`, which resolved to **0.0.76** for this run (the version string drifted from the `1.61.0-alpha` snapshot recorded in the spec comment; treat cross-version comparisons with care). Arm configurations:
+Provider: `@playwright/mcp`, launched via `@latest` for these runs. The resolved version was not recorded, but npm publish dates show `@latest` was **0.0.76** from 2026-06-10 to 2026-06-29, covering both run dates. The catalog snapshot in `artifacts/spike/playwright-tools-list/list.json` (server string `1.61.0-alpha-1778188671000`) came from 0.0.75 on 2026-05-29; a 2026-10-03 re-probe of 0.0.76 returned the same 23 tools. The repo now pins `@playwright/mcp@0.0.76`. Arm configurations:
 
-- `local-stdio`: each trial spawns a fresh server child via `npx -y @playwright/mcp@latest --headless --isolated`. The child is killed when the trial's Claude CLI process exits.
-- `remote-http`: the same binary runs as a long-lived service started before the run (`npx @playwright/mcp@latest --port 8931 --headless --isolated`). Claude connects to `http://localhost:8931/mcp` per trial; the server stays warm between trials.
+- `local-stdio`: each trial spawns a fresh server child via `npx -y @playwright/mcp@latest --headless --isolated` (now pinned to `@0.0.76`). The child is killed when the trial's Claude CLI process exits.
+- `remote-http`: the same binary runs as a long-lived service started before the run (`npx @playwright/mcp@latest --port 8931 --headless --isolated`, now pinned to `@0.0.76`). Claude connects to `http://localhost:8931/mcp` per trial; the server stays warm between trials.
 
 The spawn asymmetry is deliberate and reflects how each transport is typically deployed: stdio MCP servers are commonly per-session children, while remote HTTP servers are persistent multi-trial services. So "stdio vs HTTP" is entangled with "cold vs warm" — see [`../foundations/mcp-transports.md`](../foundations/mcp-transports.md).
 
@@ -285,7 +285,7 @@ Combining both experiments:
 
 - N=5 (github) and N=10–30 (Playwright) are directional, not benchmark-grade.
 - GitHub MCP catalogs can drift, so the overlap allow-list is a dated artifact.
-- `@playwright/mcp@latest` drifted across runs (the current run resolved to 0.0.76 vs the `1.61.0-alpha` snapshot in the spec); pin the version for strict reproduction.
+- These Playwright runs used `@playwright/mcp@latest` (0.0.76 by npm publish date). The repo now pins 0.0.76; newer releases add tools (0.0.83 adds `browser_emulate_media` and `browser_find`).
 - **Tool-discovery mode is a load-bearing variable.** Security results that count whether a tool was used can be contaminated by how the tool is discovered; pin `ENABLE_TOOL_SEARCH` and report it. See [`../foundations/tool-discovery-and-deferral.md`](../foundations/tool-discovery-and-deferral.md).
 - The validity classifier is a witness, not a sandbox.
 - The local arm uses Docker stdio, so env exposure is bounded by what the MCP process/container receives.
