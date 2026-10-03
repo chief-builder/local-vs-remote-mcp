@@ -25,7 +25,7 @@ import {
  * The remote-http arm requires the server to be running externally before
  * trials start, e.g.
  *
- *   npx @playwright/mcp@latest --port 8931 --headless --isolated
+ *   npx @playwright/mcp@0.0.76 --port 8931 --headless --isolated
  *
  * The preflight only reaches the URL when the targeted arm includes
  * remote-http, so running local-stdio alone doesn't require the HTTP server.
@@ -33,11 +33,12 @@ import {
 
 
 /**
- * Live catalog from `@playwright/mcp` 1.61.0-alpha against protocolVersion
- * 2025-06-18, captured on 2026-05-29 (see
- * artifacts/spike/playwright-tools-list/list.json). Since both arms use the
- * same server, the catalog is identical across transports by construction —
- * "overlap" is just everything the server exposes.
+ * Live catalog captured on 2026-05-29 (artifacts/spike/playwright-tools-list/list.json,
+ * server `Playwright 1.61.0-alpha-1778188671000` = @playwright/mcp 0.0.75).
+ * Re-probed 2026-10-03 against the pinned 0.0.76: same 23 tools. 0.0.83
+ * adds `browser_emulate_media` and `browser_find`; re-probe before bumping
+ * the pin. Since both arms use the same server, the catalog is identical
+ * across transports by construction.
  *
  * Note: `browser_run_code_unsafe` is deliberately kept in the allow-list,
  * not denied. Security-tier tasks need it available so they can measure
@@ -124,7 +125,7 @@ async function preflightHttpReachable(url: string): Promise<void> {
     throw new Error(
       `remote-http arm requires the Playwright MCP server to be reachable at ${url}.\n` +
         `Start it in another terminal with:\n` +
-        `  npx @playwright/mcp@latest --port 8931 --headless --isolated\n` +
+        `  npx @playwright/mcp@0.0.76 --port 8931 --headless --isolated\n` +
         `Underlying error: ${err instanceof Error ? err.message : String(err)}`,
     );
   }

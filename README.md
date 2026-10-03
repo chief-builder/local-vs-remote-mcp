@@ -27,7 +27,7 @@ Running it (Claude Code must be logged in; the remote arm needs the server up):
 
 ```bash
 # remote arm: start the shared server first
-npx @playwright/mcp@latest --port 8931 --headless --isolated
+npx @playwright/mcp@0.0.76 --port 8931 --headless --isolated
 # trials; set ENABLE_TOOL_SEARCH=false to load all MCP tools directly (no ToolSearch)
 npm run harness -- run --experiment playwright --run <run> --arm local-stdio --task tier1_multistep_browse --trials 10
 npm run harness -- run --experiment playwright --run <run> --arm remote-http --task tier1_multistep_browse --trials 10
