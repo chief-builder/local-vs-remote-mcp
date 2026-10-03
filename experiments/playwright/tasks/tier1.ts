@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Task, TaskContext, SuccessResult } from '../../../harness/src/tasks.js';
 

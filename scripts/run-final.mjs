@@ -125,10 +125,6 @@ async function validResultFile(path, { runName, arm, taskId, tier, trialN }) {
   }
 }
 
-async function taskComplete({ runName, trials, arm, taskId, tier }) {
-  return (await incompleteTrials({ runName, trials, arm, taskId, tier })).length === 0;
-}
-
 async function incompleteTrials({ runName, trials, arm, taskId, tier }) {
   const out = [];
   for (let n = 1; n <= trials; n++) {

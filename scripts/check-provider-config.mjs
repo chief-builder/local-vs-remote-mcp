@@ -40,6 +40,7 @@ for (const expectedEnv of ['GITHUB_PERSONAL_ACCESS_TOKEN', 'GITHUB_TOOLSETS', 'G
 const remoteGithub = remote?.mcpServers?.github;
 assert(remoteGithub?.type === 'http', 'remote GitHub MCP server must use http transport');
 assert(remoteGithub?.url === EXPECTED_REMOTE_URL, `remote GitHub MCP URL must be ${EXPECTED_REMOTE_URL}`);
+// biome-ignore lint/suspicious/noTemplateCurlyInString: checks the literal placeholder Claude Code expands at runtime
 assert(remoteGithub?.headers?.Authorization === 'Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}', 'remote Authorization header must use the GITHUB_PERSONAL_ACCESS_TOKEN placeholder');
 
 const probeSource = await readFile('scripts/probe-tools-list.mjs', 'utf8');

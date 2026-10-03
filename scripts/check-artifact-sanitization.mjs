@@ -32,7 +32,7 @@ async function walk(dir) {
 function scanObject(value, path, pointer = '$') {
   if (!value || typeof value !== 'object') return;
   if (Array.isArray(value)) {
-    value.forEach((item, idx) => scanObject(item, path, `${pointer}[${idx}]`));
+    for (const [idx, item] of value.entries()) scanObject(item, path, `${pointer}[${idx}]`);
     return;
   }
   for (const [key, child] of Object.entries(value)) {
@@ -60,7 +60,7 @@ for (const dir of scannedRoots) {
 
 if (failures.length > 0) {
   console.error('Artifact sanitization check failed:');
-  failures.forEach((failure) => console.error(`- ${failure}`));
+  for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 

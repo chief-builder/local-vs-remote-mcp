@@ -150,7 +150,7 @@ try {
   assert(result.code === 0, `run-final dry-run failed:\n${result.stderr}\n${result.stdout}`);
 
   const outputLines = result.stdout.split(/\r?\n/).filter((line) => line.trim().length > 0);
-  const staticIdx = outputLines.findIndex((line) => line === 'npm run check:static');
+  const staticIdx = outputLines.indexOf('npm run check:static');
   const verifyArmsIdx = outputLines.findIndex((line) => line.includes('verify-arms'));
   assert(staticIdx >= 0, `expected static preflight before live commands:\n${result.stdout}`);
   assert(

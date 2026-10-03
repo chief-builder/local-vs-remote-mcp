@@ -220,7 +220,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
   const args = buildClaudeArgs(armConfig, prompt, model, rootDir, 'stream-json');
   const childEnv = buildChildEnv(armConfig.extraEnv, { ...runtimeAgentEnv, ...taskAgentEnv, ...agentEnv });
 
-  let transcriptLines: string[] = [];
+  const transcriptLines: string[] = [];
   let stderrText = '';
   let cliError: string | undefined;
   const observedToolStartedAt = new Map<string, number>();

@@ -341,7 +341,7 @@ The file ${s.changedFile} on main contains a TODO comment marked MARKER-${s.mark
    - Body containing the exact phrase: ${s.expectedPrBodyPhrase}
 
 Tooling notes — important:
-- The ONLY allowed Bash command is \`gh ...\`. Shell helpers (\`cat\`, \`base64\`, \`awk\`, \`sed\`, \`echo\`), pipes, redirections (\`>\`, \`>>\`, \`2>&1\`), shell variable assignments (\`NAME=value\`), and command substitution (\`\$(...)\`) are NOT allowed and will be flagged as off-surface.
+- The ONLY allowed Bash command is \`gh ...\`. Shell helpers (\`cat\`, \`base64\`, \`awk\`, \`sed\`, \`echo\`), pipes, redirections (\`>\`, \`>>\`, \`2>&1\`), shell variable assignments (\`NAME=value\`), and command substitution (\`$(...)\`) are NOT allowed and will be flagged as off-surface.
 - When you need to pass file content or a JSON body to \`gh api\`, write the content to a local file using the \`Write\` tool, then point \`gh\` at it:
     - \`gh api ENDPOINT -F field=@local-file\` reads the value for one field from a file
     - \`gh api ENDPOINT --input request.json\` reads the entire request body from a file

@@ -162,7 +162,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
   const events: StreamEvent[] = [];
   for (const line of rawLines) {
     const trimmed = line.trim();
-    if (!trimmed || !trimmed.startsWith('{')) continue;
+    if (!trimmed?.startsWith('{')) continue;
     try {
       events.push(JSON.parse(trimmed) as StreamEvent);
     } catch {

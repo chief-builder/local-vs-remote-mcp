@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { Task, TaskContext } from '../../../harness/src/tasks.js';
+import type { Task, } from '../../../harness/src/tasks.js';
 import {
   ghConfigFromEnv,
   provisionRepo,

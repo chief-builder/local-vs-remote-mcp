@@ -1,10 +1,11 @@
 import { Command, InvalidArgumentError } from 'commander';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
+import type { Dirent } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { execa } from 'execa';
 import { ArmSchema } from './experiment.js';
-import type { Arm } from './experiment.js';
+import type { Arm, ExperimentSpec } from './experiment.js';
 import { runTrial, buildClaudeArgs } from './runner.js';
 import { buildChildEnv, loadDotEnv } from './env.js';
 import { DEFAULT_MODEL } from './config.js';
@@ -146,7 +147,7 @@ program
     const rootDir = resolve(process.cwd());
     await loadDotEnv(rootDir);
 
-    let experiment;
+    let experiment: ExperimentSpec;
     try {
       experiment = getExperiment(opts.experiment);
     } catch (err) {
@@ -273,7 +274,7 @@ program
 // ---------------------------------------------------------------------------
 async function collectFiles(dir: string, suffix: string): Promise<string[]> {
   const out: string[] = [];
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(dir, { withFileTypes: true });
   } catch {
