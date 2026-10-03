@@ -1,12 +1,12 @@
 # GitHub MCP Tool Catalog Diff
 
-Generated: 2026-05-19T21:34:57.117Z
+Generated: 2026-10-03T05:24:38.129Z
 
 - Local tools: 79
-- Remote tools: 45
+- Remote tools: 49
 - Overlap allow-list: 41
 - Local-only: 38
-- Remote-only: 4
+- Remote-only: 8
 
 ## Overlap Allow-List
 
@@ -97,5 +97,9 @@ Generated: 2026-05-19T21:34:57.117Z
 
 - create_pull_request_with_copilot
 - get_copilot_job_status
+- list_issue_fields
 - list_repository_collaborators
 - run_secret_scanning
+- search_commits
+- ui_get
+- update_issue_comment
