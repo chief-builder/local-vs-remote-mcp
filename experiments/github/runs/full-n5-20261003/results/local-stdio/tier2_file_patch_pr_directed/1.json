@@ -1,0 +1,78 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-10-03T13:07:58.535Z",
+  "seed": "e23740f3a518bb47",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 9,
+    "outputTokens": 1156,
+    "cachedInputTokens": 45809,
+    "cacheCreationInputTokens": 8832,
+    "toolCalls": [
+      {
+        "id": "toolu_01ByEB2zFPj4GG4qbEMjUg5F",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01FR4dbVqeZ7y5aidS5qNze3",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01J9ixCvqBZSq2DtHxJLBTCY",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_0179T3nEh7qes6k4PazaYeNx",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01NAHR3Zh2EK6iXVmGTPuNLC",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 11
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 12,
+    "wallClockMs": 20605,
+    "perToolCallLatencyMs": [
+      15,
+      413,
+      801,
+      1013,
+      1296
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 12090,
+    "totalCostUsd": 0.08410170000000002,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-e23740f3",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_36E987AA",
+      "expectedPrTitle": "Fix MARKER-36E987AA"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "local-stdio",
+  "taskId": "tier1_pr_diff_answer",
+  "tier": 1,
+  "trialN": 5,
+  "timestamp": "2026-10-03T13:00:22.135Z",
+  "seed": "7d63be9483eccc88",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 8,
+    "outputTokens": 499,
+    "cachedInputTokens": 32319,
+    "cacheCreationInputTokens": 7179,
+    "toolCalls": [
+      {
+        "id": "toolu_01HQ434cbjrmiN49ABbUav1W",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01Q8x5LdKV2tpnpzdtVgAf1e",
+        "name": "mcp__github__pull_request_read",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01QF1LUfsBowUdTxsxEwD49K",
+        "name": "Write",
+        "turnIndex": 6
+      }
+    ],
+    "toolCallCount": 3,
+    "turns": 7,
+    "wallClockMs": 159337,
+    "perToolCallLatencyMs": [
+      12,
+      445,
+      24
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 10437,
+    "totalCostUsd": 0.0602787,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR diff answers match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-pr-diff-answer-7d63be94",
+      "expectedFn": "fn_20f8ce"
+    }
+  }
+}

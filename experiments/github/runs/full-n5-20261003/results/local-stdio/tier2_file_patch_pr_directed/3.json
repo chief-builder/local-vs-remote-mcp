@@ -1,0 +1,78 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-10-03T13:08:58.885Z",
+  "seed": "5f6af87775592675",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 10,
+    "outputTokens": 1347,
+    "cachedInputTokens": 56860,
+    "cacheCreationInputTokens": 9066,
+    "toolCalls": [
+      {
+        "id": "toolu_01Fj5Zq398McH9PX39Xe9QJC",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_011McfLji5MGJYRNf5sTF3ph",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01PbFC9r4bGrgK5VLLCKyr64",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_018ckTC3JqKaL7X74eNjoPX8",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 11
+      },
+      {
+        "id": "toolu_01D8Ci9vojuUcBNh3ZXiYEmb",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 13
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 14,
+    "wallClockMs": 19770,
+    "perToolCallLatencyMs": [
+      13,
+      428,
+      933,
+      992,
+      1468
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 12324,
+    "totalCostUsd": 0.09168899999999999,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-5f6af877",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_510EFABE",
+      "expectedPrTitle": "Fix MARKER-510EFABE"
+    }
+  }
+}

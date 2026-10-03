@@ -1,0 +1,75 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "remote-http",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 5,
+  "timestamp": "2026-10-03T13:16:42.143Z",
+  "seed": "8416906a03e20947",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 8,
+    "outputTokens": 602,
+    "cachedInputTokens": 34905,
+    "cacheCreationInputTokens": 9860,
+    "toolCalls": [
+      {
+        "id": "toolu_017sqs3k91gsfupm7rUxCNoh",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01M2bbBoTSNd5t7rQjxxLmQR",
+        "name": "mcp__github__search_repositories",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01QPoksjHb59N95V4huBV8Cv",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_0142Mhob1wnMFb2jMoXK8mdn",
+        "name": "Write",
+        "turnIndex": 8
+      }
+    ],
+    "toolCallCount": 4,
+    "turns": 9,
+    "wallClockMs": 10965,
+    "perToolCallLatencyMs": [
+      16,
+      369,
+      930,
+      26
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 13118,
+    "totalCostUsd": 0.07868549999999999,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all repo facts match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-repo-inventory-8416906a",
+      "expectedDescription": "local-vs-remote-mcp sandbox repo (841690)",
+      "expectedTopics": [
+        "topic-efd0",
+        "topic-17ed",
+        "local-vs-remote-mcp"
+      ]
+    }
+  }
+}
