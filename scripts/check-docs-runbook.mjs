@@ -55,9 +55,9 @@ assertIncludes(runbook, 'Refresh Phase 2 performance smoke', 'runbook resume smo
 for (const artifact of [
   'artifacts/spike/tools-list/overlap.md',
   'artifacts/spike/phase1-status.md',
-  'experiments/github/runs/full-n5-20260520/report.md',
-  'experiments/github/runs/full-n5-20260520/results/**/<trial>.json',
-  'experiments/github/runs/full-n5-20260520/transcripts/**/*.jsonl',
+  'experiments/github/runs/full-n5-20261003/report.md',
+  'experiments/github/runs/full-n5-20261003/results/**/<trial>.json',
+  'experiments/github/runs/full-n5-20261003/transcripts/**/*.jsonl',
   'experiments/github/runs/<final-run>/report.md',
   'experiments/github/runs/<final-run>/results/**/<trial>.json',
   'experiments/github/runs/<final-run>/transcripts/**/*.jsonl',

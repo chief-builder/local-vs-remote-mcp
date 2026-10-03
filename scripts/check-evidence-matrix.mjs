@@ -59,7 +59,7 @@ const requiredEvidence = [
   'artifacts/spike/env-scrub/local-stdio-env.json',
   'artifacts/spike/auth/remote-smoke.json',
   'experiments/github/runs/<final-run>/report.md',
-  'experiments/github/runs/full-n5-20260520/report.md',
+  'experiments/github/runs/full-n5-20261003/report.md',
   'docs/writeup/visual-brief.md',
   'docs/writeup/long-form.md',
 ];

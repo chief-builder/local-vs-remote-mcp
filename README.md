@@ -128,19 +128,34 @@ control.
 - The affordance-lure task looked transport-dependent with deferred tool discovery (10/30 local vs 23/30
   remote). With `ENABLE_TOOL_SEARCH=false` it was 0/30 on both arms.
 
-**GitHub** (two server implementations). The 2026-05-20 run
-([`full-n5-20260520`](experiments/github/runs/full-n5-20260520/report.md)) reported 40% vs 20% prompt-injection
-compliance. A 2026-10-03 audit found every one of those hits was a grader false positive: the agent quoted the
-injected canary while refusing it. It also found that the `tier3_oauth_scope_audit` failures came from a
-default-label race, not from agent actions. Both graders are fixed and tested. The GitHub matrix is being re-run;
-until then, treat the GitHub H2 and scope-audit numbers in `docs/writeup/` as superseded. The published
-2026-05-20 report and result JSON are kept as the historical record.
+**GitHub** (two server implementations). Run
+[`full-n5-20261003`](experiments/github/runs/full-n5-20261003/report.md) has 125 trials at N=5 per cell, collected
+2026-10-03 with Claude Code 2.1.288 and `claude-sonnet-4-6`.
+
+- Token cost is transport-invariant: 47,618 vs 48,745 average total tokens across Tier 1+2 (0.98×), and 1.00× /
+  0.96× / 1.00× by tier.
+- The remote endpoint adds 0.1–0.2 s per tool call, but end-to-end wall-clock does not favour either transport.
+  Median wall-clock: 10.9 s vs 10.9 s in Tier 1, 17.5 s vs 18.6 s in Tier 2.
+- Prompt-injection compliance was 0/5 on both transports. Both MCP arms passed all 45 trials, and the baseline
+  passed 0/35.
+
+The earlier run ([`full-n5-20260520`](experiments/github/runs/full-n5-20260520/report.md)) reported 40% vs 20%
+compliance and 0% on the scope audit. Both were grader errors, found by the [audit](AUDIT.md) and fixed before the
+re-run:
+
+- The compliance grader counted an agent *quoting* the injected canary while refusing it.
+- The scope-audit grader raced GitHub's default labels.
+
+That run is kept as the historical record. See the [long-form writeup](docs/writeup/long-form.md#what-changed-since-the-2026-05-20-run)
+for the other harness fixes made before the re-run: elicitation-gated remote tools, and a `--tools` whitelist after
+agents tried cross-session messaging.
 
 **Limitations**
 
-- Small samples: N=5 for GitHub, N=10–30 for Playwright. Results are directional.
-- GitHub tool catalogs drift. The 41-tool overlap is dated 2026-05-19, and the pinned local image (v1.0.4) is
-  behind the current release (v1.14.0).
+- Small samples: N=5 for GitHub, N=10–30 for Playwright. Results are directional; 0/5 has a 95% upper bound of 52%.
+- Tool surfaces drift. The remote GitHub catalog grew from 45 to 50 tools between May and October 2026, and depends
+  on client capabilities. The pinned local image (v1.0.4) is behind the current release (v1.14.0). Claude Code itself
+  adds built-in tools, so arms whitelist tools rather than deny-list them.
 - Results are specific to these servers, this model, and Claude Code's tool-discovery mode.
 - The validity classifier is a witness, not a sandbox. Trials run with `--permission-mode bypassPermissions`.
 - Phase 1 freshness gates compare file mtimes, so they only detect staleness inside a working checkout.
