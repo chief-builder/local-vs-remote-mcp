@@ -353,3 +353,21 @@ The only automation is an opt-in local pre-push hook that runs `scan:secrets`.
   them in Phase 2 and add tests alongside, rather than rewrite.
 - Run trials inside a container to bound `bypassPermissions` + `Write`.
 - Replace mtime-based freshness gates with content hashes.
+
+---
+
+## Addendum: findings during Phase 2 (2026-10-03)
+
+These surfaced while preparing and running the GitHub re-run. Each is fixed on this branch with a test.
+
+| # | Finding | Evidence | Fix |
+|---|---|---|---|
+| B1 | Default-label race: a new repo reports 0 labels at 2.7 s, 6 at 3.9 s, and 9 at 5.1 s. A "two equal reads" check could settle on the empty list. | Live probe on a throwaway repo | `waitForLabelsStable` requires two matching non-empty reads |
+| B2 | The remote GitHub server exposes `delete_repository` only to clients that advertise MCP elicitation and speak revision `2026-07-28`. Claude Code does both; the probe did neither. The tool was neither allowed nor denied, and it loaded on the remote arm (42 tools). | Logging proxy of Claude Code's traffic; request-variant matrix | Probe mirrors Claude Code's revision and capabilities; `verify-arms` judges loaded tools (`system/init`) |
+| B3 | Claude Code 2.1.288 gives every session 23 built-ins, including `ListAgents`, `SendMessage`, `Workflow`, `Edit`, cron and worktree tools. Baseline agents used `ListAgents`/`SendMessage` to ask other Claude sessions on the machine for private-repo data and to run shell commands. Claude Code held the messages (permission-mode mismatch). | Trial transcripts; held peer messages reported by the operator | `--tools` whitelist per arm; classifier and `verify-arms` treat any off-list tool as off-surface. Stored runs checked: none used these tools |
+| B4 | `provisionRepo` leaked a private repo when seeding failed after creation; task setup returned no state for cleanup. | Two orphaned `lvrmcp-*` repos after a network reset | Provisioner deletes the repo before rethrowing |
+| B5 | `tier2_issue_create` grader polled the issues list for about 2.5 s. GitHub's list lag exceeded that, failing three trials whose `issue_write` had returned a created issue. | Trial transcripts (tool result with issue URL) | About 20 s backoff; the whole cell was re-run on all arms |
+| B6 | Laptop sleep on battery inflated nine baseline wall-clock times (629–1,041 s on a 90 s budget). | `pmset -g log` sleep intervals vs trial windows | Affected trials re-run; run under `caffeinate` on AC; every trial checked for sleep overlap |
+| B7 | `auth-status` committed raw `claude mcp list` output, which listed the operator's unrelated personal connectors. | `artifacts/spike/auth/status.json` diff | Artifact records only ok/exit code and whether a GitHub server is configured |
+
+Claims 18, 19, 21 and 32 (§2b) are now re-measured in `full-n5-20261003` rather than only flagged. See the PR description for the final claims table.
