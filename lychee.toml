@@ -7,6 +7,8 @@ exclude = [
   "^https?://localhost",
   "^https://api\\.githubcopilot\\.com/",
   "^https://github\\.com/login/oauth",
+  # The CI badge 404s until ci.yml exists on the default branch (i.e. before this workflow first merges).
+  "^https://github\\.com/chief-builder/local-vs-remote-mcp/actions/workflows/ci\\.yml/badge\\.svg",
   # npm blocks non-browser clients with 403.
   "^https://www\\.npmjs\\.com/",
 ]
