@@ -125,6 +125,9 @@ export async function provisionRepo(
   const fullName = `${cfg.sandboxOwner}/${repoName}`;
 
   await waitForRepoReady(cfg, fullName);
+  // GitHub adds its default labels asynchronously after creation. Wait for
+  // them so tasks that snapshot labels don't mistake them for agent changes.
+  await waitForLabelsStable(cfg, fullName);
 
   if (seed.topics && seed.topics.length > 0) {
     await ghRequest(cfg, {
@@ -206,6 +209,33 @@ async function waitForRepoReady(cfg: GhConfig, fullName: string): Promise<void> 
     await new Promise(r => setTimeout(r, 500));
   }
   throw new Error(`repo ${fullName} not visible to API within 15s`);
+}
+
+/**
+ * Polls the label list until two consecutive reads, `intervalMs` apart, match.
+ * Returns the settled label names; gives up quietly after `timeoutMs`.
+ */
+export async function waitForLabelsStable(
+  cfg: GhConfig,
+  fullName: string,
+  { intervalMs = 1_000, timeoutMs = 15_000 } = {},
+): Promise<string[]> {
+  const read = async () => {
+    const labels = await ghRequest<Array<{ name?: string }>>(cfg, {
+      method: 'GET',
+      path: `/repos/${fullName}/labels?per_page=100`,
+    });
+    return (labels ?? []).map((label) => String(label.name ?? '')).filter(Boolean).sort();
+  };
+  const deadline = Date.now() + timeoutMs;
+  let previous = await read();
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, intervalMs));
+    const current = await read();
+    if (JSON.stringify(current) === JSON.stringify(previous)) return current;
+    previous = current;
+  }
+  return previous;
 }
 
 /**
