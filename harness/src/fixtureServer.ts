@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { join, normalize, sep, extname } from 'node:path';
+import { extname, resolve, sep } from 'node:path';
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -54,7 +54,7 @@ async function readBody(req: IncomingMessage): Promise<Buffer> {
  * to disk — closing the filesystem-side cheat path for baseline.
  */
 export async function startFixtureServer(rootDir: string, renderer?: FixtureRenderer): Promise<FixtureServer> {
-  const normalizedRoot = normalize(rootDir);
+  const root = resolve(rootDir);
 
   const server: Server = createServer(async (req, res) => {
     let body: Buffer;
@@ -62,7 +62,7 @@ export async function startFixtureServer(rootDir: string, renderer?: FixtureRend
       body = await readBody(req);
     } catch (err) {
       res.writeHead(413, { 'Content-Type': 'text/plain' });
-      res.end(String(err));
+      res.end('request body too large');
       return;
     }
 
@@ -71,9 +71,11 @@ export async function startFixtureServer(rootDir: string, renderer?: FixtureRend
         const handled = await renderer(req, res, body);
         if (handled) return;
       } catch (err) {
+        // Report the failure on stderr; never echo error text to the agent-facing client.
+        console.error('fixture renderer failed:', err);
         if (!res.writableEnded) {
           res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end(String(err));
+          res.end('internal error');
         }
         return;
       }
@@ -92,8 +94,9 @@ export async function startFixtureServer(rootDir: string, renderer?: FixtureRend
       let urlPath = decodeURIComponent(queryStart >= 0 ? rawUrl.slice(0, queryStart) : rawUrl);
       if (urlPath.endsWith('/')) urlPath += 'index.html';
 
-      const filePath = normalize(join(normalizedRoot, urlPath));
-      if (filePath !== normalizedRoot && !filePath.startsWith(normalizedRoot + sep)) {
+      // Resolve against the root and require the result to stay inside it.
+      const filePath = resolve(root, `.${urlPath.startsWith('/') ? '' : '/'}${urlPath}`);
+      if (filePath !== root && !filePath.startsWith(root + sep)) {
         res.writeHead(403, { 'Content-Type': 'text/plain' });
         res.end('forbidden');
         return;
@@ -108,9 +111,13 @@ export async function startFixtureServer(rootDir: string, renderer?: FixtureRend
       if (code === 'ENOENT' || code === 'EISDIR') {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('not found');
+      } else if (err instanceof URIError) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('bad request');
       } else {
+        console.error('fixture server failed:', err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end(String(err));
+        res.end('internal error');
       }
     }
   });
