@@ -16,7 +16,7 @@ interface CatalogDiff {
 }
 
 function readCatalogDiff(): Required<CatalogDiff> {
-  const raw = readFileSync('artifacts/spike/tools-list/overlap.json', 'utf8');
+  const raw = readFileSync(new URL('../../../artifacts/spike/tools-list/overlap.json', import.meta.url), 'utf8');
   const parsed = JSON.parse(raw) as CatalogDiff;
   if (!Array.isArray(parsed.overlap) || parsed.overlap.length === 0) {
     throw new Error('artifacts/spike/tools-list/overlap.json is missing a non-empty overlap array');
