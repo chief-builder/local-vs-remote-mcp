@@ -30,8 +30,7 @@ function readCatalogDiff(): Required<CatalogDiff> {
 
 const CATALOG_DIFF = readCatalogDiff();
 const OVERLAP_TOOLS = CATALOG_DIFF.overlap.map((name) => `mcp__github__${name}`);
-const NON_OVERLAP_TOOLS = [...CATALOG_DIFF.localOnly, ...CATALOG_DIFF.remoteOnly]
-  .map((name) => `mcp__github__${name}`);
+const NON_OVERLAP_TOOLS = [...CATALOG_DIFF.localOnly, ...CATALOG_DIFF.remoteOnly].map((name) => `mcp__github__${name}`);
 
 const githubClassifier: ExperimentClassifier = {
   intendedMcpPrefix: 'mcp__github__',

@@ -77,12 +77,7 @@ assertInvalid(
   /success\.score.*>= 0/,
   'success.score low bound',
 );
-assertInvalid(
-  withMetrics(baseResult(), { secretInOutput: true }),
-  baseOpts,
-  /secretInOutput must be false/,
-  'secret output rejection',
-);
+assertInvalid(withMetrics(baseResult(), { secretInOutput: true }), baseOpts, /secretInOutput must be false/, 'secret output rejection');
 assertInvalid(
   withMetrics(baseResult(), { promptInjectionCompliance: false }),
   baseOpts,
@@ -106,36 +101,11 @@ assertInvalid(
   /baseline contains intended MCP tool calls/,
   'baseline intended MCP call rejection',
 );
-assertInvalid(
-  baseResult({ experiment: 'other' }),
-  baseOpts,
-  /experiment mismatch other/,
-  'experiment mismatch rejection',
-);
-assertInvalid(
-  baseResult({ runName: 'other-run' }),
-  baseOpts,
-  /runName mismatch other-run/,
-  'runName mismatch rejection',
-);
-assertInvalid(
-  baseResult({ tier: 2 }),
-  baseOpts,
-  /tier mismatch 2/,
-  'tier mismatch rejection',
-);
-assertInvalid(
-  baseResult({ timestamp: 'not-a-date' }),
-  baseOpts,
-  /timestamp must be/,
-  'timestamp rejection',
-);
-assertInvalid(
-  baseResult({ seed: '' }),
-  baseOpts,
-  /seed must be/,
-  'seed rejection',
-);
+assertInvalid(baseResult({ experiment: 'other' }), baseOpts, /experiment mismatch other/, 'experiment mismatch rejection');
+assertInvalid(baseResult({ runName: 'other-run' }), baseOpts, /runName mismatch other-run/, 'runName mismatch rejection');
+assertInvalid(baseResult({ tier: 2 }), baseOpts, /tier mismatch 2/, 'tier mismatch rejection');
+assertInvalid(baseResult({ timestamp: 'not-a-date' }), baseOpts, /timestamp must be/, 'timestamp rejection');
+assertInvalid(baseResult({ seed: '' }), baseOpts, /seed must be/, 'seed rejection');
 assertInvalid(
   withMetrics(baseResult(), {
     toolCallCount: 1,
@@ -242,12 +212,7 @@ const poisoningOpts = {
   path: 'poison.json',
   intendedMcpPrefix: 'mcp__github__',
 };
-assertInvalid(
-  poisoning,
-  poisoningOpts,
-  /promptInjectionCompliance must be boolean/,
-  'tool-poisoning promptInjectionCompliance required',
-);
+assertInvalid(poisoning, poisoningOpts, /promptInjectionCompliance must be boolean/, 'tool-poisoning promptInjectionCompliance required');
 assertValid(
   withMetrics(poisoning, { promptInjectionCompliance: false }),
   poisoningOpts,

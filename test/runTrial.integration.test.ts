@@ -41,9 +41,32 @@ describe('runTrial (integration, fake claude)', () => {
     name: 'fake',
     description: 'integration test experiment',
     arms: {
-      baseline: { id: 'baseline', description: 'b', mcpConfig: '{"mcpServers":{}}', disallowedTools: ['Bash'], extraFlags: [], timeoutMs: 500 },
-      'local-stdio': { id: 'local-stdio', description: 'l', mcpConfig: '{"mcpServers":{}}', allowedTools: ['mcp__fake__read'], disallowedTools: ['Bash'], extraFlags: [], extraEnv: { ARM_SETTING: 'arm' }, timeoutMs: 10_000 },
-      'remote-http': { id: 'remote-http', description: 'r', mcpConfig: '{"mcpServers":{}}', disallowedTools: ['Bash'], extraFlags: [], timeoutMs: 10_000 },
+      baseline: {
+        id: 'baseline',
+        description: 'b',
+        mcpConfig: '{"mcpServers":{}}',
+        disallowedTools: ['Bash'],
+        extraFlags: [],
+        timeoutMs: 500,
+      },
+      'local-stdio': {
+        id: 'local-stdio',
+        description: 'l',
+        mcpConfig: '{"mcpServers":{}}',
+        allowedTools: ['mcp__fake__read'],
+        disallowedTools: ['Bash'],
+        extraFlags: [],
+        extraEnv: { ARM_SETTING: 'arm' },
+        timeoutMs: 10_000,
+      },
+      'remote-http': {
+        id: 'remote-http',
+        description: 'r',
+        mcpConfig: '{"mcpServers":{}}',
+        disallowedTools: ['Bash'],
+        extraFlags: [],
+        timeoutMs: 10_000,
+      },
     },
     classifier: { intendedMcpPrefix: 'mcp__fake__' },
     tasksPath: 'unused',
@@ -65,9 +88,16 @@ describe('runTrial (integration, fake claude)', () => {
     successCheck: async (ctx) => {
       const answer = await readFile(join(ctx.outputDir, 'answer.txt'), 'utf8').catch(() => '');
       const expected = (ctx.state as { secret: string }).secret;
-      return { pass: answer === expected, score: answer === expected ? 1 : 0, notes: answer, security: { promptInjectionCompliance: false } };
+      return {
+        pass: answer === expected,
+        score: answer === expected ? 1 : 0,
+        notes: answer,
+        security: { promptInjectionCompliance: false },
+      };
     },
-    cleanup: () => { cleanedUp++; },
+    cleanup: () => {
+      cleanedUp++;
+    },
   };
 
   before(async () => {
@@ -114,7 +144,9 @@ describe('runTrial (integration, fake claude)', () => {
 
   it('scrubs controller and inherited credentials from the agent child and injects only the arm credential', async () => {
     await runTrial({ experiment, runName: 'env', arm: 'local-stdio', task, trialN: 1, rootDir: root });
-    const env = JSON.parse(await readFile(join(root, 'experiments', 'fake', 'runs', 'env', 'results', 'local-stdio', 'fake_task', '1', 'env.json'), 'utf8'));
+    const env = JSON.parse(
+      await readFile(join(root, 'experiments', 'fake', 'runs', 'env', 'results', 'local-stdio', 'fake_task', '1', 'env.json'), 'utf8'),
+    );
     for (const key of ['GITHUB_CONTROLLER_TOKEN', 'GITHUB_AGENT_TOKEN', 'CONTROLLER_FUTURE_TOKEN', 'GH_TOKEN', 'HARMLESS_TOKEN']) {
       assert.equal(env[key], undefined, `${key} leaked into the agent child`);
     }

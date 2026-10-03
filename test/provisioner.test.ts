@@ -15,7 +15,12 @@ function sequence(bodies: unknown[]): Route {
 describe('waitForLabelsStable', () => {
   it('waits for asynchronously created default labels to settle', async () => {
     const gh = installFakeGithub({
-      [`GET /repos/${repo}/labels?per_page=100`]: sequence([[], [{ name: 'bug' }], [{ name: 'bug' }, { name: 'question' }], [{ name: 'question' }, { name: 'bug' }]]),
+      [`GET /repos/${repo}/labels?per_page=100`]: sequence([
+        [],
+        [{ name: 'bug' }],
+        [{ name: 'bug' }, { name: 'question' }],
+        [{ name: 'question' }, { name: 'bug' }],
+      ]),
     });
     try {
       assert.deepEqual(await waitForLabelsStable(cfg, repo, fast), ['bug', 'question']);

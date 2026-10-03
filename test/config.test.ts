@@ -22,11 +22,14 @@ describe('readGithubEnv', () => {
   });
 
   it('lists every missing value', () => {
-    assert.throws(() => readGithubEnv({}), (err: Error) => {
-      assert.match(err.message, /GITHUB_CONTROLLER_TOKEN/);
-      assert.match(err.message, /GITHUB_SANDBOX_OWNER/);
-      return true;
-    });
+    assert.throws(
+      () => readGithubEnv({}),
+      (err: Error) => {
+        assert.match(err.message, /GITHUB_CONTROLLER_TOKEN/);
+        assert.match(err.message, /GITHUB_SANDBOX_OWNER/);
+        return true;
+      },
+    );
   });
 
   it('treats blank values as missing', () => {
@@ -43,10 +46,13 @@ describe('readGithubEnv', () => {
   });
 
   it('never echoes credential values in errors', () => {
-    assert.throws(() => readGithubEnv({ ...valid, GITHUB_SANDBOX_OWNER: '' }), (err: Error) => {
-      assert.doesNotMatch(err.message, /test-controller-value|test-agent-value/);
-      return true;
-    });
+    assert.throws(
+      () => readGithubEnv({ ...valid, GITHUB_SANDBOX_OWNER: '' }),
+      (err: Error) => {
+        assert.doesNotMatch(err.message, /test-controller-value|test-agent-value/);
+        return true;
+      },
+    );
   });
 });
 

@@ -6,11 +6,7 @@ const execFileAsync = promisify(execFile);
 
 export { GITHUB_ENV_TO_SCRUB, HARNESS_INTERNAL_GITHUB_ENV, loadDotEnv } from '../../harness/src/env.ts';
 
-export const AGENT_VISIBLE_GITHUB_ENV = [
-  'GH_TOKEN',
-  'GITHUB_TOKEN',
-  'GITHUB_PERSONAL_ACCESS_TOKEN',
-];
+export const AGENT_VISIBLE_GITHUB_ENV = ['GH_TOKEN', 'GITHUB_TOKEN', 'GITHUB_PERSONAL_ACCESS_TOKEN'];
 
 /** Same scrub the trial runner applies, without any per-arm injection. */
 export function buildScrubbedBaseEnv(source = process.env) {

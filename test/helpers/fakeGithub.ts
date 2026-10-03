@@ -33,6 +33,8 @@ export function installFakeGithub(routes: Record<string, Route | { status: numbe
   }) as typeof fetch;
   return {
     requests,
-    restore: () => { globalThis.fetch = original; },
+    restore: () => {
+      globalThis.fetch = original;
+    },
   };
 }

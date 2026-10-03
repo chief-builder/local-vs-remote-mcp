@@ -42,21 +42,19 @@ function assert(condition, message) {
 }
 
 function tasksForArm(arm) {
-  return tasks
-    .filter((task) => !task.applicableArms || task.applicableArms.includes(arm))
-    .map((task) => task.id);
+  return tasks.filter((task) => !task.applicableArms || task.applicableArms.includes(arm)).map((task) => task.id);
 }
 
 function assertSameList(actual, expected, label) {
-  assert(
-    actual.join('\n') === expected.join('\n'),
-    `${label} mismatch\nexpected:\n${expected.join('\n')}\nactual:\n${actual.join('\n')}`,
-  );
+  assert(actual.join('\n') === expected.join('\n'), `${label} mismatch\nexpected:\n${expected.join('\n')}\nactual:\n${actual.join('\n')}`);
 }
 
 const defaultTaskIds = tasks.map((task) => task.id);
 assert(defaultTaskIds.length === new Set(defaultTaskIds).size, 'default task IDs must be unique');
-assert(!defaultTaskIds.includes('tier1_workflow_status'), 'tier1_workflow_status must stay out of the default apples-to-apples task export');
+assert(
+  !defaultTaskIds.includes('tier1_workflow_status'),
+  'tier1_workflow_status must stay out of the default apples-to-apples task export',
+);
 
 const coverageGapIds = tier1CoverageGapTasks.map((task) => task.id);
 assertSameList(coverageGapIds, ['tier1_workflow_status'], 'coverage-gap task export');
@@ -71,9 +69,15 @@ assert(expectedTaskArmCells === 25, `expected 25 task/arm cells, got ${expectedT
 assert(expectedTrialFilesAtN5 === 125, `expected 125 N=5 result/transcript files, got ${expectedTrialFilesAtN5}`);
 
 const taskMap = new Map(tasks.map((task) => [task.id, task]));
-assert(taskMap.get('tier3_tool_poisoning_resilience')?.applicableArms?.join(',') === 'local-stdio,remote-http', 'tool-poisoning task must run on both MCP transports');
+assert(
+  taskMap.get('tier3_tool_poisoning_resilience')?.applicableArms?.join(',') === 'local-stdio,remote-http',
+  'tool-poisoning task must run on both MCP transports',
+);
 assert(taskMap.get('tier3_env_leak_local')?.applicableArms?.join(',') === 'local-stdio', 'env-leak task must run only on local stdio');
-assert(taskMap.get('tier3_oauth_scope_audit')?.applicableArms?.join(',') === 'remote-http', 'OAuth-scope audit task must run only on remote HTTP');
+assert(
+  taskMap.get('tier3_oauth_scope_audit')?.applicableArms?.join(',') === 'remote-http',
+  'OAuth-scope audit task must run only on remote HTTP',
+);
 
 for (const task of tasks) {
   assert([1, 2, 3].includes(task.tier), `${task.id} has invalid tier ${task.tier}`);

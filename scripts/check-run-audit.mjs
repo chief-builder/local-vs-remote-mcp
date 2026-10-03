@@ -23,8 +23,12 @@ function run(command, args) {
     let stderr = '';
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
     child.on('close', (code, signal) => {
       resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr });
     });
@@ -45,9 +49,7 @@ function expectedTasksForArm(arm) {
 function validResult({ arm, task }) {
   const promptInjectionCompliance = task.id === 'tier3_tool_poisoning_resilience' ? false : null;
   const usedIntendedTool = arm !== 'baseline';
-  const toolCalls = usedIntendedTool
-    ? [{ id: 'toolu_check_run_audit', name: 'mcp__github__get_file_contents', turnIndex: 1 }]
-    : [];
+  const toolCalls = usedIntendedTool ? [{ id: 'toolu_check_run_audit', name: 'mcp__github__get_file_contents', turnIndex: 1 }] : [];
   const perToolCallLatencyMs = usedIntendedTool ? [25] : [];
   return {
     experiment: 'github',
@@ -91,21 +93,14 @@ async function writeMatrix({ emptyTranscript }) {
       await mkdir(transcriptDir, { recursive: true });
       await writeFile(join(resultDir, '1.json'), `${JSON.stringify(validResult({ arm, task }), null, 2)}\n`, 'utf8');
 
-      const shouldEmpty = emptyTranscript
-        && arm === emptyTranscriptCell.arm
-        && task.id === emptyTranscriptCell.taskId;
+      const shouldEmpty = emptyTranscript && arm === emptyTranscriptCell.arm && task.id === emptyTranscriptCell.taskId;
       await writeFile(join(transcriptDir, '1.jsonl'), shouldEmpty ? '' : '{}\n', 'utf8');
     }
   }
 }
 
 async function checkRun() {
-  return run(process.execPath, [
-    '--import', 'tsx',
-    'scripts/check-run.mjs',
-    '--run', runName,
-    '--trials', '1',
-  ]);
+  return run(process.execPath, ['--import', 'tsx', 'scripts/check-run.mjs', '--run', runName, '--trials', '1']);
 }
 
 try {
@@ -113,8 +108,8 @@ try {
   const failing = await checkRun();
   assert(failing.code === 1, `check-run should fail on an empty transcript:\n${failing.stderr}\n${failing.stdout}`);
   assert(
-    failing.stdout.includes('empty transcript')
-      && failing.stdout.includes(`${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1.jsonl`),
+    failing.stdout.includes('empty transcript') &&
+      failing.stdout.includes(`${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1.jsonl`),
     `check-run did not report the empty transcript:\n${failing.stdout}`,
   );
 
@@ -122,30 +117,21 @@ try {
   const passing = await checkRun();
   assert(passing.code === 0, `check-run should pass once the transcript is non-empty:\n${passing.stderr}\n${passing.stdout}`);
 
-  const expectedTranscriptPath = join(
-    runRoot,
-    'transcripts',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    '1.jsonl',
-  );
+  const expectedTranscriptPath = join(runRoot, 'transcripts', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, '1.jsonl');
   await writeFile(expectedTranscriptPath, '{"type":"assistant"}\nnot-json\n', 'utf8');
   const invalidTranscript = await checkRun();
-  assert(invalidTranscript.code === 1, `check-run should fail on invalid transcript JSONL:\n${invalidTranscript.stderr}\n${invalidTranscript.stdout}`);
   assert(
-    invalidTranscript.stdout.includes('invalid transcript JSONL')
-      && invalidTranscript.stdout.includes(`${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1.jsonl`),
+    invalidTranscript.code === 1,
+    `check-run should fail on invalid transcript JSONL:\n${invalidTranscript.stderr}\n${invalidTranscript.stdout}`,
+  );
+  assert(
+    invalidTranscript.stdout.includes('invalid transcript JSONL') &&
+      invalidTranscript.stdout.includes(`${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1.jsonl`),
     `check-run did not report invalid transcript JSONL:\n${invalidTranscript.stdout}`,
   );
   await writeFile(expectedTranscriptPath, '{}\n', 'utf8');
 
-  const extraResultPath = join(
-    runRoot,
-    'results',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    '2.json',
-  );
+  const extraResultPath = join(runRoot, 'results', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, '2.json');
   await writeFile(extraResultPath, '{}\n', 'utf8');
   const extraResult = await checkRun();
   assert(extraResult.code === 1, `check-run should fail on an extra result trial file:\n${extraResult.stderr}\n${extraResult.stdout}`);
@@ -155,62 +141,52 @@ try {
   );
   await rm(extraResultPath, { force: true });
 
-  const extraTranscriptPath = join(
-    runRoot,
-    'transcripts',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    '2.jsonl',
-  );
+  const extraTranscriptPath = join(runRoot, 'transcripts', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, '2.jsonl');
   await writeFile(extraTranscriptPath, '{}\n', 'utf8');
   const extraTranscript = await checkRun();
-  assert(extraTranscript.code === 1, `check-run should fail on an extra transcript trial file:\n${extraTranscript.stderr}\n${extraTranscript.stdout}`);
+  assert(
+    extraTranscript.code === 1,
+    `check-run should fail on an extra transcript trial file:\n${extraTranscript.stderr}\n${extraTranscript.stdout}`,
+  );
   assert(
     extraTranscript.stdout.includes(`unexpected transcript trial file: ${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/2.jsonl`),
     `check-run did not report the extra transcript trial file:\n${extraTranscript.stdout}`,
   );
   await rm(extraTranscriptPath, { force: true });
 
-  const extraResultNotePath = join(
-    runRoot,
-    'results',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    'notes.txt',
-  );
+  const extraResultNotePath = join(runRoot, 'results', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, 'notes.txt');
   await writeFile(extraResultNotePath, 'stray result task file\n', 'utf8');
   const extraResultNote = await checkRun();
-  assert(extraResultNote.code === 1, `check-run should fail on a stray result task file:\n${extraResultNote.stderr}\n${extraResultNote.stdout}`);
+  assert(
+    extraResultNote.code === 1,
+    `check-run should fail on a stray result task file:\n${extraResultNote.stderr}\n${extraResultNote.stdout}`,
+  );
   assert(
     extraResultNote.stdout.includes(`unexpected result task file: ${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/notes.txt`),
     `check-run did not report the stray result task file:\n${extraResultNote.stdout}`,
   );
   await rm(extraResultNotePath, { force: true });
 
-  const expectedResultOutputDir = join(
-    runRoot,
-    'results',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    '1',
-  );
+  const expectedResultOutputDir = join(runRoot, 'results', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, '1');
   await mkdir(expectedResultOutputDir, { recursive: true });
   await writeFile(join(expectedResultOutputDir, 'task-output.json'), '{}\n', 'utf8');
   const allowedResultOutputDir = await checkRun();
-  assert(allowedResultOutputDir.code === 0, `check-run should allow an expected per-trial result output directory:\n${allowedResultOutputDir.stderr}\n${allowedResultOutputDir.stdout}`);
-
-  const extraTranscriptDir = join(
-    runRoot,
-    'transcripts',
-    emptyTranscriptCell.arm,
-    emptyTranscriptCell.taskId,
-    '1',
+  assert(
+    allowedResultOutputDir.code === 0,
+    `check-run should allow an expected per-trial result output directory:\n${allowedResultOutputDir.stderr}\n${allowedResultOutputDir.stdout}`,
   );
+
+  const extraTranscriptDir = join(runRoot, 'transcripts', emptyTranscriptCell.arm, emptyTranscriptCell.taskId, '1');
   await mkdir(extraTranscriptDir, { recursive: true });
   const extraTranscriptDirResult = await checkRun();
-  assert(extraTranscriptDirResult.code === 1, `check-run should fail on a stray transcript task directory:\n${extraTranscriptDirResult.stderr}\n${extraTranscriptDirResult.stdout}`);
   assert(
-    extraTranscriptDirResult.stdout.includes(`unexpected transcript task directory: ${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1`),
+    extraTranscriptDirResult.code === 1,
+    `check-run should fail on a stray transcript task directory:\n${extraTranscriptDirResult.stderr}\n${extraTranscriptDirResult.stdout}`,
+  );
+  assert(
+    extraTranscriptDirResult.stdout.includes(
+      `unexpected transcript task directory: ${emptyTranscriptCell.arm}/${emptyTranscriptCell.taskId}/1`,
+    ),
     `check-run did not report the stray transcript task directory:\n${extraTranscriptDirResult.stdout}`,
   );
 

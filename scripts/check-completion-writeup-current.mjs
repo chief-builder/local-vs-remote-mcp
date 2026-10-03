@@ -65,10 +65,7 @@ try {
     reportEvidencePath,
   });
   assert(staleVisual.pass === false, 'expected visual brief to fail when report is newer');
-  assert(
-    staleVisual.blocker?.includes('report.md is newer'),
-    `unexpected visual staleness blocker: ${JSON.stringify(staleVisual)}`,
-  );
+  assert(staleVisual.blocker?.includes('report.md is newer'), `unexpected visual staleness blocker: ${JSON.stringify(staleVisual)}`);
 
   await writeFile(visualPath, `${writeupText('visual', runName, reportEvidencePath)}\nTBD\n`, 'utf8');
   await utimes(visualPath, writeupTime, writeupTime);
@@ -80,10 +77,7 @@ try {
     reportEvidencePath,
   });
   assert(placeholderVisual.pass === false, 'expected visual brief with placeholder to fail');
-  assert(
-    placeholderVisual.blocker?.includes('placeholders'),
-    `unexpected placeholder blocker: ${JSON.stringify(placeholderVisual)}`,
-  );
+  assert(placeholderVisual.blocker?.includes('placeholders'), `unexpected placeholder blocker: ${JSON.stringify(placeholderVisual)}`);
 
   console.log('completion writeup freshness regression passed.');
 } finally {

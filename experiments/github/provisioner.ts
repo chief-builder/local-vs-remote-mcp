@@ -62,7 +62,7 @@ async function ghRequest<T = unknown>(cfg: GhConfig, req: GhRequest): Promise<T 
     throw new Error(`GitHub API ${req.method} ${req.path} -> ${res.status}: ${text.slice(0, 500)}`);
   }
   if (res.status === 204) return null;
-  return await res.json() as T;
+  return (await res.json()) as T;
 }
 
 export interface ProvisionedRepo {
@@ -99,16 +99,10 @@ export interface RepoSeed {
  * before returning. Caller is responsible for calling cleanupHandle() in
  * finally — typically by passing it to Task.cleanup.
  */
-export async function provisionRepo(
-  cfg: GhConfig,
-  repoName: string,
-  seed: RepoSeed,
-): Promise<ProvisionedRepo> {
+export async function provisionRepo(cfg: GhConfig, repoName: string, seed: RepoSeed): Promise<ProvisionedRepo> {
   const isOrg = await isOrganization(cfg, cfg.sandboxOwner);
 
-  const createPath = isOrg
-    ? `/orgs/${cfg.sandboxOwner}/repos`
-    : `/user/repos`;
+  const createPath = isOrg ? `/orgs/${cfg.sandboxOwner}/repos` : `/user/repos`;
   await ghRequest(cfg, {
     method: 'POST',
     path: createPath,
@@ -204,7 +198,7 @@ async function waitForRepoReady(cfg: GhConfig, fullName: string): Promise<void> 
       acceptNotFound: true,
     });
     if (data) return;
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`repo ${fullName} not visible to API within 15s`);
 }
@@ -223,12 +217,15 @@ export async function waitForLabelsStable(
       method: 'GET',
       path: `/repos/${fullName}/labels?per_page=100`,
     });
-    return (labels ?? []).map((label) => String(label.name ?? '')).filter(Boolean).sort();
+    return (labels ?? [])
+      .map((label) => String(label.name ?? ''))
+      .filter(Boolean)
+      .sort();
   };
   const deadline = Date.now() + timeoutMs;
   let previous = await read();
   while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, intervalMs));
+    await new Promise((r) => setTimeout(r, intervalMs));
     const current = await read();
     if (JSON.stringify(current) === JSON.stringify(previous)) return current;
     previous = current;

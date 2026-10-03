@@ -31,7 +31,6 @@ import {
  * remote-http, so running local-stdio alone doesn't require the HTTP server.
  */
 
-
 /**
  * Live catalog captured on 2026-05-29 (artifacts/spike/playwright-tools-list/list.json,
  * server `Playwright 1.61.0-alpha-1778188671000` = @playwright/mcp 0.0.75).

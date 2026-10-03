@@ -51,8 +51,7 @@ if (!staticSource.includes("'--strict'") && !staticSource.includes('"--strict"')
   failures.push('scripts/check-static.mjs must run phase1:status with --strict');
 }
 
-if (!staticSource.includes("['npm', ['run', 'scan:secrets']]")
-  && !staticSource.includes('["npm", ["run", "scan:secrets"]]')) {
+if (!staticSource.includes("['npm', ['run', 'scan:secrets']]") && !staticSource.includes('["npm", ["run", "scan:secrets"]]')) {
   failures.push('scripts/check-static.mjs must run the full-repo secret scan without a narrowed --path');
 }
 

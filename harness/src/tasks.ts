@@ -39,12 +39,7 @@ export interface TaskContext {
   toolCallNames?: string[];
 }
 
-export type RenderFn = (
-  state: unknown,
-  req: IncomingMessage,
-  res: ServerResponse,
-  body: Buffer,
-) => Promise<boolean> | boolean;
+export type RenderFn = (state: unknown, req: IncomingMessage, res: ServerResponse, body: Buffer) => Promise<boolean> | boolean;
 
 export interface Task {
   id: string;

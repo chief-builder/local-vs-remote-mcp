@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T04:54:28.682Z",
+  "generatedAt": "2026-10-03T05:07:28.247Z",
   "probe": "local-stdio trial child env (harness/src/env.ts buildChildEnv + github buildAgentEnv)",
   "command": "env",
   "grepEquivalent": "github|^gh_",

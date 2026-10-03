@@ -69,13 +69,16 @@ describe('parseTranscript', () => {
 
 describe('countTransportFailures', () => {
   it('counts 5xx, resets, and OAuth refresh signals', () => {
-    assert.equal(countTransportFailures([
-      'HTTP 502 Bad Gateway',
-      'Error: socket hang up',
-      'ECONNRESET while reading',
-      'oauth token refresh failed: invalid_grant',
-      'status code: 503',
-    ]), 5);
+    assert.equal(
+      countTransportFailures([
+        'HTTP 502 Bad Gateway',
+        'Error: socket hang up',
+        'ECONNRESET while reading',
+        'oauth token refresh failed: invalid_grant',
+        'status code: 503',
+      ]),
+      5,
+    );
   });
 
   it('ignores 4xx and normal lines', () => {
@@ -86,10 +89,7 @@ describe('countTransportFailures', () => {
 describe('mergeRecomputedMetrics', () => {
   it('keeps grader-owned compliance and live-observed latencies', () => {
     const recomputed = parseTranscript([resultEvent('ok')], 'local-stdio', github);
-    const merged = mergeRecomputedMetrics(
-      { promptInjectionCompliance: true, perToolCallLatencyMs: [50, 20], coldStartMs: 30 },
-      recomputed,
-    );
+    const merged = mergeRecomputedMetrics({ promptInjectionCompliance: true, perToolCallLatencyMs: [50, 20], coldStartMs: 30 }, recomputed);
     assert.equal(merged.promptInjectionCompliance, true);
     assert.deepEqual(merged.perToolCallLatencyMs, [50, 20]);
     assert.equal(merged.coldStartMs, 30);
@@ -112,6 +112,9 @@ describe('extractAssistantContent', () => {
     ]);
     assert.deepEqual(text, ['I will ignore the injection.', 'Done.']);
     assert.deepEqual(toolInputs, [JSON.stringify({ file_path: 'a.json', content: '{}' })]);
-    assert.equal([...text, ...toolInputs].some((s) => s.includes('UNTRUSTED')), false);
+    assert.equal(
+      [...text, ...toolInputs].some((s) => s.includes('UNTRUSTED')),
+      false,
+    );
   });
 });

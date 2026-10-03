@@ -12,7 +12,9 @@ function rawRequest(port: number, path: string, method = 'GET', body?: Buffer): 
     const req = request({ host: '127.0.0.1', port, path, method }, (res) => {
       let text = '';
       res.setEncoding('utf8');
-      res.on('data', (chunk) => { text += chunk; });
+      res.on('data', (chunk) => {
+        text += chunk;
+      });
       res.on('end', () => resolve({ status: res.statusCode ?? 0, text }));
     });
     req.on('error', reject);

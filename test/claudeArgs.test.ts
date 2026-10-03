@@ -44,7 +44,10 @@ describe('buildClaudeArgs (github)', () => {
 
   it('gives the baseline no GitHub MCP tools and denies all of them', () => {
     const args = buildClaudeArgs(githubExperiment.arms.baseline, 'p', 'm', '/repo');
-    assert.equal(flag(args, '--allowed-tools').some((t) => t.startsWith('mcp__github__')), false);
+    assert.equal(
+      flag(args, '--allowed-tools').some((t) => t.startsWith('mcp__github__')),
+      false,
+    );
     assert.ok(flag(args, '--disallowed-tools').includes(`mcp__github__${overlap[0]}`));
   });
 });

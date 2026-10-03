@@ -1,13 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "includes": [
-      "harness/src/**",
-      "experiments/**/*.ts",
-      "scripts/**",
-      "test/**",
-      "!experiments/**/runs"
-    ]
+    "includes": ["harness/src/**", "experiments/**/*.ts", "scripts/**", "test/**", "!experiments/**/runs"]
   },
   "formatter": {
     "enabled": true,
@@ -20,7 +14,7 @@
       "quoteStyle": "single",
       "trailingCommas": "all",
       "semicolons": "always",
-      "arrowParentheses": "asNeeded"
+      "arrowParentheses": "always"
     }
   },
   "linter": {

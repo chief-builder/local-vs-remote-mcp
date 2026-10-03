@@ -32,9 +32,7 @@ const matrix = arms.map((arm) => {
     arm,
     tasks: armTasks.length,
     trials: armTasks.length * trials,
-    tiers: [...byTier.entries()]
-      .sort(([a], [b]) => a - b)
-      .map(([tier, taskIds]) => ({ tier, taskIds })),
+    tiers: [...byTier.entries()].sort(([a], [b]) => a - b).map(([tier, taskIds]) => ({ tier, taskIds })),
   };
 });
 
@@ -67,13 +65,17 @@ console.log('npm run check:claude-auth');
 console.log('npm run harness -- verify-arms --experiment github --output artifacts/verify-arms/github.json');
 console.log('npm run harness -- run --experiment github --run latency-smoke --arm local-stdio --task tier1_pr_diff_answer --trials 1');
 console.log('npm run harness -- run --experiment github --run latency-smoke --arm remote-http --task tier1_pr_diff_answer --trials 1');
-console.log('npm run harness -- report --experiment github --run latency-smoke --all-tiers --crossover-analysis --include-cost --output "experiments/github/runs/latency-smoke/report.md"');
+console.log(
+  'npm run harness -- report --experiment github --run latency-smoke --all-tiers --crossover-analysis --include-cost --output "experiments/github/runs/latency-smoke/report.md"',
+);
 for (const arm of matrix) {
   for (const tier of arm.tiers) {
     console.log(`npm run harness -- run --experiment ${experiment} --run "$RUN" --arm ${arm.arm} --tier ${tier.tier} --trials ${trials}`);
   }
 }
-console.log(`npm run harness -- report --experiment ${experiment} --run "$RUN" --all-tiers --crossover-analysis --include-cost --output "experiments/${experiment}/runs/$RUN/report.md"`);
+console.log(
+  `npm run harness -- report --experiment ${experiment} --run "$RUN" --all-tiers --crossover-analysis --include-cost --output "experiments/${experiment}/runs/$RUN/report.md"`,
+);
 console.log(`npm run check:run -- --run "$RUN" --trials ${trials}`);
 console.log(`npm run scan:secrets -- --path "experiments/${experiment}/runs/$RUN"`);
 console.log(`npm run check:completion -- --run "$RUN" --trials ${trials}`);

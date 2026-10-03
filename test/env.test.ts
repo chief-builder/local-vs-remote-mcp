@@ -18,12 +18,16 @@ describe('buildChildEnv', () => {
   });
 
   it('scrubs future CONTROLLER_* and AGENT_* credential names', () => {
-    const env = buildChildEnv(undefined, {}, {
-      CONTROLLER_DEPLOY_TOKEN: 'x',
-      AGENT_NEW_TOKEN: 'x',
-      GITHUB_CONTROLLER_APP_KEY: 'x',
-      GITHUB_AGENT_SECONDARY: 'x',
-    });
+    const env = buildChildEnv(
+      undefined,
+      {},
+      {
+        CONTROLLER_DEPLOY_TOKEN: 'x',
+        AGENT_NEW_TOKEN: 'x',
+        GITHUB_CONTROLLER_APP_KEY: 'x',
+        GITHUB_AGENT_SECONDARY: 'x',
+      },
+    );
     assert.deepEqual(
       Object.keys(env).filter((key) => /CONTROLLER|AGENT/.test(key)),
       [],
@@ -61,7 +65,9 @@ describe('GitHub arm credential injection', () => {
     const saved = Object.fromEntries(Object.keys(vars).map((key) => [key, process.env[key]]));
     Object.assign(process.env, vars);
     for (const [key, value] of Object.entries(vars)) if (value === undefined) delete process.env[key];
-    try { fn(); } finally {
+    try {
+      fn();
+    } finally {
       for (const [key, value] of Object.entries(saved)) {
         if (value === undefined) delete process.env[key];
         else process.env[key] = value;

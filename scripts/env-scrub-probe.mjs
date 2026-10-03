@@ -28,19 +28,20 @@ const childEnv = buildChildEnv(arm.extraEnv, agentEnv);
 const child = spawn('env', [], { env: childEnv, stdio: ['ignore', 'pipe', 'inherit'] });
 let stdout = '';
 child.stdout.setEncoding('utf8');
-child.stdout.on('data', (chunk) => { stdout += chunk; });
+child.stdout.on('data', (chunk) => {
+  stdout += chunk;
+});
 
 const code = await new Promise((resolve) => child.on('close', resolve));
 if (code !== 0) process.exit(code ?? 1);
 
-const survivingKeys = new Set(stdout.split(/\r?\n/).map((line) => line.slice(0, line.indexOf('='))).filter(Boolean));
-const forbiddenKeys = [
-  ...HARNESS_INTERNAL_GITHUB_ENV,
-  'GH_TOKEN',
-  'GITHUB_TOKEN',
-  'CONTROLLER_FUTURE_TOKEN',
-  'AGENT_FUTURE_TOKEN',
-];
+const survivingKeys = new Set(
+  stdout
+    .split(/\r?\n/)
+    .map((line) => line.slice(0, line.indexOf('=')))
+    .filter(Boolean),
+);
+const forbiddenKeys = [...HARNESS_INTERNAL_GITHUB_ENV, 'GH_TOKEN', 'GITHUB_TOKEN', 'CONTROLLER_FUTURE_TOKEN', 'AGENT_FUTURE_TOKEN'];
 const forbidden = forbiddenKeys.filter((key) => survivingKeys.has(key));
 const harmlessTokenSurvived = survivingKeys.has('HARMLESS_TOKEN');
 // The arm credential must be re-injected, and it must be the agent token
@@ -84,4 +85,6 @@ if (!expectedInjected) {
   process.exit(1);
 }
 
-console.log('Env scrub probe passed for the local-stdio trial child env: harness-internal and CONTROLLER_*/AGENT_* names removed, arm credential re-injected only under GITHUB_PERSONAL_ACCESS_TOKEN.');
+console.log(
+  'Env scrub probe passed for the local-stdio trial child env: harness-internal and CONTROLLER_*/AGENT_* names removed, arm credential re-injected only under GITHUB_PERSONAL_ACCESS_TOKEN.',
+);

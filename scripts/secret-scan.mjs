@@ -6,11 +6,7 @@ import { TOKEN_PATTERNS, lineNumber } from '../harness/src/secretPatterns.ts';
 
 const execFileAsync = promisify(execFile);
 
-const SKIP_DIRS = new Set([
-  '.git',
-  'node_modules',
-  'harness/dist',
-]);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'harness/dist']);
 
 function argValues(name) {
   const values = [];

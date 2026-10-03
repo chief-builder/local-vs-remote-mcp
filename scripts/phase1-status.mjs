@@ -32,9 +32,9 @@ async function fileMtimeMs(path) {
 }
 
 async function requireNewerThan(path, dependencyPaths, blockers, label) {
-  if (!await exists(path)) return;
+  if (!(await exists(path))) return;
   const artifactTime = await fileMtimeMs(path);
-  const newestDependency = Math.max(...await Promise.all(dependencyPaths.map((dep) => newestMtimeMs(dep))));
+  const newestDependency = Math.max(...(await Promise.all(dependencyPaths.map((dep) => newestMtimeMs(dep)))));
   if (newestDependency > 0 && artifactTime + 1000 < newestDependency) {
     blockers.push(`${label} is stale; regenerate ${path} because probe/config sources are newer`);
   }
@@ -71,31 +71,24 @@ async function gate1() {
   if (await exists(overlapPath)) {
     try {
       const overlap = await readJson(overlapPath);
-      countsOk = Number(overlap.localCount) > 0
-        && Number(overlap.remoteCount) > 0
-        && Number(overlap.overlapCount) > 0
-        && Array.isArray(overlap.overlap);
+      countsOk =
+        Number(overlap.localCount) > 0 &&
+        Number(overlap.remoteCount) > 0 &&
+        Number(overlap.overlapCount) > 0 &&
+        Array.isArray(overlap.overlap);
       if (!countsOk) blockers.push('overlap artifact exists but counts are empty or malformed');
     } catch (err) {
       blockers.push(`overlap artifact is not readable JSON: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  const catalogDependencies = [
-    probeSourcePath(),
-  ];
+  const catalogDependencies = [probeSourcePath()];
   await requireNewerThan(localPath, catalogDependencies, blockers, 'local tools/list artifact');
   await requireNewerThan(remotePath, catalogDependencies, blockers, 'remote tools/list artifact');
   await requireNewerThan(overlapPath, [localPath, remotePath, ...catalogDependencies], blockers, 'overlap artifact');
   await requireNewerThan(overlapMdPath, [overlapPath], blockers, 'overlap markdown artifact');
 
-  return gate(
-    'gate1',
-    'tools/list local+remote overlap computed',
-    blockers.length === 0 && countsOk,
-    evidence,
-    blockers,
-  );
+  return gate('gate1', 'tools/list local+remote overlap computed', blockers.length === 0 && countsOk, evidence, blockers);
 }
 
 async function gate2() {
@@ -119,17 +112,9 @@ async function gate2() {
   } else {
     blockers.push(`missing non-interactive remote smoke artifact ${smokePath}`);
   }
-  await requireNewerThan(smokePath, [
-    probeSourcePath(),
-  ], blockers, 'remote auth smoke artifact');
+  await requireNewerThan(smokePath, [probeSourcePath()], blockers, 'remote auth smoke artifact');
 
-  return gate(
-    'gate2',
-    'non-interactive remote auth smoke',
-    blockers.length === 0,
-    evidence,
-    blockers,
-  );
+  return gate('gate2', 'non-interactive remote auth smoke', blockers.length === 0, evidence, blockers);
 }
 
 async function gate3() {
@@ -150,30 +135,18 @@ async function gate3() {
   } else {
     blockers.push(`missing env scrub artifact ${scrubPath}`);
   }
-  await requireNewerThan(scrubPath, [
-    join(root, 'scripts', 'env-scrub-probe.mjs'),
-    join(root, 'harness', 'src', 'env.ts'),
-    join(root, '.mcp.github.local.json'),
-  ], blockers, 'local env-scrub artifact');
-
-  return gate(
-    'gate3',
-    'local-stdio env scrub probe',
-    blockers.length === 0,
-    evidence,
+  await requireNewerThan(
+    scrubPath,
+    [join(root, 'scripts', 'env-scrub-probe.mjs'), join(root, 'harness', 'src', 'env.ts'), join(root, '.mcp.github.local.json')],
     blockers,
+    'local env-scrub artifact',
   );
+
+  return gate('gate3', 'local-stdio env scrub probe', blockers.length === 0, evidence, blockers);
 }
 
 function markdownReport(status) {
-  const lines = [
-    '# Phase 1 Gate Status',
-    '',
-    `Generated: ${status.generatedAt}`,
-    '',
-    `Overall: ${status.pass ? 'PASS' : 'BLOCKED'}`,
-    '',
-  ];
+  const lines = ['# Phase 1 Gate Status', '', `Generated: ${status.generatedAt}`, '', `Overall: ${status.pass ? 'PASS' : 'BLOCKED'}`, ''];
 
   for (const g of status.gates) {
     lines.push(`## ${g.id}: ${g.name}`);

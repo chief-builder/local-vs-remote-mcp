@@ -7,7 +7,7 @@ async function collectMjs(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
-      out.push(...await collectMjs(path));
+      out.push(...(await collectMjs(path)));
     } else if (entry.isFile() && entry.name.endsWith('.mjs')) {
       out.push(path);
     }

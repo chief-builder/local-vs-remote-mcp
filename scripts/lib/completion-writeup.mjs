@@ -48,12 +48,7 @@ export async function evaluateWriteup({ kind, path, runName, reportPath, reportE
     return { pass: false, blocker: 'Writeup file is missing.' };
   }
 
-  const requiredEvidence = runName
-    ? [
-        runName,
-        reportEvidencePath,
-      ].filter(Boolean)
-    : [];
+  const requiredEvidence = runName ? [runName, reportEvidencePath].filter(Boolean) : [];
   const hasPlaceholder = placeholderPattern.test(text);
   const missingSections = requiredWriteupSections(kind).filter((section) => !text.includes(section));
   const missingEvidence = requiredEvidence.filter((evidence) => !text.includes(evidence));

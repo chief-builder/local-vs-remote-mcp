@@ -21,13 +21,15 @@ function hasFlag(name) {
 }
 
 function usage() {
-  console.log([
-    'Usage: npm run run:final -- --run <name> [--trials 5] [--dry-run] [--resume] [--skip-auth-check]',
-    '',
-    'Runs the final GitHub N=5 matrix from task metadata, then generates the report and audits.',
-    '--dry-run prints commands only.',
-    '--resume skips completed trials and runs only missing or invalid arm/task/trial cells.',
-  ].join('\n'));
+  console.log(
+    [
+      'Usage: npm run run:final -- --run <name> [--trials 5] [--dry-run] [--resume] [--skip-auth-check]',
+      '',
+      'Runs the final GitHub N=5 matrix from task metadata, then generates the report and audits.',
+      '--dry-run prints commands only.',
+      '--resume skips completed trials and runs only missing or invalid arm/task/trial cells.',
+    ].join('\n'),
+  );
 }
 
 function tasksForArm(arm) {
@@ -61,32 +63,25 @@ function taskMatrix() {
 }
 
 function commandLine(command, args) {
-  return [command, ...args].map((part) => {
-    if (/^[A-Za-z0-9_./:=@-]+$/.test(part)) return part;
-    return JSON.stringify(part);
-  }).join(' ');
+  return [command, ...args]
+    .map((part) => {
+      if (/^[A-Za-z0-9_./:=@-]+$/.test(part)) return part;
+      return JSON.stringify(part);
+    })
+    .join(' ');
 }
 
 function isClaudeAuthCheck(command, args) {
-  return command === 'npm'
-    && args[0] === 'run'
-    && args[1] === 'check:claude-auth';
+  return command === 'npm' && args[0] === 'run' && args[1] === 'check:claude-auth';
 }
 
 function printAuthRecovery({ runName, trials, resume }) {
   console.error('');
   console.error('Claude Code CLI auth is required before live trials can continue.');
   console.error('Run `claude auth login` in a terminal, or `/login` in Claude Code, then resume with:');
-  console.error(commandLine('npm', [
-    'run',
-    'run:final',
-    '--',
-    '--run',
-    runName,
-    '--trials',
-    String(trials),
-    ...(resume ? ['--resume'] : []),
-  ]));
+  console.error(
+    commandLine('npm', ['run', 'run:final', '--', '--run', runName, '--trials', String(trials), ...(resume ? ['--resume'] : [])]),
+  );
 }
 
 function run(command, args) {
@@ -131,9 +126,11 @@ async function incompleteTrials({ runName, trials, arm, taskId, tier }) {
     const resultPath = join(process.cwd(), 'experiments', 'github', 'runs', runName, 'results', arm, taskId, `${n}.json`);
     const outputPath = join(process.cwd(), 'experiments', 'github', 'runs', runName, 'results', arm, taskId, `${n}`);
     const transcriptPath = join(process.cwd(), 'experiments', 'github', 'runs', runName, 'transcripts', arm, taskId, `${n}.jsonl`);
-    if (!await validResultFile(resultPath, { runName, arm, taskId, tier, trialN: n })
-      || !await validTranscriptFile(transcriptPath)
-      || !await artifactTreeSecretFree(outputPath)) {
+    if (
+      !(await validResultFile(resultPath, { runName, arm, taskId, tier, trialN: n })) ||
+      !(await validTranscriptFile(transcriptPath)) ||
+      !(await artifactTreeSecretFree(outputPath))
+    ) {
       out.push(n);
     }
   }
@@ -166,7 +163,10 @@ async function main() {
   if (!skipAuthCheck) {
     commands.push(['npm', ['run', 'check:claude-auth']]);
   }
-  commands.push(['npm', ['run', 'harness', '--', 'verify-arms', '--experiment', 'github', '--output', 'artifacts/verify-arms/github.json']]);
+  commands.push([
+    'npm',
+    ['run', 'harness', '--', 'verify-arms', '--experiment', 'github', '--output', 'artifacts/verify-arms/github.json'],
+  ]);
 
   const smoke = resume ? await evaluatePerformanceSmoke({ root: process.cwd(), runName: smokeRunName }) : { pass: false };
   if (resume && smoke.pass) {
@@ -176,26 +176,44 @@ async function main() {
       console.log(`resume: refreshing Phase 2 performance smoke run=${smokeRunName}`);
     }
     for (const arm of ['local-stdio', 'remote-http']) {
-      commands.push(['npm', [
-        'run', 'harness', '--',
-        'run',
-        '--experiment', 'github',
-        '--run', smokeRunName,
-        '--arm', arm,
-        '--task', smokeTaskId,
-        '--trials', '1',
-      ]]);
+      commands.push([
+        'npm',
+        [
+          'run',
+          'harness',
+          '--',
+          'run',
+          '--experiment',
+          'github',
+          '--run',
+          smokeRunName,
+          '--arm',
+          arm,
+          '--task',
+          smokeTaskId,
+          '--trials',
+          '1',
+        ],
+      ]);
     }
-    commands.push(['npm', [
-      'run', 'harness', '--',
-      'report',
-      '--experiment', 'github',
-      '--run', smokeRunName,
-      '--all-tiers',
-      '--crossover-analysis',
-      '--include-cost',
-      '--output', `experiments/github/runs/${smokeRunName}/report.md`,
-    ]]);
+    commands.push([
+      'npm',
+      [
+        'run',
+        'harness',
+        '--',
+        'report',
+        '--experiment',
+        'github',
+        '--run',
+        smokeRunName,
+        '--all-tiers',
+        '--crossover-analysis',
+        '--include-cost',
+        '--output',
+        `experiments/github/runs/${smokeRunName}/report.md`,
+      ],
+    ]);
   }
 
   if (resume) {
@@ -206,54 +224,93 @@ async function main() {
         continue;
       }
       if (missing.length === trials) {
-        commands.push(['npm', [
-          'run', 'harness', '--',
-          'run',
-          '--experiment', 'github',
-          '--run', runName,
-          '--arm', cell.arm,
-          '--task', cell.taskId,
-          '--trials', String(trials),
-        ]]);
+        commands.push([
+          'npm',
+          [
+            'run',
+            'harness',
+            '--',
+            'run',
+            '--experiment',
+            'github',
+            '--run',
+            runName,
+            '--arm',
+            cell.arm,
+            '--task',
+            cell.taskId,
+            '--trials',
+            String(trials),
+          ],
+        ]);
       } else {
         for (const trialN of missing) {
-          commands.push(['npm', [
-            'run', 'harness', '--',
-            'run',
-            '--experiment', 'github',
-            '--run', runName,
-            '--arm', cell.arm,
-            '--task', cell.taskId,
-            '--trials', String(trials),
-            '--trial', String(trialN),
-          ]]);
+          commands.push([
+            'npm',
+            [
+              'run',
+              'harness',
+              '--',
+              'run',
+              '--experiment',
+              'github',
+              '--run',
+              runName,
+              '--arm',
+              cell.arm,
+              '--task',
+              cell.taskId,
+              '--trials',
+              String(trials),
+              '--trial',
+              String(trialN),
+            ],
+          ]);
         }
       }
     }
   } else {
     for (const cell of matrix()) {
-      commands.push(['npm', [
-        'run', 'harness', '--',
-        'run',
-        '--experiment', 'github',
-        '--run', runName,
-        '--arm', cell.arm,
-        '--tier', String(cell.tier),
-        '--trials', String(trials),
-      ]]);
+      commands.push([
+        'npm',
+        [
+          'run',
+          'harness',
+          '--',
+          'run',
+          '--experiment',
+          'github',
+          '--run',
+          runName,
+          '--arm',
+          cell.arm,
+          '--tier',
+          String(cell.tier),
+          '--trials',
+          String(trials),
+        ],
+      ]);
     }
   }
 
-  commands.push(['npm', [
-    'run', 'harness', '--',
-    'report',
-    '--experiment', 'github',
-    '--run', runName,
-    '--all-tiers',
-    '--crossover-analysis',
-    '--include-cost',
-    '--output', `experiments/github/runs/${runName}/report.md`,
-  ]]);
+  commands.push([
+    'npm',
+    [
+      'run',
+      'harness',
+      '--',
+      'report',
+      '--experiment',
+      'github',
+      '--run',
+      runName,
+      '--all-tiers',
+      '--crossover-analysis',
+      '--include-cost',
+      '--output',
+      `experiments/github/runs/${runName}/report.md`,
+    ],
+  ]);
   commands.push(['npm', ['run', 'check:run', '--', '--run', runName, '--trials', String(trials)]]);
   commands.push(['npm', ['run', 'scan:secrets', '--', '--path', `experiments/github/runs/${runName}`]]);
   commands.push(['npm', ['run', 'check:completion', '--', '--run', runName, '--trials', String(trials)]]);

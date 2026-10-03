@@ -16,8 +16,12 @@ function run(command, args) {
     let stderr = '';
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
     child.on('close', (code, signal) => {
       resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr });
     });
@@ -74,11 +78,7 @@ const expectedSuffix = [
   `npm run scan:secrets -- --path experiments/github/runs/${runName}`,
   `npm run check:completion -- --run ${runName} --trials ${trials}`,
 ];
-const expected = [
-  ...expectedPrefix,
-  ...expectedTierCommands(),
-  ...expectedSuffix,
-];
+const expected = [...expectedPrefix, ...expectedTierCommands(), ...expectedSuffix];
 
 assert(
   lines.join('\n') === expected.join('\n'),

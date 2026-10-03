@@ -38,16 +38,10 @@ function requireFiniteNumberArray(failures, label, value, { min = 0 } = {}) {
   }
 }
 
-export function validateResultArtifact(result, {
-  experiment,
-  runName,
-  arm,
-  taskId,
-  tier,
-  trialN,
-  intendedMcpPrefix = 'mcp__github__',
-  path = 'result',
-}) {
+export function validateResultArtifact(
+  result,
+  { experiment, runName, arm, taskId, tier, trialN, intendedMcpPrefix = 'mcp__github__', path = 'result' },
+) {
   const failures = [];
   const p = (message) => `${path}: ${message}`;
 

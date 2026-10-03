@@ -38,10 +38,12 @@ const redactionPatterns = parseReplacementRegexes(redactionText);
 
 const failures = [];
 for (const sample of samples) {
-  if (!TOKEN_PATTERNS.some((pattern) => {
-    pattern.re.lastIndex = 0;
-    return pattern.re.test(sample);
-  })) {
+  if (
+    !TOKEN_PATTERNS.some((pattern) => {
+      pattern.re.lastIndex = 0;
+      return pattern.re.test(sample);
+    })
+  ) {
     failures.push(`scan patterns missed ${sample.slice(0, sample.indexOf('_') + 1)} sample`);
   }
 

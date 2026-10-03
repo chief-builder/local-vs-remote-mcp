@@ -31,23 +31,23 @@ export const SANDBOX_REPO_PREFIX = 'lvrmcp-';
 const nonEmpty = z.string().trim().min(1);
 
 /** Credentials and sandbox target for the GitHub experiment, validated at startup. */
-export const GithubEnvSchema = z.object({
-  GITHUB_CONTROLLER_TOKEN: nonEmpty,
-  GITHUB_SANDBOX_OWNER: nonEmpty.regex(/^[A-Za-z0-9-]+$/, 'must be a GitHub user or org name'),
-  GITHUB_AGENT_TOKEN: nonEmpty.optional(),
-  GITHUB_PERSONAL_ACCESS_TOKEN: nonEmpty.optional(),
-  GITHUB_HOST: nonEmpty.optional(),
-}).refine((env) => env.GITHUB_AGENT_TOKEN || env.GITHUB_PERSONAL_ACCESS_TOKEN, {
-  message: 'GITHUB_AGENT_TOKEN or GITHUB_PERSONAL_ACCESS_TOKEN is required',
-  path: ['GITHUB_AGENT_TOKEN'],
-});
+export const GithubEnvSchema = z
+  .object({
+    GITHUB_CONTROLLER_TOKEN: nonEmpty,
+    GITHUB_SANDBOX_OWNER: nonEmpty.regex(/^[A-Za-z0-9-]+$/, 'must be a GitHub user or org name'),
+    GITHUB_AGENT_TOKEN: nonEmpty.optional(),
+    GITHUB_PERSONAL_ACCESS_TOKEN: nonEmpty.optional(),
+    GITHUB_HOST: nonEmpty.optional(),
+  })
+  .refine((env) => env.GITHUB_AGENT_TOKEN || env.GITHUB_PERSONAL_ACCESS_TOKEN, {
+    message: 'GITHUB_AGENT_TOKEN or GITHUB_PERSONAL_ACCESS_TOKEN is required',
+    path: ['GITHUB_AGENT_TOKEN'],
+  });
 export type GithubEnv = z.infer<typeof GithubEnvSchema>;
 
 /** Validates the GitHub env; the error lists every problem, never a value. */
 export function readGithubEnv(env: NodeJS.ProcessEnv = process.env): GithubEnv {
-  const blankToUndefined = Object.fromEntries(
-    Object.entries(env).map(([key, value]) => [key, value === '' ? undefined : value]),
-  );
+  const blankToUndefined = Object.fromEntries(Object.entries(env).map(([key, value]) => [key, value === '' ? undefined : value]));
   const parsed = GithubEnvSchema.safeParse(blankToUndefined);
   if (!parsed.success) {
     const problems = parsed.error.issues.map((issue) => `${issue.path.join('.') || 'env'}: ${issue.message}`);

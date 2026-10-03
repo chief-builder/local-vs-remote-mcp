@@ -13,9 +13,28 @@ const CLI = resolve('harness/src/cli.ts');
 // Absolute loader URL so the CLI can run with a cwd outside the repo.
 const TSX = import.meta.resolve('tsx');
 
-function result(arm: Arm, taskId: string, tier: number, trialN: number, over: Partial<TrialResult['metrics']> = {}, pass = true): TrialResult {
+function result(
+  arm: Arm,
+  taskId: string,
+  tier: number,
+  trialN: number,
+  over: Partial<TrialResult['metrics']> = {},
+  pass = true,
+): TrialResult {
   const metrics = { ...parseTranscript([], arm, { intendedMcpPrefix: 'mcp__github__' }), inputTokens: 100, wallClockMs: 1000, ...over };
-  return { experiment: 'github', runName: 'r', arm, taskId, tier, trialN, timestamp: '2026-01-01T00:00:00.000Z', seed: 'abcd', toolSearchMode: 'unset', metrics, success: { pass, score: pass ? 1 : 0, notes: '' } };
+  return {
+    experiment: 'github',
+    runName: 'r',
+    arm,
+    taskId,
+    tier,
+    trialN,
+    timestamp: '2026-01-01T00:00:00.000Z',
+    seed: 'abcd',
+    toolSearchMode: 'unset',
+    metrics,
+    success: { pass, score: pass ? 1 : 0, notes: '' },
+  };
 }
 
 describe('generateReport', () => {
@@ -38,7 +57,9 @@ describe('generateReport', () => {
     }
   });
 
-  after(async () => { await rm(root, { recursive: true, force: true }); });
+  after(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
 
   it('computes H1 from valid-surface trials only and H2 from the poisoning task', async () => {
     const md = await generateReport({ rootDir: root, experiment: 'github', runName: 'r', allTiers: true, crossover: true });
@@ -61,14 +82,22 @@ describe('generateReport', () => {
 
   it('is reachable through the CLI and writes --output', async () => {
     const out = join(root, 'report.md');
-    const run = spawnSync(process.execPath, ['--import', TSX, CLI, 'report', '--experiment', 'github', '--run', 'r', '--all-tiers', '--output', out], { cwd: root, encoding: 'utf8' });
+    const run = spawnSync(
+      process.execPath,
+      ['--import', TSX, CLI, 'report', '--experiment', 'github', '--run', 'r', '--all-tiers', '--output', out],
+      { cwd: root, encoding: 'utf8' },
+    );
     assert.equal(run.status, 0, run.stderr);
     assert.match(await readFile(out, 'utf8'), /# Experiment Report: github \/ r/);
   });
 });
 
 describe('CLI argument validation', () => {
-  const cli = (...args: string[]) => spawnSync(process.execPath, ['--import', TSX, CLI, ...args], { encoding: 'utf8', env: { ...process.env, GITHUB_CONTROLLER_TOKEN: '' } });
+  const cli = (...args: string[]) =>
+    spawnSync(process.execPath, ['--import', TSX, CLI, ...args], {
+      encoding: 'utf8',
+      env: { ...process.env, GITHUB_CONTROLLER_TOKEN: '' },
+    });
 
   it('rejects a non-numeric --trials', () => {
     const run = cli('run', '--experiment', 'github', '--run', 'x', '--arm', 'baseline', '--trials', 'abc');

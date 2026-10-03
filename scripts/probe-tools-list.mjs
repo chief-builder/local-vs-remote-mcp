@@ -96,26 +96,22 @@ async function probeRemote() {
 async function probeLocal() {
   const env = await buildLocalStdioProbeEnvWithToken({ authSource: argValue('--auth-source') ?? 'auto' });
 
-  const child = spawn('docker', [
-    'run',
-    '-i',
-    '--rm',
-    '-e',
-    'GITHUB_PERSONAL_ACCESS_TOKEN',
-    '-e',
-    'GITHUB_TOOLSETS',
-    '-e',
-    'GITHUB_HOST',
-    IMAGE,
-    'stdio',
-  ], { env, stdio: ['pipe', 'pipe', 'pipe'] });
+  const child = spawn(
+    'docker',
+    ['run', '-i', '--rm', '-e', 'GITHUB_PERSONAL_ACCESS_TOKEN', '-e', 'GITHUB_TOOLSETS', '-e', 'GITHUB_HOST', IMAGE, 'stdio'],
+    { env, stdio: ['pipe', 'pipe', 'pipe'] },
+  );
 
   let stdout = '';
   let stderr = '';
   child.stdout.setEncoding('utf8');
   child.stderr.setEncoding('utf8');
-  child.stdout.on('data', (chunk) => { stdout += chunk; });
-  child.stderr.on('data', (chunk) => { stderr += chunk; });
+  child.stdout.on('data', (chunk) => {
+    stdout += chunk;
+  });
+  child.stderr.on('data', (chunk) => {
+    stderr += chunk;
+  });
 
   child.stdin.write(`${JSON.stringify(initializeMessage(1))}\n`);
   child.stdin.write(`${JSON.stringify(initializedNotification())}\n`);
@@ -199,30 +195,33 @@ async function compareCatalogs() {
     remoteOnly,
   };
   await writeFile(join(OUT_DIR, 'overlap.json'), `${JSON.stringify(out, null, 2)}\n`);
-  await writeFile(join(OUT_DIR, 'overlap.md'), [
-    '# GitHub MCP Tool Catalog Diff',
-    '',
-    `Generated: ${out.generatedAt}`,
-    '',
-    `- Local tools: ${out.localCount}`,
-    `- Remote tools: ${out.remoteCount}`,
-    `- Overlap allow-list: ${out.overlapCount}`,
-    `- Local-only: ${out.localOnlyCount}`,
-    `- Remote-only: ${out.remoteOnlyCount}`,
-    '',
-    '## Overlap Allow-List',
-    '',
-    ...overlap.map((name) => `- ${name}`),
-    '',
-    '## Local-Only',
-    '',
-    ...(localOnly.length ? localOnly.map((name) => `- ${name}`) : ['(none)']),
-    '',
-    '## Remote-Only',
-    '',
-    ...(remoteOnly.length ? remoteOnly.map((name) => `- ${name}`) : ['(none)']),
-    '',
-  ].join('\n'));
+  await writeFile(
+    join(OUT_DIR, 'overlap.md'),
+    [
+      '# GitHub MCP Tool Catalog Diff',
+      '',
+      `Generated: ${out.generatedAt}`,
+      '',
+      `- Local tools: ${out.localCount}`,
+      `- Remote tools: ${out.remoteCount}`,
+      `- Overlap allow-list: ${out.overlapCount}`,
+      `- Local-only: ${out.localOnlyCount}`,
+      `- Remote-only: ${out.remoteOnlyCount}`,
+      '',
+      '## Overlap Allow-List',
+      '',
+      ...overlap.map((name) => `- ${name}`),
+      '',
+      '## Local-Only',
+      '',
+      ...(localOnly.length ? localOnly.map((name) => `- ${name}`) : ['(none)']),
+      '',
+      '## Remote-Only',
+      '',
+      ...(remoteOnly.length ? remoteOnly.map((name) => `- ${name}`) : ['(none)']),
+      '',
+    ].join('\n'),
+  );
   console.log(`Overlap: ${overlap.length}; local-only: ${localOnly.length}; remote-only: ${remoteOnly.length}`);
 }
 

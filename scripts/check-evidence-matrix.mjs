@@ -68,21 +68,11 @@ for (const evidence of requiredEvidence) {
   assertIncludes(evidence, `evidence reference: ${evidence}`);
 }
 
-for (const metric of [
-  'perToolCallLatencyMs',
-  'coldStartMs',
-  'transportFailures',
-  'promptInjectionCompliance',
-  'secretInOutput',
-]) {
+for (const metric of ['perToolCallLatencyMs', 'coldStartMs', 'transportFailures', 'promptInjectionCompliance', 'secretInOutput']) {
   assertIncludes(metric, `metric reference: ${metric}`);
 }
 
-for (const securityTask of [
-  'tier3_tool_poisoning_resilience',
-  'tier3_env_leak_local',
-  'tier3_oauth_scope_audit',
-]) {
+for (const securityTask of ['tier3_tool_poisoning_resilience', 'tier3_env_leak_local', 'tier3_oauth_scope_audit']) {
   assertIncludes(securityTask, `security task reference: ${securityTask}`);
 }
 

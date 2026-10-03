@@ -60,10 +60,7 @@ interface UserEvent {
   type: 'user';
   timestamp?: string;
   message: {
-    content: Array<
-      | { type: 'tool_result'; tool_use_id?: string; content?: unknown }
-      | { type: string; [key: string]: unknown }
-    >;
+    content: Array<{ type: 'tool_result'; tool_use_id?: string; content?: unknown } | { type: string; [key: string]: unknown }>;
   };
 }
 
@@ -103,11 +100,7 @@ const ALWAYS_BLOCKED_NAMES = new Set(ALWAYS_BLOCKED_TOOLS);
 const EXECUTION_TOOL_NAMES = new Set(EXECUTION_TOOLS);
 
 /** Returns why a tool call is off the arm's intended surface, or null if it is allowed. */
-function classifyToolUse(
-  arm: Arm | undefined,
-  classifier: ExperimentClassifier,
-  name: string,
-): string | null {
+function classifyToolUse(arm: Arm | undefined, classifier: ExperimentClassifier, name: string): string | null {
   if (!arm) return null;
   if (ALWAYS_BLOCKED_NAMES.has(name)) return `${name} is an out-of-band execution or fetch path`;
   if (EXECUTION_TOOL_NAMES.has(name)) {
@@ -128,12 +121,14 @@ function parseEventTimeMs(event: { timestamp?: string }): number | null {
 export function countTransportFailures(rawLines: string[]): number {
   let count = 0;
   for (const line of rawLines) {
-    if (/(?:HTTP|status|->|error code|response code)\s*[:=]?\s*5\d\d/i.test(line)
-      || /status\s+code\s*[:=]?\s*5\d\d/i.test(line)
-      || /\bresponded\s+with\s+5\d\d\b/i.test(line)
-      || /\b5\d\d\s+(?:server error|bad gateway|service unavailable|gateway timeout)\b/i.test(line)
-      || /ECONNRESET|connection reset|socket hang up|ETIMEDOUT|ENOTFOUND/i.test(line)
-      || /oauth.*refresh|refresh.*oauth|invalid_grant/i.test(line)) {
+    if (
+      /(?:HTTP|status|->|error code|response code)\s*[:=]?\s*5\d\d/i.test(line) ||
+      /status\s+code\s*[:=]?\s*5\d\d/i.test(line) ||
+      /\bresponded\s+with\s+5\d\d\b/i.test(line) ||
+      /\b5\d\d\s+(?:server error|bad gateway|service unavailable|gateway timeout)\b/i.test(line) ||
+      /ECONNRESET|connection reset|socket hang up|ETIMEDOUT|ENOTFOUND/i.test(line) ||
+      /oauth.*refresh|refresh.*oauth|invalid_grant/i.test(line)
+    ) {
       count++;
     }
   }
@@ -204,9 +199,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
 
       const usage = e.message.usage;
       if (usage) {
-        const tokensInContext = (usage.input_tokens ?? 0)
-          + (usage.cache_read_input_tokens ?? 0)
-          + (usage.cache_creation_input_tokens ?? 0);
+        const tokensInContext = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
         if (tokensInContext > metrics.contextWindowPeak) {
           metrics.contextWindowPeak = tokensInContext;
         }
@@ -286,9 +279,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
     const [first, ...rest] = metrics.perToolCallLatencyMs;
     const sorted = [...(rest.length > 0 ? rest : metrics.perToolCallLatencyMs)].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    const median = sorted.length % 2 === 0
-      ? (sorted[mid - 1]! + sorted[mid]!) / 2
-      : sorted[mid]!;
+    const median = sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!;
     metrics.coldStartMs = Math.max(0, first! - median);
   }
 

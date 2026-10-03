@@ -2,10 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const root = process.cwd();
-const scannedRoots = [
-  join(root, 'artifacts', 'verify-arms'),
-  join(root, 'artifacts', 'spike', 'auth'),
-];
+const scannedRoots = [join(root, 'artifacts', 'verify-arms'), join(root, 'artifacts', 'spike', 'auth')];
 const forbiddenJsonKeys = new Set(['email', 'orgId', 'orgName', 'subscriptionType']);
 const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const failures = [];
@@ -21,7 +18,7 @@ async function walk(dir) {
   for (const entry of entries) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
-      files.push(...await walk(path));
+      files.push(...(await walk(path)));
     } else if (entry.isFile()) {
       files.push(path);
     }

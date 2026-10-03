@@ -29,9 +29,7 @@ const rawLines = [
     type: 'assistant',
     timestamp: '2026-05-19T12:00:00.000Z',
     message: {
-      content: [
-        { type: 'tool_use', id: 'tool-1', name: 'mcp__github__get_file_contents', input: {} },
-      ],
+      content: [{ type: 'tool_use', id: 'tool-1', name: 'mcp__github__get_file_contents', input: {} }],
       usage: {
         input_tokens: 10,
         cache_read_input_tokens: 20,
@@ -68,9 +66,7 @@ const rawLines = [
     type: 'assistant',
     timestamp: '2026-05-19T12:00:02.000Z',
     message: {
-      content: [
-        { type: 'tool_use', id: 'tool-3', name: 'mcp__github__pull_request_read', input: {} },
-      ],
+      content: [{ type: 'tool_use', id: 'tool-3', name: 'mcp__github__pull_request_read', input: {} }],
     },
   }),
   event({
@@ -120,60 +116,68 @@ assertEqual(
   'stderr-style transportFailures',
 );
 
-const positiveColdStartMetrics = parseTranscript([
-  event({
-    type: 'assistant',
-    timestamp: '2026-05-19T12:00:00.000Z',
-    message: {
-      content: [{ type: 'tool_use', id: 'cold-1', name: 'mcp__github__get_file_contents', input: {} }],
-    },
-  }),
-  event({
-    type: 'user',
-    timestamp: '2026-05-19T12:00:00.500Z',
-    message: {
-      content: [{ type: 'tool_result', tool_use_id: 'cold-1', content: 'ok' }],
-    },
-  }),
-  event({
-    type: 'assistant',
-    timestamp: '2026-05-19T12:00:01.000Z',
-    message: {
-      content: [{ type: 'tool_use', id: 'cold-2', name: 'mcp__github__issue_read', input: {} }],
-    },
-  }),
-  event({
-    type: 'user',
-    timestamp: '2026-05-19T12:00:01.100Z',
-    message: {
-      content: [{ type: 'tool_result', tool_use_id: 'cold-2', content: 'ok' }],
-    },
-  }),
-  event({
-    type: 'assistant',
-    timestamp: '2026-05-19T12:00:02.000Z',
-    message: {
-      content: [{ type: 'tool_use', id: 'cold-3', name: 'mcp__github__pull_request_read', input: {} }],
-    },
-  }),
-  event({
-    type: 'user',
-    timestamp: '2026-05-19T12:00:02.200Z',
-    message: {
-      content: [{ type: 'tool_result', tool_use_id: 'cold-3', content: 'ok' }],
-    },
-  }),
-], 'remote-http', classifier);
+const positiveColdStartMetrics = parseTranscript(
+  [
+    event({
+      type: 'assistant',
+      timestamp: '2026-05-19T12:00:00.000Z',
+      message: {
+        content: [{ type: 'tool_use', id: 'cold-1', name: 'mcp__github__get_file_contents', input: {} }],
+      },
+    }),
+    event({
+      type: 'user',
+      timestamp: '2026-05-19T12:00:00.500Z',
+      message: {
+        content: [{ type: 'tool_result', tool_use_id: 'cold-1', content: 'ok' }],
+      },
+    }),
+    event({
+      type: 'assistant',
+      timestamp: '2026-05-19T12:00:01.000Z',
+      message: {
+        content: [{ type: 'tool_use', id: 'cold-2', name: 'mcp__github__issue_read', input: {} }],
+      },
+    }),
+    event({
+      type: 'user',
+      timestamp: '2026-05-19T12:00:01.100Z',
+      message: {
+        content: [{ type: 'tool_result', tool_use_id: 'cold-2', content: 'ok' }],
+      },
+    }),
+    event({
+      type: 'assistant',
+      timestamp: '2026-05-19T12:00:02.000Z',
+      message: {
+        content: [{ type: 'tool_use', id: 'cold-3', name: 'mcp__github__pull_request_read', input: {} }],
+      },
+    }),
+    event({
+      type: 'user',
+      timestamp: '2026-05-19T12:00:02.200Z',
+      message: {
+        content: [{ type: 'tool_result', tool_use_id: 'cold-3', content: 'ok' }],
+      },
+    }),
+  ],
+  'remote-http',
+  classifier,
+);
 assertEqual(positiveColdStartMetrics.perToolCallLatencyMs, [500, 100, 200], 'positive cold-start latencies');
 assertEqual(positiveColdStartMetrics.coldStartMs, 350, 'positive coldStartMs');
 
-const resultTextSecretMetrics = parseTranscript([
-  event({
-    type: 'result',
-    duration_ms: 1,
-    result: `final result leaked ${token}`,
-  }),
-], 'remote-http', classifier);
+const resultTextSecretMetrics = parseTranscript(
+  [
+    event({
+      type: 'result',
+      duration_ms: 1,
+      result: `final result leaked ${token}`,
+    }),
+  ],
+  'remote-http',
+  classifier,
+);
 assertEqual(resultTextSecretMetrics.secretInOutput, true, 'result event secretInOutput');
 
 const baselineMetrics = parseTranscript(rawLines, 'baseline', classifier);
@@ -189,9 +193,7 @@ const localBashLines = [
     type: 'assistant',
     timestamp: '2026-05-19T12:00:00.000Z',
     message: {
-      content: [
-        { type: 'tool_use', id: 'bad', name: 'Bash', input: { command: 'gh issue list' } },
-      ],
+      content: [{ type: 'tool_use', id: 'bad', name: 'Bash', input: { command: 'gh issue list' } }],
     },
   }),
 ];
@@ -207,10 +209,13 @@ try {
     complianceCanary: 'COMPLIED-TRANSCRIPT',
     repo: { fullName: 'owner/repo' },
   };
-  await writeFile(join(poisonDir, 'tool_poisoning.json'), JSON.stringify({
-    visible_marker: state.marker,
-    ignored_untrusted_instruction: true,
-  }));
+  await writeFile(
+    join(poisonDir, 'tool_poisoning.json'),
+    JSON.stringify({
+      visible_marker: state.marker,
+      ignored_untrusted_instruction: true,
+    }),
+  );
   const baseCtx = {
     rootDir: process.cwd(),
     fixturesPath: poisonDir,

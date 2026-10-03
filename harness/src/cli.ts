@@ -28,14 +28,11 @@ function intOption(name: string, min = 1): (value: string) => number {
   };
 }
 
-program
-  .name('harness')
-  .description('Local stdio MCP vs remote streamable HTTP MCP experiment harness')
-  .version(pkg.version);
+program.name('harness').description('Local stdio MCP vs remote streamable HTTP MCP experiment harness').version(pkg.version);
 
 async function loadTasks(rootDir: string, tasksPath: string): Promise<Task[]> {
   const indexPath = join(rootDir, tasksPath);
-  const mod = await import(indexPath) as { tasks: Task[] };
+  const mod = (await import(indexPath)) as { tasks: Task[] };
   return mod.tasks;
 }
 
@@ -84,7 +81,11 @@ function extractGithubToolNames(output: string): string[] {
   return [...new Set(output.match(/\bmcp__github__[A-Za-z0-9_]+\b/g) ?? [])].sort();
 }
 
-function validateArmToolOutput(arm: Arm, cfg: { allowedTools?: string[] | undefined; disallowedTools: string[] }, output: string): {
+function validateArmToolOutput(
+  arm: Arm,
+  cfg: { allowedTools?: string[] | undefined; disallowedTools: string[] },
+  output: string,
+): {
   pass: boolean;
   observedGithubTools: string[];
   unexpectedGithubTools: string[];
@@ -128,102 +129,104 @@ program
   .requiredOption('--trials <n>', 'Number of trials per task', intOption('--trials'))
   .option('--trial <n>', 'Run only this trial number within the configured trial count', intOption('--trial'))
   .option('--model <model>', 'Claude model ID', DEFAULT_MODEL)
-  .action(async (opts: {
-    experiment: string;
-    run: string;
-    arm: string;
-    task?: string;
-    tier?: number;
-    trials: number;
-    trial?: number;
-    model: string;
-  }) => {
-    const armParse = ArmSchema.safeParse(opts.arm);
-    if (!armParse.success) {
-      console.error(`Invalid arm "${opts.arm}". Must be one of: baseline, local-stdio, remote-http`);
-      process.exit(1);
-    }
-    const arm = armParse.data;
-    const rootDir = resolve(process.cwd());
-    await loadDotEnv(rootDir);
+  .action(
+    async (opts: {
+      experiment: string;
+      run: string;
+      arm: string;
+      task?: string;
+      tier?: number;
+      trials: number;
+      trial?: number;
+      model: string;
+    }) => {
+      const armParse = ArmSchema.safeParse(opts.arm);
+      if (!armParse.success) {
+        console.error(`Invalid arm "${opts.arm}". Must be one of: baseline, local-stdio, remote-http`);
+        process.exit(1);
+      }
+      const arm = armParse.data;
+      const rootDir = resolve(process.cwd());
+      await loadDotEnv(rootDir);
 
-    let experiment: ExperimentSpec;
-    try {
-      experiment = getExperiment(opts.experiment);
-    } catch (err) {
-      console.error(err instanceof Error ? err.message : String(err));
-      process.exit(1);
-    }
-
-    if (experiment.preflight) {
+      let experiment: ExperimentSpec;
       try {
-        await experiment.preflight([arm]);
+        experiment = getExperiment(opts.experiment);
       } catch (err) {
-        console.error('Preflight failed:', err instanceof Error ? err.message : String(err));
+        console.error(err instanceof Error ? err.message : String(err));
         process.exit(1);
       }
-    }
 
-    let tasks: Task[];
-    try {
-      tasks = await loadTasks(rootDir, experiment.tasksPath);
-    } catch (err) {
-      console.error(`Cannot load tasks for "${experiment.name}":`, err instanceof Error ? err.message : String(err));
-      process.exit(1);
-    }
-
-    let filtered = tasks;
-    if (opts.task) {
-      filtered = tasks.filter(t => t.id === opts.task);
-      if (filtered.length === 0) {
-        console.error(`Task "${opts.task}" not found.`);
-        process.exit(1);
-      }
-    } else if (opts.tier !== undefined) {
-      const tier = opts.tier;
-      filtered = tasks.filter(t => t.tier === tier);
-    }
-    filtered = filtered.filter(t => !t.applicableArms || t.applicableArms.includes(arm));
-    if (filtered.length === 0) {
-      if (opts.task) {
-        console.error(`Task "${opts.task}" is not applicable to arm "${arm}".`);
-        process.exit(1);
-      }
-      console.log(`No tasks apply to arm=${arm}${opts.tier !== undefined ? ` tier=${opts.tier}` : ''}.`);
-      return;
-    }
-    if (opts.trial !== undefined && (!Number.isInteger(opts.trial) || opts.trial < 1 || opts.trial > opts.trials)) {
-      console.error(`--trial must be an integer between 1 and --trials (${opts.trials}).`);
-      process.exit(1);
-    }
-
-    const trialNumbers = opts.trial !== undefined
-      ? [opts.trial]
-      : Array.from({ length: opts.trials }, (_, idx) => idx + 1);
-
-    for (const task of filtered) {
-      for (const n of trialNumbers) {
-        console.log(`→ ${experiment.name}/${opts.run}  ${task.id}  arm=${arm}  trial=${n}/${opts.trials}`);
+      if (experiment.preflight) {
         try {
-          const result = await runTrial({
-            experiment,
-            runName: opts.run,
-            arm,
-            task,
-            trialN: n,
-            rootDir,
-            model: opts.model,
-          });
-          const icon = result.success.pass ? '✓' : '✗';
-          const valid = result.metrics.validToolSurface ? 'valid' : 'INVALID';
-          console.log(`  ${icon} score=${result.success.score.toFixed(2)}  ${valid}  tokens_in=${result.metrics.inputTokens}  turns=${result.metrics.turns}  time=${(result.metrics.wallClockMs / 1000).toFixed(1)}s`);
-          if (result.error) console.error(`  error: ${result.error}`);
+          await experiment.preflight([arm]);
         } catch (err) {
-          console.error(`  trial ${n} threw:`, err);
+          console.error('Preflight failed:', err instanceof Error ? err.message : String(err));
+          process.exit(1);
         }
       }
-    }
-  });
+
+      let tasks: Task[];
+      try {
+        tasks = await loadTasks(rootDir, experiment.tasksPath);
+      } catch (err) {
+        console.error(`Cannot load tasks for "${experiment.name}":`, err instanceof Error ? err.message : String(err));
+        process.exit(1);
+      }
+
+      let filtered = tasks;
+      if (opts.task) {
+        filtered = tasks.filter((t) => t.id === opts.task);
+        if (filtered.length === 0) {
+          console.error(`Task "${opts.task}" not found.`);
+          process.exit(1);
+        }
+      } else if (opts.tier !== undefined) {
+        const tier = opts.tier;
+        filtered = tasks.filter((t) => t.tier === tier);
+      }
+      filtered = filtered.filter((t) => !t.applicableArms || t.applicableArms.includes(arm));
+      if (filtered.length === 0) {
+        if (opts.task) {
+          console.error(`Task "${opts.task}" is not applicable to arm "${arm}".`);
+          process.exit(1);
+        }
+        console.log(`No tasks apply to arm=${arm}${opts.tier !== undefined ? ` tier=${opts.tier}` : ''}.`);
+        return;
+      }
+      if (opts.trial !== undefined && (!Number.isInteger(opts.trial) || opts.trial < 1 || opts.trial > opts.trials)) {
+        console.error(`--trial must be an integer between 1 and --trials (${opts.trials}).`);
+        process.exit(1);
+      }
+
+      const trialNumbers = opts.trial !== undefined ? [opts.trial] : Array.from({ length: opts.trials }, (_, idx) => idx + 1);
+
+      for (const task of filtered) {
+        for (const n of trialNumbers) {
+          console.log(`→ ${experiment.name}/${opts.run}  ${task.id}  arm=${arm}  trial=${n}/${opts.trials}`);
+          try {
+            const result = await runTrial({
+              experiment,
+              runName: opts.run,
+              arm,
+              task,
+              trialN: n,
+              rootDir,
+              model: opts.model,
+            });
+            const icon = result.success.pass ? '✓' : '✗';
+            const valid = result.metrics.validToolSurface ? 'valid' : 'INVALID';
+            console.log(
+              `  ${icon} score=${result.success.score.toFixed(2)}  ${valid}  tokens_in=${result.metrics.inputTokens}  turns=${result.metrics.turns}  time=${(result.metrics.wallClockMs / 1000).toFixed(1)}s`,
+            );
+            if (result.error) console.error(`  error: ${result.error}`);
+          } catch (err) {
+            console.error(`  trial ${n} threw:`, err);
+          }
+        }
+      }
+    },
+  );
 
 // ---------------------------------------------------------------------------
 // report
@@ -238,36 +241,38 @@ program
   .option('--crossover-analysis', 'Include crossover analysis section', false)
   .option('--include-cost', 'Append a USD cost appendix', false)
   .option('--output <path>', 'Write report to file instead of stdout')
-  .action(async (opts: {
-    experiment: string;
-    run: string;
-    tier?: number;
-    allTiers: boolean;
-    crossoverAnalysis: boolean;
-    includeCost: boolean;
-    output?: string;
-  }) => {
-    const rootDir = resolve(process.cwd());
-    await loadDotEnv(rootDir);
-    // Resolve the spec so the report reads the experiment's storage directory.
-    const reportExperiment = getExperiment(opts.experiment).name;
-    const report = await generateReport({
-      rootDir,
-      experiment: reportExperiment,
-      runName: opts.run,
-      ...(opts.tier !== undefined ? { tier: opts.tier } : {}),
-      allTiers: opts.allTiers,
-      crossover: opts.crossoverAnalysis,
-      includeCost: opts.includeCost,
-    });
+  .action(
+    async (opts: {
+      experiment: string;
+      run: string;
+      tier?: number;
+      allTiers: boolean;
+      crossoverAnalysis: boolean;
+      includeCost: boolean;
+      output?: string;
+    }) => {
+      const rootDir = resolve(process.cwd());
+      await loadDotEnv(rootDir);
+      // Resolve the spec so the report reads the experiment's storage directory.
+      const reportExperiment = getExperiment(opts.experiment).name;
+      const report = await generateReport({
+        rootDir,
+        experiment: reportExperiment,
+        runName: opts.run,
+        ...(opts.tier !== undefined ? { tier: opts.tier } : {}),
+        allTiers: opts.allTiers,
+        crossover: opts.crossoverAnalysis,
+        includeCost: opts.includeCost,
+      });
 
-    if (opts.output) {
-      await writeFile(opts.output, report, 'utf-8');
-      console.log(`Report written to ${opts.output}`);
-    } else {
-      process.stdout.write(report + '\n');
-    }
-  });
+      if (opts.output) {
+        await writeFile(opts.output, report, 'utf-8');
+        console.log(`Report written to ${opts.output}`);
+      } else {
+        process.stdout.write(report + '\n');
+      }
+    },
+  );
 
 // ---------------------------------------------------------------------------
 // recompute-metrics
@@ -282,7 +287,7 @@ async function collectFiles(dir: string, suffix: string): Promise<string[]> {
   }
   for (const entry of entries) {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...await collectFiles(path, suffix));
+    if (entry.isDirectory()) out.push(...(await collectFiles(path, suffix)));
     else if (entry.name.endsWith(suffix)) out.push(path);
   }
   return out;
@@ -361,9 +366,10 @@ program
     await loadDotEnv(rootDir);
     const experiment = getExperiment(opts.experiment);
     const arms: Arm[] = ['baseline', 'local-stdio', 'remote-http'];
-    const probe = experiment.name === 'github'
-      ? 'List the exact internal GitHub MCP tool names you have access to right now, using names like mcp__github__example. Return only the exact names, one per line. If you have none, write exactly: NO_GITHUB_MCP_TOOLS.'
-      : 'What tools do you have access to right now? List them specifically. If you have none, say so.';
+    const probe =
+      experiment.name === 'github'
+        ? 'List the exact internal GitHub MCP tool names you have access to right now, using names like mcp__github__example. Return only the exact names, one per line. If you have none, write exactly: NO_GITHUB_MCP_TOOLS.'
+        : 'What tools do you have access to right now? List them specifically. If you have none, say so.';
     let failures = 0;
     const artifact: {
       generatedAt: string;
@@ -440,9 +446,10 @@ program
         });
         const output = [result.stdout, result.stderr].filter(Boolean).join('\n') || '(no output)';
         console.log(output);
-        const policy = experiment.name === 'github'
-          ? validateArmToolOutput(arm, cfg, output)
-          : { pass: true, observedGithubTools: [], unexpectedGithubTools: [], notes: [] };
+        const policy =
+          experiment.name === 'github'
+            ? validateArmToolOutput(arm, cfg, output)
+            : { pass: true, observedGithubTools: [], unexpectedGithubTools: [], notes: [] };
         const pass = result.exitCode === 0 && !/not logged in/i.test(output) && policy.pass;
         artifact.arms.push({
           arm,

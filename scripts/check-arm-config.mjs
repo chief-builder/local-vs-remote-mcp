@@ -10,9 +10,7 @@ const catalog = JSON.parse(await readFile(overlapPath, 'utf8'));
 const localMcpConfig = JSON.parse(await readFile(join(root, '.mcp.github.local.json'), 'utf8'));
 
 const overlap = (catalog.overlap ?? []).map((name) => `mcp__github__${name}`).sort();
-const nonOverlap = [...(catalog.localOnly ?? []), ...(catalog.remoteOnly ?? [])]
-  .map((name) => `mcp__github__${name}`)
-  .sort();
+const nonOverlap = [...(catalog.localOnly ?? []), ...(catalog.remoteOnly ?? [])].map((name) => `mcp__github__${name}`).sort();
 
 function fail(message) {
   console.error(`FAIL: ${message}`);
