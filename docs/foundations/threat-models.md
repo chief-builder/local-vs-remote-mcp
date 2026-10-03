@@ -11,8 +11,11 @@ The server runs as the user. Its trust boundary is the user's trust boundary.
 - **Supply-chain compromise has full local-privilege blast radius.** A malicious
   or compromised stdio server can read `.env`, SSH keys, and source trees; spawn
   processes; and exfiltrate anywhere the user can. A compromised dependency
-  becomes local compromise. (The postmark-mcp backdoor, Sept 2025, did exactly
-  this in production.)
+  becomes local compromise. The first malicious MCP server found in the wild,
+  the npm package `postmark-mcp` (Sept 2025), showed the supply-chain path: a
+  backdoored release silently BCC'd every email it sent to an attacker
+  ([The Hacker News](https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html)).
+  It exfiltrated data it handled; it is not documented as reading local files.
 - **No native sandboxing in most clients.** The server is a plain child process.
 - **Rug-pulls.** `npx server@latest` / `docker run :latest` can pull different
   code each launch. Pinning by digest (the GitHub local arm pins

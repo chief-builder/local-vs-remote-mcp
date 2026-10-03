@@ -15,9 +15,9 @@ in one of two modes:
   tool and must query it to load a tool's schema before calling that tool. This
   saves context on large catalogs, at the cost of an extra discovery step.
 
-The mode is set by the `ENABLE_TOOL_SEARCH` environment variable — see
+The mode is set by the `ENABLE_TOOL_SEARCH` environment variable. See
 [Claude Code: Scale with MCP tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)
-(Claude Code ≥ 2.1):
+(table checked against those docs on 2026-10-03; the stored runs used Claude Code 2.1.195):
 
 | Value | Behavior |
 |---|---|
@@ -25,11 +25,14 @@ The mode is set by the `ENABLE_TOOL_SEARCH` environment variable — see
 | `true` | Deferral on — all MCP tools searchable via `ToolSearch`. |
 | `auto` | Load directly if the definitions fit within 10% of the context window, else defer. |
 | `auto:N` | Same, with an `N%` threshold. |
-| (unset) | Defaults to deferral against a first-party endpoint. |
+| (unset) | All MCP tools deferred, against a first-party API endpoint. |
 
-The trigger is a token budget of the tool definitions, not a fixed count, and a
-per-server `"alwaysLoad": true` in the MCP config exempts one server. The
-Playwright server's 23-tool catalog was large enough to defer by default.
+When `ENABLE_TOOL_SEARCH` is unset, every MCP tool is deferred regardless of
+catalog size. The 10% token budget applies only in `auto` mode. A per-server
+`"alwaysLoad": true` in the MCP config exempts one server. So the Playwright
+server's 23 tools were deferred in the default runs because deferral is the
+default, not because of catalog size. Every result now records the mode it ran
+under (`toolSearchMode` in the result JSON, plus a line in the report).
 
 ## The case study: a confound that faked a vulnerability
 
@@ -83,7 +86,9 @@ The lure is fully resisted on both transports, and the gap disappears.
 - The real finding survives: the model does not take the lure when the decision is
   clean. The 33%/77% measured the harness, not the model.
 
-Data: `experiments/playwright/runs/full-repro-20260626/` (deferral on) and
-`experiments/playwright/runs/unsafe-deconf-20260627/` (deferral off); synthesis in
+Data: [`full-repro-20260626/report.md`](../../experiments/playwright/runs/full-repro-20260626/report.md)
+(deferral on) and
+[`unsafe-deconf-20260627/report.md`](../../experiments/playwright/runs/unsafe-deconf-20260627/report.md)
+(deferral off), with per-trial result JSON alongside each report. Synthesis in
 [`../writeup/long-form.md`](../writeup/long-form.md).
 </content>
