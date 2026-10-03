@@ -6,7 +6,10 @@ import { buildLocalStdioProbeEnvWithToken, loadDotEnv, resolveGitHubToken } from
 const IMAGE = 'ghcr.io/github/github-mcp-server@sha256:e3816a476a977cfb836e7d221510011436c654d11861db66ecfd826601aba6a4';
 const REMOTE_URL = 'https://api.githubcopilot.com/mcp/';
 const OUT_DIR = join(process.cwd(), 'artifacts', 'spike', 'tools-list');
+// Handshake-based revision, used for servers that predate 2026-07-28 (the pinned local image).
 const PROTOCOL_VERSION = '2025-06-18';
+// Current revision (per-request _meta, no initialize). Claude Code uses it with servers that support it.
+const CURRENT_PROTOCOL_VERSION = '2026-07-28';
 
 function argValue(name) {
   const idx = process.argv.indexOf(name);
@@ -25,10 +28,16 @@ function initializedNotification() {
   return { jsonrpc: '2.0', method: 'notifications/initialized' };
 }
 
+// Advertise the client capabilities Claude Code advertises. Servers may gate
+// tools on them: on 2026-10-03 the remote GitHub server exposed
+// delete_repository only to elicitation-capable clients, so a capability-less
+// probe under-counted the catalog the agent actually sees.
+const CLIENT_CAPABILITIES = { elicitation: {} };
+
 function initializeMessage(id) {
   return rpc(id, 'initialize', {
     protocolVersion: PROTOCOL_VERSION,
-    capabilities: {},
+    capabilities: CLIENT_CAPABILITIES,
     clientInfo: { name: 'local-vs-remote-mcp-probe', version: '0.0.0' },
   });
 }
@@ -86,11 +95,45 @@ async function postRemote(message, sessionId) {
   };
 }
 
+async function postRemoteCurrent(id, method) {
+  const token = await resolveGitHubToken({ authSource: argValue('--auth-source') ?? 'auto' });
+  const res = await fetch(REMOTE_URL, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json, text/event-stream',
+      'content-type': 'application/json',
+      'mcp-protocol-version': CURRENT_PROTOCOL_VERSION,
+      'mcp-method': method,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(
+      rpc(id, method, {
+        _meta: {
+          'io.modelcontextprotocol/protocolVersion': CURRENT_PROTOCOL_VERSION,
+          'io.modelcontextprotocol/clientInfo': { name: 'local-vs-remote-mcp-probe', version: '0.0.0' },
+          'io.modelcontextprotocol/clientCapabilities': CLIENT_CAPABILITIES,
+        },
+      }),
+    ),
+  });
+  const text = await res.text();
+  const response = text.trim() ? parseSseOrJson(text) : null;
+  return { ok: res.ok && !response?.error, status: res.status, response };
+}
+
+// Mirror Claude Code: use the current revision when the server supports it
+// (server/discover succeeds), otherwise fall back to the initialize handshake.
 async function probeRemote() {
+  const discover = await postRemoteCurrent(1, 'server/discover');
+  if (discover.ok) {
+    const listed = await postRemoteCurrent(2, 'tools/list');
+    if (!listed.ok) throw new Error(`remote tools/list failed: HTTP ${listed.status} ${JSON.stringify(listed.response).slice(0, 300)}`);
+    return { tools: normalizeTools(listed.response), protocolVersion: CURRENT_PROTOCOL_VERSION };
+  }
   const init = await postRemote(initializeMessage(1));
   await postRemote(initializedNotification(), init.sessionId);
   const listed = await postRemote(rpc(2, 'tools/list'), init.sessionId);
-  return normalizeTools(listed.response);
+  return { tools: normalizeTools(listed.response), protocolVersion: init.response?.result?.protocolVersion ?? PROTOCOL_VERSION };
 }
 
 async function probeLocal() {
@@ -150,10 +193,17 @@ async function probeLocal() {
   return normalizeTools(response);
 }
 
-async function writeCatalog(name, tools) {
+async function writeCatalog(name, tools, protocolVersion) {
   await mkdir(OUT_DIR, { recursive: true });
   const path = join(OUT_DIR, `${name}.json`);
-  await writeFile(path, `${JSON.stringify({ generatedAt: new Date().toISOString(), count: tools.length, tools }, null, 2)}\n`);
+  const catalog = {
+    generatedAt: new Date().toISOString(),
+    protocolVersion,
+    clientCapabilities: CLIENT_CAPABILITIES,
+    count: tools.length,
+    tools,
+  };
+  await writeFile(path, `${JSON.stringify(catalog, null, 2)}\n`);
   console.log(`Wrote ${path} (${tools.length} tools)`);
 }
 
@@ -239,11 +289,12 @@ async function main() {
 
   const arm = argValue('--arm');
   if (arm === 'local') {
-    await writeCatalog('local', await probeLocal());
+    await writeCatalog('local', await probeLocal(), PROTOCOL_VERSION);
     return;
   }
   if (arm === 'remote') {
-    await writeCatalog('remote', await probeRemote());
+    const remote = await probeRemote();
+    await writeCatalog('remote', remote.tools, remote.protocolVersion);
     return;
   }
 
