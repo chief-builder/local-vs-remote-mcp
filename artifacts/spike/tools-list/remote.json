@@ -1,6 +1,10 @@
 {
-  "generatedAt": "2026-10-03T05:24:37.992Z",
-  "count": 49,
+  "generatedAt": "2026-10-03T05:29:17.180Z",
+  "protocolVersion": "2026-07-28",
+  "clientCapabilities": {
+    "elicitation": {}
+  },
+  "count": 50,
   "tools": [
     {
       "name": "add_comment_to_pending_review",
@@ -41,6 +45,10 @@
     {
       "name": "delete_file",
       "description": "Delete a file from a GitHub repository"
+    },
+    {
+      "name": "delete_repository",
+      "description": "Delete a GitHub repository after the user confirms the exact owner/repository name"
     },
     {
       "name": "fork_repository",

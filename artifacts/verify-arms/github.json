@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-25T05:04:33.088Z",
+  "generatedAt": "2026-10-03T05:30:51.427Z",
   "experiment": "github",
   "model": "claude-sonnet-4-6",
   "pass": true,
@@ -15,8 +15,9 @@
       "description": "No GitHub execution surface: pure reasoning floor against off-host state",
       "exitCode": 0,
       "output": "NO_GITHUB_MCP_TOOLS",
-      "observedGithubTools": [],
-      "unexpectedGithubTools": [],
+      "loadedMcpTools": [],
+      "unexpectedTools": [],
+      "missingTools": [],
       "policyNotes": [],
       "pass": true
     },
@@ -25,7 +26,7 @@
       "description": "GitHub MCP via digest-pinned Docker stdio; restricted to the local/remote overlap allow-list",
       "exitCode": 0,
       "output": "mcp__github__add_comment_to_pending_review\nmcp__github__add_issue_comment\nmcp__github__add_reply_to_pull_request_comment\nmcp__github__assign_copilot_to_issue\nmcp__github__create_branch\nmcp__github__create_or_update_file\nmcp__github__create_pull_request\nmcp__github__create_repository\nmcp__github__delete_file\nmcp__github__fork_repository\nmcp__github__get_commit\nmcp__github__get_file_contents\nmcp__github__get_label\nmcp__github__get_latest_release\nmcp__github__get_me\nmcp__github__get_release_by_tag\nmcp__github__get_tag\nmcp__github__get_team_members\nmcp__github__get_teams\nmcp__github__issue_read\nmcp__github__issue_write\nmcp__github__list_branches\nmcp__github__list_commits\nmcp__github__list_issue_types\nmcp__github__list_issues\nmcp__github__list_pull_requests\nmcp__github__list_releases\nmcp__github__list_tags\nmcp__github__merge_pull_request\nmcp__github__pull_request_read\nmcp__github__pull_request_review_write\nmcp__github__push_files\nmcp__github__request_copilot_review\nmcp__github__search_code\nmcp__github__search_issues\nmcp__github__search_pull_requests\nmcp__github__search_repositories\nmcp__github__search_users\nmcp__github__sub_issue_write\nmcp__github__update_pull_request\nmcp__github__update_pull_request_branch",
-      "observedGithubTools": [
+      "loadedMcpTools": [
         "mcp__github__add_comment_to_pending_review",
         "mcp__github__add_issue_comment",
         "mcp__github__add_reply_to_pull_request_comment",
@@ -68,7 +69,8 @@
         "mcp__github__update_pull_request",
         "mcp__github__update_pull_request_branch"
       ],
-      "unexpectedGithubTools": [],
+      "unexpectedTools": [],
+      "missingTools": [],
       "policyNotes": [],
       "pass": true
     },
@@ -77,7 +79,7 @@
       "description": "GitHub hosted MCP via streamable HTTP; restricted to the local/remote overlap allow-list",
       "exitCode": 0,
       "output": "mcp__github__add_comment_to_pending_review\nmcp__github__add_issue_comment\nmcp__github__add_reply_to_pull_request_comment\nmcp__github__assign_copilot_to_issue\nmcp__github__create_branch\nmcp__github__create_or_update_file\nmcp__github__create_pull_request\nmcp__github__create_repository\nmcp__github__delete_file\nmcp__github__fork_repository\nmcp__github__get_commit\nmcp__github__get_file_contents\nmcp__github__get_label\nmcp__github__get_latest_release\nmcp__github__get_me\nmcp__github__get_release_by_tag\nmcp__github__get_tag\nmcp__github__get_team_members\nmcp__github__get_teams\nmcp__github__issue_read\nmcp__github__issue_write\nmcp__github__list_branches\nmcp__github__list_commits\nmcp__github__list_issue_types\nmcp__github__list_issues\nmcp__github__list_pull_requests\nmcp__github__list_releases\nmcp__github__list_tags\nmcp__github__merge_pull_request\nmcp__github__pull_request_read\nmcp__github__pull_request_review_write\nmcp__github__push_files\nmcp__github__request_copilot_review\nmcp__github__search_code\nmcp__github__search_issues\nmcp__github__search_pull_requests\nmcp__github__search_repositories\nmcp__github__search_users\nmcp__github__sub_issue_write\nmcp__github__update_pull_request\nmcp__github__update_pull_request_branch",
-      "observedGithubTools": [
+      "loadedMcpTools": [
         "mcp__github__add_comment_to_pending_review",
         "mcp__github__add_issue_comment",
         "mcp__github__add_reply_to_pull_request_comment",
@@ -120,7 +122,8 @@
         "mcp__github__update_pull_request",
         "mcp__github__update_pull_request_branch"
       ],
-      "unexpectedGithubTools": [],
+      "unexpectedTools": [],
+      "missingTools": [],
       "policyNotes": [],
       "pass": true
     }

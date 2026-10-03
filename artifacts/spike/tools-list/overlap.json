@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-03T05:24:38.129Z",
+  "generatedAt": "2026-10-03T05:29:17.324Z",
   "localCount": 79,
-  "remoteCount": 49,
+  "remoteCount": 50,
   "overlapCount": 41,
   "localOnlyCount": 38,
-  "remoteOnlyCount": 8,
+  "remoteOnlyCount": 9,
   "overlap": [
     "add_comment_to_pending_review",
     "add_issue_comment",
@@ -90,6 +90,7 @@
   ],
   "remoteOnly": [
     "create_pull_request_with_copilot",
+    "delete_repository",
     "get_copilot_job_status",
     "list_issue_fields",
     "list_repository_collaborators",

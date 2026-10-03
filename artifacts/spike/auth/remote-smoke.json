@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-03T05:25:18.335Z",
+  "generatedAt": "2026-10-03T05:29:28.430Z",
   "pass": true,
   "method": "bearer-header-from-env-agent-token",
   "childProcessSurvived": true,
-  "manualSmoke": "npm run probe:tools -- --arm remote --auth-source env completed non-interactively from a child process on 2026-10-03 and wrote artifacts/spike/tools-list/remote.json with 49 tools.",
+  "manualSmoke": "npm run probe:tools -- --arm remote --auth-source env completed non-interactively from a child process on 2026-10-03 (protocol 2026-07-28, elicitation advertised) and wrote artifacts/spike/tools-list/remote.json with 50 tools.",
   "notes": "No token material stored. Re-captured before the 2026-10-03 GitHub re-run with freshly issued fine-grained PATs. Claude Code keychain OAuth remains unconfigured; trials use the bearer header in .mcp.github.remote.json."
 }
