@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_issue_workflow",
+  "tier": 2,
+  "trialN": 4,
+  "timestamp": "2026-05-20T11:43:11.681Z",
+  "seed": "63aa547c8fc2dbc6",
+  "metrics": {
+    "inputTokens": 601,
+    "outputTokens": 1009,
+    "cachedInputTokens": 65085,
+    "cacheCreationInputTokens": 8384,
+    "toolCalls": [
+      {
+        "id": "toolu_011TbxjqogfRLvkAZfGcq55w",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01MeCUag47iPKtdFtdudUSQN",
+        "name": "mcp__github__list_issues",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01TiXUdRyre26hfb5B2RTVJL",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01CSmF1rdfFEfUozLMA2FT2W",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01YL2p8DgvZVmN3MfgF5ipvA",
+        "name": "mcp__github__add_issue_comment",
+        "turnIndex": 11
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 12,
+    "wallClockMs": 21696,
+    "perToolCallLatencyMs": [
+      14,
+      381,
+      3,
+      2173,
+      1925
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15877,
+    "totalCostUsd": 0.0665335,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all workflow steps applied to target only",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-workflow-63aa547c",
+      "targetIssueNumber": 2,
+      "expectedLabel": "priority-high",
+      "expectedCommentPhrase": "triaged-E2191922"
+    }
+  }
+}

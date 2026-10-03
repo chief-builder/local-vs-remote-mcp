@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-05-20T11:45:27.857Z",
+  "seed": "e602802d4b7c0d16",
+  "metrics": {
+    "inputTokens": 652,
+    "outputTokens": 1222,
+    "cachedInputTokens": 79623,
+    "cacheCreationInputTokens": 8306,
+    "toolCalls": [
+      {
+        "id": "toolu_01JAaT9m7LJs381dU6vGGxtB",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01DSnXhuQEW2SFArRxRXxCe3",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_014QasSQZDk8CFtFMi5pherR",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_017PC56qx4cvCtUUa1uMqQ8M",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01KZ8HACXVNjQbkcdRReyb9C",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 10
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 11,
+    "wallClockMs": 28070,
+    "perToolCallLatencyMs": [
+      5,
+      425,
+      896,
+      895,
+      1203
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15799,
+    "totalCostUsd": 0.0738064,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-e602802d",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_5FD3BB3A",
+      "expectedPrTitle": "Fix MARKER-5FD3BB3A"
+    }
+  }
+}

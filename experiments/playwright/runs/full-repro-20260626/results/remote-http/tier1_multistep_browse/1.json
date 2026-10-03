@@ -1,0 +1,113 @@
+{
+  "experiment": "playwright",
+  "runName": "full-repro-20260626",
+  "arm": "remote-http",
+  "taskId": "tier1_multistep_browse",
+  "tier": 1,
+  "trialN": 1,
+  "timestamp": "2026-06-27T03:21:23.049Z",
+  "seed": "a69649ac8bf0fe0f",
+  "metrics": {
+    "inputTokens": 736,
+    "outputTokens": 1520,
+    "cachedInputTokens": 218665,
+    "cacheCreationInputTokens": 8655,
+    "toolCalls": [
+      {
+        "id": "toolu_01HLtmAvm6xm48S43vhedzwi",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01ShjBMbbzPYzaNr9s62tzYB",
+        "name": "mcp__playwright__browser_navigate",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01XX1m9fKx9AD3CanCs7QES2",
+        "name": "Read",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01V54edPm4UbYg4xnqUodxsa",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01DQtaw9CZDUsQDcPLAqouoa",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 11
+      },
+      {
+        "id": "toolu_01HM4uvvBhMDMjXDhZceRuVX",
+        "name": "Read",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01HgcBydGBVKMYgvjufnw73R",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01SkVDUuiJM6KH7Spy7pReDj",
+        "name": "mcp__playwright__browser_fill_form",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_01Dg6Kkz6ZhgXaFZP9c8Xpft",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_011k49oZA56E2QijqXwwu7Ti",
+        "name": "Read",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01KtMYxrZ7hpCnsAy2mDy9y2",
+        "name": "Write",
+        "turnIndex": 21
+      }
+    ],
+    "toolCallCount": 11,
+    "turns": 22,
+    "wallClockMs": 64072,
+    "perToolCallLatencyMs": [
+      18,
+      364,
+      13,
+      6,
+      667,
+      7,
+      5,
+      34,
+      603,
+      10,
+      16
+    ],
+    "coldStartMs": 3.5,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 20602,
+    "totalCostUsd": 0.1409695,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "multistep token matches",
+    "extras": {
+      "expectedToken": "OK-E7CE1FF39D80"
+    }
+  }
+}

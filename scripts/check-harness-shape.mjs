@@ -141,6 +141,7 @@ assert(hookSource.includes('npm run scan:secrets'), 'tracked pre-push hook must 
 
 const gitignore = await readFile('.gitignore', 'utf8');
 assert(/(^|\n)\.env(\n|$)/.test(gitignore), '.gitignore must ignore .env');
-assert(gitignore.includes('experiments/**/runs/'), '.gitignore must ignore raw run artifacts by default');
+assert(gitignore.includes('experiments/*/runs/*\n'), '.gitignore must ignore run directories by default');
+assert(gitignore.includes('experiments/*/runs/*/transcripts/'), '.gitignore must ignore raw transcripts, including in published runs');
 
 console.log('Harness shape check passed.');

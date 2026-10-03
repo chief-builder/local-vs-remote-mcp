@@ -1,0 +1,102 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-05-20T11:00:50.909Z",
+  "seed": "e602802d4b7c0d16",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01FND4bkKhD4FiycMx4MvwbB",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_014JxN3phiHPav8UQ428R1uK",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01BjTTXpUUk8pN2o1QKAcavN",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_011NkpJtEfy82zqhZkKs5ZHU",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_0199BSfzphM3Egb2PkDriTWx",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01PHQ6fypxhKnzHC385U25M1",
+        "name": "Glob",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_012EZVjmoguULFkvSMrKpWnb",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01MMsAKXexvT89JdUCvgaL4g",
+        "name": "Glob",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_0187gGc3cWSs3Xv65RmJrjJS",
+        "name": "Read",
+        "turnIndex": 21
+      }
+    ],
+    "toolCallCount": 9,
+    "turns": 21,
+    "wallClockMs": 90155,
+    "perToolCallLatencyMs": [
+      49,
+      89,
+      10,
+      2,
+      60,
+      33,
+      41,
+      119,
+      15597
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 24598,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-e602802d",
+      "prNumber": null,
+      "expectedFunctionName": "solve_5FD3BB3A",
+      "expectedPrTitle": "Fix MARKER-5FD3BB3A"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

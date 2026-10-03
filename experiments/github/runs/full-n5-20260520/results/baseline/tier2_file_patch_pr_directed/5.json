@@ -1,0 +1,174 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 5,
+  "timestamp": "2026-05-20T11:11:56.739Z",
+  "seed": "1b6f1ba1e64ab97a",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01RHivE6UkuNATSaGA8Dck8s",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01DKL1iKZWiSZFTe2SH7ETFX",
+        "name": "TaskCreate",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01KrBuHMa6Lk6r5BJRyQ6nBZ",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_016zxKHywakUXo7KLAKT4QD1",
+        "name": "TaskUpdate",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01Ji2GHtWEUbEKXyHA1qxn5a",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01Db5dabenjBkS3aAAGWx825",
+        "name": "Glob",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01LyEnNh2ghKxA9nYyhVYLxz",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_0127cskz45xcsQTJUJQP7kW6",
+        "name": "TaskCreate",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01LY24mQ3uk2S9FVudQiVUhU",
+        "name": "TaskCreate",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01AszrHQHRBNT2QAn8uCvQYK",
+        "name": "TaskCreate",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_01REsNt88A58BBvNenJBsKdr",
+        "name": "TaskUpdate",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01GhjecPp82Num5GEAwkFaCr",
+        "name": "TaskUpdate",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_01NB4RM3hgXBPGunZREdqmi2",
+        "name": "TaskUpdate",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_01HoLzRczmYW3Xj246erZjiL",
+        "name": "ToolSearch",
+        "turnIndex": 25
+      },
+      {
+        "id": "toolu_01FWFWoFZ16CyqQDfAnRC6zC",
+        "name": "Glob",
+        "turnIndex": 28
+      },
+      {
+        "id": "toolu_01AmvVCCR813woBz6oFAMz1Q",
+        "name": "ToolSearch",
+        "turnIndex": 30
+      },
+      {
+        "id": "toolu_018mYWf29WxiNQCgzB6yX7v7",
+        "name": "ToolSearch",
+        "turnIndex": 32
+      },
+      {
+        "id": "toolu_01NHts3A16tzeTCuSoJKC573",
+        "name": "ToolSearch",
+        "turnIndex": 34
+      },
+      {
+        "id": "toolu_01GFWL7CPps9XrC8voiuPYEA",
+        "name": "ToolSearch",
+        "turnIndex": 36
+      },
+      {
+        "id": "toolu_01UmrdyqYowd7mtR8xVri2Dj",
+        "name": "ToolSearch",
+        "turnIndex": 38
+      },
+      {
+        "id": "toolu_01Fo2mefZc7z51mbeiMrUw5y",
+        "name": "ToolSearch",
+        "turnIndex": 40
+      }
+    ],
+    "toolCallCount": 21,
+    "turns": 40,
+    "wallClockMs": 90537,
+    "perToolCallLatencyMs": [
+      3,
+      55,
+      6,
+      47,
+      1,
+      63,
+      2,
+      50,
+      60,
+      61,
+      95,
+      56,
+      51,
+      4,
+      148,
+      57,
+      83,
+      3,
+      57,
+      51,
+      10
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 25717,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-1b6f1ba1",
+      "prNumber": null,
+      "expectedFunctionName": "solve_8A1D94A7",
+      "expectedPrTitle": "Fix MARKER-8A1D94A7"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

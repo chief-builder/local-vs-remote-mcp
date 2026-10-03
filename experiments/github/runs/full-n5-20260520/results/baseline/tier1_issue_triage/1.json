@@ -1,0 +1,86 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier1_issue_triage",
+  "tier": 1,
+  "trialN": 1,
+  "timestamp": "2026-05-20T10:34:12.084Z",
+  "seed": "9186b269696a1565",
+  "metrics": {
+    "inputTokens": 725,
+    "outputTokens": 1045,
+    "cachedInputTokens": 118853,
+    "cacheCreationInputTokens": 13814,
+    "toolCalls": [
+      {
+        "id": "toolu_018nhhKteLThkknzKjBeLzKs",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_012xEDEKC8bmk3nMey3WX9uu",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01YAT8P7uXwEXYZYKPEDUpDv",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01B1VPUmhcFSWVYMhAUmFuKF",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01DYqf6gxoDFR8HVna4RvmPQ",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_015jMSBY3CVMsG1yiaiKcMyS",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_017gUoAaAzXvW7tYVagRUzAX",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      }
+    ],
+    "toolCallCount": 7,
+    "turns": 16,
+    "wallClockMs": 27819,
+    "perToolCallLatencyMs": [
+      6,
+      51,
+      49,
+      4,
+      62,
+      108,
+      2
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 21167,
+    "totalCostUsd": 0.10376239999999999,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at experiments/github/runs/full-n5-20260520/results/baseline/tier1_issue_triage/1/issue_triage.json"
+  }
+}

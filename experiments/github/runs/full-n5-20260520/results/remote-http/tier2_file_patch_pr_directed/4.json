@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "remote-http",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 4,
+  "timestamp": "2026-05-20T13:21:54.914Z",
+  "seed": "c6ec1070b711b5a1",
+  "metrics": {
+    "inputTokens": 851,
+    "outputTokens": 1383,
+    "cachedInputTokens": 78172,
+    "cacheCreationInputTokens": 8117,
+    "toolCalls": [
+      {
+        "id": "toolu_01GLAdMPiUHaKP6Yzmvsy6RJ",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01MMCPNoqDGuBjKticKmibbc",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_016wbdeUeLNPJKNkm1Tufo93",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01UkqGgWHqvKbqqPymRWZwFV",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01QLzbTut4preN6Mad68m1Bw",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 27619,
+    "perToolCallLatencyMs": [
+      7,
+      998,
+      1405,
+      1346,
+      1559
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15610,
+    "totalCostUsd": 0.07528635,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-c6ec1070",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_43DA9F8D",
+      "expectedPrTitle": "Fix MARKER-43DA9F8D"
+    }
+  }
+}

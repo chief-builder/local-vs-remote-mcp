@@ -9,8 +9,16 @@ harness/dist/
 *.log
 *.stderr.log
 
-# Trial outputs can contain transcripts. Commit only curated, scanned summaries.
-experiments/**/runs/
+# Trial outputs can contain transcripts. Commit only curated, scanned summaries:
+# report.md and per-trial result JSON for the runs cited in docs/. Transcripts,
+# stderr logs, and per-trial agent work directories stay local.
+experiments/*/runs/*
+!experiments/github/runs/full-n5-20260520/
+!experiments/playwright/runs/full-repro-20260626/
+!experiments/playwright/runs/unsafe-deconf-20260627/
+experiments/*/runs/*/transcripts/
+experiments/*/runs/*/results/*/*/*/
+experiments/*/runs/**/*.stderr.log
 artifacts/**/*.jsonl
 
 # MCP / browser session workdirs
@@ -20,3 +28,13 @@ artifacts/**/*.jsonl
 # macOS noise
 .DS_Store
 
+# Local env variants and coverage output
+.envrc
+coverage/
+*.lcov
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~

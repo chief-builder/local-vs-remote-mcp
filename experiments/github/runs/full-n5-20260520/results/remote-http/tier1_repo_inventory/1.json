@@ -1,0 +1,83 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "remote-http",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 1,
+  "timestamp": "2026-05-20T12:13:06.614Z",
+  "seed": "0890886f67320774",
+  "metrics": {
+    "inputTokens": 649,
+    "outputTokens": 895,
+    "cachedInputTokens": 65044,
+    "cacheCreationInputTokens": 9893,
+    "toolCalls": [
+      {
+        "id": "toolu_01Moc9L4YZYm13vKtMWQywob",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01GoVWXNVtgm9NTobrxdbw2R",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01MELMbz4UcuR3T8dD7o666q",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01HM86TwUratxD79V7DNpMoy",
+        "name": "mcp__github__search_repositories",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01Ehnk71dAynYbzUKoToASwy",
+        "name": "Write",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 68000,
+    "perToolCallLatencyMs": [
+      8,
+      2,
+      1375,
+      552,
+      45
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 17386,
+    "totalCostUsd": 0.07054795,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all repo facts match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-repo-inventory-0890886f",
+      "expectedDescription": "local-vs-remote-mcp sandbox repo (089088)",
+      "expectedTopics": [
+        "topic-ade3",
+        "topic-9471",
+        "local-vs-remote-mcp"
+      ]
+    }
+  }
+}

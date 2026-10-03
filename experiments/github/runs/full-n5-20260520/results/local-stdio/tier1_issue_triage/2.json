@@ -1,0 +1,66 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier1_issue_triage",
+  "tier": 1,
+  "trialN": 2,
+  "timestamp": "2026-05-20T11:37:50.388Z",
+  "seed": "b73972281f673b22",
+  "metrics": {
+    "inputTokens": 713,
+    "outputTokens": 616,
+    "cachedInputTokens": 48615,
+    "cacheCreationInputTokens": 7192,
+    "toolCalls": [
+      {
+        "id": "toolu_01SBRGAh5fdsXw1XJhfU6Muj",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01UKw1wswrDJMhWyLTh4qCKp",
+        "name": "mcp__github__list_issues",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_012tPGzMSjHnGSetXBncC8nJ",
+        "name": "Write",
+        "turnIndex": 8
+      }
+    ],
+    "toolCallCount": 3,
+    "turns": 9,
+    "wallClockMs": 22810,
+    "perToolCallLatencyMs": [
+      8,
+      551,
+      52
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 14685,
+    "totalCostUsd": 0.0513835,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "issue found, fields match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-issue-triage-b7397228",
+      "expectedTitle": "Target issue d1cab9"
+    }
+  }
+}
