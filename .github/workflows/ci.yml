@@ -31,6 +31,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:coverage
       - run: npm run build
+      - run: npm run docs:build
       # Non-live gate set: Phase 1 evidence, arm policy, regression checks, secret scan.
       - run: npm run check:static
 

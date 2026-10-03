@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/chief-builder/local-vs-remote-mcp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/chief-builder/local-vs-remote-mcp/actions/workflows/ci.yml)
 
+**Docs site:** [chief-builder.github.io/local-vs-remote-mcp](https://chief-builder.github.io/local-vs-remote-mcp/) has a plain-language summary, diagrams of the setup, and links to every result.
+
 A research harness for measuring what the [Model Context Protocol](https://modelcontextprotocol.io/) transport
 changes for an AI agent. It runs the Claude Code CLI headlessly against the same tasks under three arms:
 
@@ -101,6 +103,7 @@ prints a value. Run policy lives in the same file:
 npm test                 # all tests
 npm run test:coverage    # with Node's built-in coverage report
 npm run lint && npm run format:check && npm run typecheck
+npm run docs:dev         # docs site at http://localhost:5173/local-vs-remote-mcp/
 ```
 
 The tests need no network access or credentials. They cover:

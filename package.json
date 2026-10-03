@@ -13,6 +13,9 @@
     "harness": "node --import tsx harness/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
     "build": "tsc",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "probe:tools": "node --import tsx scripts/probe-tools-list.mjs",
     "probe:env-scrub": "node --import tsx scripts/env-scrub-probe.mjs",
     "auth:status": "node --import tsx scripts/auth-status.mjs",
@@ -57,12 +60,17 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@types/node": "^24.19.1",
+    "mermaid": "12.1.0",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitepress": "1.6.4"
   },
   "dependencies": {
     "commander": "^15.0.0",
     "execa": "^10.0.1",
     "zod": "^4.6.5"
+  },
+  "overrides": {
+    "vite": "6.4.3"
   }
 }

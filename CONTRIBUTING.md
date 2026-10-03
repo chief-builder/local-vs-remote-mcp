@@ -19,6 +19,7 @@ npm run format:check   # npm run format to fix
 npm run typecheck
 npm test
 npm run check:static   # non-live gate set, includes the secret scan
+npm run docs:build     # the docs site (docs/) must build; CI checks this too
 ```
 
 CI runs the same commands plus a link check.

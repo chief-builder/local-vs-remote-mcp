@@ -39,3 +39,7 @@ coverage/
 .idea/
 *.swp
 *~
+
+# Docs site build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/

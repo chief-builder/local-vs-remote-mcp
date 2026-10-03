@@ -73,7 +73,6 @@ leaves the machine. The two hypotheses
 See [threat models](./threat-models.md) for the security consequences of each
 transport, and [experiment design](./experiment-design.md) for how the arms are
 wired.
-</content>
 
 ## Spec revision this repo targets
 

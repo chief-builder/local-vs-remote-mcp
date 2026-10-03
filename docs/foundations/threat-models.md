@@ -87,4 +87,3 @@ and stored credentials on remote.
   server compromise, each with concrete mitigations.
 - [OWASP: MCP Tool Poisoning](https://owasp.org/www-community/attacks/MCP_Tool_Poisoning).
 - [Simon Willison: MCP has prompt-injection security problems](https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/).
-</content>

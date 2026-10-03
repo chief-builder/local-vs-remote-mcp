@@ -97,4 +97,3 @@ crossover, and cost sections.
 > One variable this design must pin explicitly: **tool-discovery mode**. See
 > [tool discovery and deferral](./tool-discovery-and-deferral.md) for why an
 > unpinned `ENABLE_TOOL_SEARCH` can contaminate Tier 3 results.
-</content>
