@@ -38,11 +38,12 @@ async function writeFixture(root) {
   await mkdir(toolsDir, { recursive: true });
   await mkdir(authDir, { recursive: true });
   await mkdir(scrubDir, { recursive: true });
-  await mkdir(join(root, 'scripts', 'lib'), { recursive: true });
+  await mkdir(join(root, 'scripts'), { recursive: true });
+  await mkdir(join(root, 'harness', 'src'), { recursive: true });
 
   await writeFile(join(root, 'scripts', 'probe-tools-list.mjs'), 'export {}\n', 'utf8');
   await writeFile(join(root, 'scripts', 'env-scrub-probe.mjs'), 'export {}\n', 'utf8');
-  await writeFile(join(root, 'scripts', 'lib', 'github-env.mjs'), 'export {}\n', 'utf8');
+  await writeFile(join(root, 'harness', 'src', 'env.ts'), 'export {}\n', 'utf8');
   await writeFile(join(root, '.mcp.github.local.json'), '{}\n', 'utf8');
 
   await writeFile(join(toolsDir, 'local.json'), '{"count":1,"tools":[{"name":"issue_read"}]}\n', 'utf8');
@@ -73,7 +74,7 @@ try {
   for (const sourcePath of [
     join(root, 'scripts', 'probe-tools-list.mjs'),
     join(root, 'scripts', 'env-scrub-probe.mjs'),
-    join(root, 'scripts', 'lib', 'github-env.mjs'),
+    join(root, 'harness', 'src', 'env.ts'),
     join(root, '.mcp.github.local.json'),
   ]) {
     await utimes(sourcePath, old, old);

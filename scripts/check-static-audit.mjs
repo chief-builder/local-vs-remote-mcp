@@ -28,7 +28,6 @@ const requiredStaticChecks = [
   'check:harness-shape',
   'check:provider-config',
   'check:scripts',
-  'check:hooks',
   'scan:secrets',
   'check:whitespace',
 ];

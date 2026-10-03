@@ -1,5 +1,5 @@
 import { access, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { newestMtimeMs } from './lib/completion-report.mjs';
 
 const root = process.cwd();
@@ -40,8 +40,13 @@ async function requireNewerThan(path, dependencyPaths, blockers, label) {
   }
 }
 
+// Record repo-relative paths so the committed artifact is machine-independent.
+function rel(text) {
+  return text.split(root + '/').join('');
+}
+
 function gate(id, name, pass, evidence, blockers) {
-  return { id, name, pass, evidence, blockers };
+  return { id, name, pass, evidence: evidence.map((path) => relative(root, path)), blockers: blockers.map(rel) };
 }
 
 function probeSourcePath() {
@@ -52,16 +57,10 @@ async function gate1() {
   const toolsDir = join(outDir, 'tools-list');
   const localPath = join(toolsDir, 'local.json');
   const remotePath = join(toolsDir, 'remote.json');
-  const localErrorPath = join(toolsDir, 'local.error.txt');
-  const remoteErrorPath = join(toolsDir, 'remote.error.txt');
   const overlapPath = join(toolsDir, 'overlap.json');
   const overlapMdPath = join(toolsDir, 'overlap.md');
   const evidence = [];
   const blockers = [];
-
-  for (const path of [localErrorPath, remoteErrorPath]) {
-    if (await exists(path)) evidence.push(path);
-  }
 
   for (const path of [localPath, remotePath, overlapPath, overlapMdPath]) {
     if (await exists(path)) evidence.push(path);
@@ -101,12 +100,9 @@ async function gate1() {
 
 async function gate2() {
   const remoteCatalog = join(outDir, 'tools-list', 'remote.json');
-  const remoteErrorPath = join(outDir, 'tools-list', 'remote.error.txt');
   const smokePath = join(outDir, 'auth', 'remote-smoke.json');
   const evidence = [];
   const blockers = [];
-
-  if (await exists(remoteErrorPath)) evidence.push(remoteErrorPath);
 
   if (await exists(remoteCatalog)) evidence.push(remoteCatalog);
   else blockers.push(`missing successful remote tools/list artifact ${remoteCatalog}`);
@@ -156,7 +152,7 @@ async function gate3() {
   }
   await requireNewerThan(scrubPath, [
     join(root, 'scripts', 'env-scrub-probe.mjs'),
-    join(root, 'scripts', 'lib', 'github-env.mjs'),
+    join(root, 'harness', 'src', 'env.ts'),
     join(root, '.mcp.github.local.json'),
   ], blockers, 'local env-scrub artifact');
 
@@ -203,7 +199,6 @@ function markdownReport(status) {
   return `${lines.join('\n')}\n`;
 }
 
-await mkdir(outDir, { recursive: true });
 const gates = [await gate1(), await gate2(), await gate3()];
 const status = {
   generatedAt: new Date().toISOString(),
@@ -211,8 +206,12 @@ const status = {
   gates,
 };
 
-await writeFile(join(outDir, 'phase1-status.json'), `${JSON.stringify(status, null, 2)}\n`, 'utf8');
-await writeFile(join(outDir, 'phase1-status.md'), markdownReport(status), 'utf8');
+// --strict is a read-only gate; the plain command refreshes the artifacts.
+if (!hasFlag('--strict')) {
+  await mkdir(outDir, { recursive: true });
+  await writeFile(join(outDir, 'phase1-status.json'), `${JSON.stringify(status, null, 2)}\n`, 'utf8');
+  await writeFile(join(outDir, 'phase1-status.md'), markdownReport(status), 'utf8');
+}
 
 for (const g of gates) {
   console.log(`${g.pass ? 'PASS' : 'BLOCKED'} ${g.id}: ${g.name}`);
