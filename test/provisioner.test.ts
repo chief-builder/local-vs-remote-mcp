@@ -29,6 +29,17 @@ describe('waitForLabelsStable', () => {
     }
   });
 
+  it('does not treat the initial empty label list as settled', async () => {
+    const gh = installFakeGithub({
+      [`GET /repos/${repo}/labels?per_page=100`]: sequence([[], [], [], [{ name: 'bug' }], [{ name: 'bug' }]]),
+    });
+    try {
+      assert.deepEqual(await waitForLabelsStable(cfg, repo, fast), ['bug']);
+    } finally {
+      gh.restore();
+    }
+  });
+
   it('returns the last read when labels never settle before the timeout', async () => {
     let n = 0;
     const gh = installFakeGithub({ [`GET /repos/${repo}/labels?per_page=100`]: () => ({ status: 200, body: [{ name: `l${n++}` }] }) });
@@ -47,7 +58,7 @@ describe('provisionRepo', () => {
       'GET /users/example-lab': { status: 200, body: { type: 'Organization' } },
       'POST /orgs/example-lab/repos': { status: 201, body: {} },
       [`GET /repos/${repo}`]: { status: 200, body: {} },
-      [`GET /repos/${repo}/labels?per_page=100`]: { status: 200, body: [] },
+      [`GET /repos/${repo}/labels?per_page=100`]: { status: 200, body: [{ name: 'bug' }] },
       [`PUT /repos/${repo}/contents/README.md`]: { status: 201, body: {} },
       [`DELETE /repos/${repo}`]: { status: 204 },
     });

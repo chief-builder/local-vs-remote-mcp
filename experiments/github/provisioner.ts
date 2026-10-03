@@ -204,8 +204,11 @@ async function waitForRepoReady(cfg: GhConfig, fullName: string): Promise<void> 
 }
 
 /**
- * Polls the label list until two consecutive reads, `intervalMs` apart, match.
- * Returns the settled label names; gives up quietly after `timeoutMs`.
+ * Polls the label list until two consecutive non-empty reads, `intervalMs`
+ * apart, match. New repos start with zero labels and gain GitHub's defaults
+ * a few seconds later (observed 2026-10-03: 0 at 2.7s, 6 at 3.9s, 9 at 5.1s),
+ * so an empty list is never treated as settled. Owners without default
+ * labels fall through to `timeoutMs` and get the last read.
  */
 export async function waitForLabelsStable(
   cfg: GhConfig,
@@ -227,7 +230,7 @@ export async function waitForLabelsStable(
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, intervalMs));
     const current = await read();
-    if (JSON.stringify(current) === JSON.stringify(previous)) return current;
+    if (current.length > 0 && JSON.stringify(current) === JSON.stringify(previous)) return current;
     previous = current;
   }
   return previous;
