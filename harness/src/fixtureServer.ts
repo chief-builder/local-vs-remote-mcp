@@ -60,7 +60,7 @@ export async function startFixtureServer(rootDir: string, renderer?: FixtureRend
     let body: Buffer;
     try {
       body = await readBody(req);
-    } catch (err) {
+    } catch {
       res.writeHead(413, { 'Content-Type': 'text/plain' });
       res.end('request body too large');
       return;
