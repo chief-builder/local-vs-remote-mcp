@@ -1,4 +1,12 @@
 import type { ExperimentSpec, ExperimentClassifier, ArmConfig, Arm } from '../experiment.js';
+import {
+  ALWAYS_BLOCKED_TOOLS,
+  BASELINE_TIMEOUT_MS,
+  COMMON_CLAUDE_FLAGS,
+  EXECUTION_TOOLS,
+  MCP_TIMEOUT_MS,
+  PLAYWRIGHT_REMOTE_URL,
+} from '../config.js';
 
 /**
  * Playwright transport comparison. Both MCP arms point at the *same* server
@@ -23,8 +31,6 @@ import type { ExperimentSpec, ExperimentClassifier, ArmConfig, Arm } from '../ex
  * remote-http, so running local-stdio alone doesn't require the HTTP server.
  */
 
-const ALWAYS_BLOCKED = ['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger'];
-const COMMON_FLAGS = ['--setting-sources', 'project,local', '--permission-mode', 'bypassPermissions'];
 
 /**
  * Live catalog from `@playwright/mcp` 1.61.0-alpha against protocolVersion
@@ -75,7 +81,7 @@ function buildArms(): Record<Arm, ArmConfig> {
   // The baseline disallows the playwright catalog as well, so its only
   // execution surface is local filesystem + ToolSearch — same shape as the
   // github baseline.
-  const mcpDisallowedTools = ['Skill', 'Bash', 'Task', 'Agent', ...ALWAYS_BLOCKED];
+  const mcpDisallowedTools = [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS];
 
   return {
     baseline: {
@@ -83,9 +89,9 @@ function buildArms(): Record<Arm, ArmConfig> {
       description: 'No Playwright MCP: pure reasoning floor against the local filesystem',
       mcpConfig: '{"mcpServers":{}}',
       allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', 'TodoWrite'],
-      disallowedTools: ['Skill', 'Bash', 'Task', 'Agent', ...ALWAYS_BLOCKED, ...OVERLAP_TOOLS],
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 90_000,
+      disallowedTools: [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS, ...OVERLAP_TOOLS],
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: BASELINE_TIMEOUT_MS,
     },
     'local-stdio': {
       id: 'local-stdio',
@@ -93,8 +99,8 @@ function buildArms(): Record<Arm, ArmConfig> {
       mcpConfig: '.mcp.playwright.local.json',
       allowedTools: mcpAllowedTools,
       disallowedTools: mcpDisallowedTools,
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 240_000,
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: MCP_TIMEOUT_MS,
     },
     'remote-http': {
       id: 'remote-http',
@@ -102,13 +108,11 @@ function buildArms(): Record<Arm, ArmConfig> {
       mcpConfig: '.mcp.playwright.remote.json',
       allowedTools: mcpAllowedTools,
       disallowedTools: mcpDisallowedTools,
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 240_000,
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: MCP_TIMEOUT_MS,
     },
   };
 }
-
-const REMOTE_HTTP_URL = 'http://localhost:8931/mcp';
 
 async function preflightHttpReachable(url: string): Promise<void> {
   try {
@@ -136,7 +140,7 @@ export const playwrightExperiment: ExperimentSpec = {
     // Only check the HTTP listener when the run actually targets remote-http.
     // local-stdio launches its own child per trial and needs no external service.
     if (arms.includes('remote-http')) {
-      await preflightHttpReachable(REMOTE_HTTP_URL);
+      await preflightHttpReachable(PLAYWRIGHT_REMOTE_URL);
     }
   },
 };

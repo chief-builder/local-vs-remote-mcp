@@ -1,6 +1,5 @@
+import { SANDBOX_REPO_PREFIX as PREFIX } from '../harness/src/config.ts';
 import { loadDotEnv } from './lib/github-env.mjs';
-
-const PREFIX = 'lvrmcp-';
 
 function hasFlag(name) {
   return process.argv.includes(name);

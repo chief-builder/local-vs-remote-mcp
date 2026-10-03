@@ -1,6 +1,7 @@
 import type { Arm } from './experiment.js';
 import type { ExperimentClassifier } from './experiment.js';
 import { hasTokenShapedSecret } from './secretPatterns.js';
+import { ALWAYS_BLOCKED_TOOLS, EXECUTION_TOOLS } from './config.js';
 
 export interface ToolCallRecord {
   id?: string;
@@ -98,7 +99,8 @@ function getBashCommand(input: unknown): string | undefined {
   return typeof command === 'string' ? command : undefined;
 }
 
-const ALWAYS_BLOCKED_NAMES = new Set(['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger']);
+const ALWAYS_BLOCKED_NAMES = new Set(ALWAYS_BLOCKED_TOOLS);
+const EXECUTION_TOOL_NAMES = new Set(EXECUTION_TOOLS);
 
 /** Returns why a tool call is off the arm's intended surface, or null if it is allowed. */
 function classifyToolUse(
@@ -108,7 +110,7 @@ function classifyToolUse(
 ): string | null {
   if (!arm) return null;
   if (ALWAYS_BLOCKED_NAMES.has(name)) return `${name} is an out-of-band execution or fetch path`;
-  if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent') {
+  if (EXECUTION_TOOL_NAMES.has(name)) {
     return `${name} is not allowed in the ${arm} arm`;
   }
   if (arm === 'baseline' && name.startsWith(classifier.intendedMcpPrefix)) {

@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, InvalidArgumentError } from 'commander';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
@@ -7,6 +7,7 @@ import { ArmSchema } from './experiment.js';
 import type { Arm } from './experiment.js';
 import { runTrial, buildClaudeArgs } from './runner.js';
 import { buildChildEnv, loadDotEnv } from './env.js';
+import { DEFAULT_MODEL } from './config.js';
 import type { Task } from './tasks.js';
 import { generateReport } from './report.js';
 import { countTransportFailures, mergeRecomputedMetrics, parseTranscript } from './metrics.js';
@@ -17,6 +18,14 @@ const require = createRequire(import.meta.url);
 const pkg = require('../../package.json') as { version: string };
 
 const program = new Command();
+
+function intOption(name: string, min = 1): (value: string) => number {
+  return (value: string) => {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < min) throw new InvalidArgumentError(`${name} must be an integer >= ${min}.`);
+    return n;
+  };
+}
 
 program
   .name('harness')
@@ -114,10 +123,10 @@ program
   .requiredOption('--run <name>', 'Named run namespace (results stored under experiments/<exp>/runs/<run>)')
   .requiredOption('--arm <arm>', 'Arm: baseline | local-stdio | remote-http')
   .option('--task <id>', 'Run a specific task by ID')
-  .option('--tier <n>', 'Run all tasks in this tier', v => parseInt(v, 10))
-  .requiredOption('--trials <n>', 'Number of trials per task', v => parseInt(v, 10))
-  .option('--trial <n>', 'Run only this trial number within the configured trial count', v => parseInt(v, 10))
-  .option('--model <model>', 'Claude model ID', 'claude-sonnet-4-6')
+  .option('--tier <n>', 'Run all tasks in this tier', intOption('--tier'))
+  .requiredOption('--trials <n>', 'Number of trials per task', intOption('--trials'))
+  .option('--trial <n>', 'Run only this trial number within the configured trial count', intOption('--trial'))
+  .option('--model <model>', 'Claude model ID', DEFAULT_MODEL)
   .action(async (opts: {
     experiment: string;
     run: string;
@@ -223,7 +232,7 @@ program
   .description('Generate a markdown report from stored results')
   .requiredOption('--experiment <name>', 'Experiment name')
   .requiredOption('--run <name>', 'Named run namespace')
-  .option('--tier <n>', 'Report on a specific tier', v => parseInt(v, 10))
+  .option('--tier <n>', 'Report on a specific tier', intOption('--tier'))
   .option('--all-tiers', 'Include all tiers', false)
   .option('--crossover-analysis', 'Include crossover analysis section', false)
   .option('--include-cost', 'Append a USD cost appendix', false)
@@ -344,7 +353,7 @@ program
   .command('verify-arms')
   .description('Probe each arm and ask it what tools it sees — confirm isolation before running trials')
   .requiredOption('--experiment <name>', 'Experiment name')
-  .option('--model <model>', 'Claude model ID', 'claude-sonnet-4-6')
+  .option('--model <model>', 'Claude model ID', DEFAULT_MODEL)
   .option('--output <path>', 'Write structured verification artifact')
   .action(async (opts: { experiment: string; model: string; output?: string }) => {
     const rootDir = resolve(process.cwd());

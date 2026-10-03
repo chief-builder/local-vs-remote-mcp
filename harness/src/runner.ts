@@ -9,6 +9,7 @@ import type { Metrics } from './metrics.js';
 import { startFixtureServer } from './fixtureServer.js';
 import { mkPairedSeed } from './trialState.js';
 import { buildChildEnv } from './env.js';
+import { DEFAULT_MODEL, MCP_TIMEOUT_MS } from './config.js';
 
 export interface TrialResult {
   experiment: string;
@@ -171,7 +172,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     task,
     trialN,
     rootDir,
-    model = 'claude-sonnet-4-6',
+    model = DEFAULT_MODEL,
     agentEnv = {},
   } = opts;
   const armConfig = experiment.arms[arm];
@@ -220,7 +221,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
   const observedToolStartedAt = new Map<string, number>();
   const observedToolLatencies: number[] = [];
 
-  const trialTimeoutMs = armConfig.timeoutMs ?? 240_000;
+  const trialTimeoutMs = armConfig.timeoutMs ?? MCP_TIMEOUT_MS;
   const trialStartedAtMs = Date.now();
 
   try {

@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import { readGithubEnv, SANDBOX_REPO_PREFIX } from '../../harness/src/config.js';
 
 /**
  * Minimal GitHub REST client used by Tier 1 provisioners. Holds the controller
@@ -14,15 +15,12 @@ export interface GhConfig {
   host: string;
 }
 
-export function ghConfigFromEnv(): GhConfig {
-  const controllerToken = process.env.GITHUB_CONTROLLER_TOKEN;
-  const sandboxOwner = process.env.GITHUB_SANDBOX_OWNER;
-  if (!controllerToken) throw new Error('GITHUB_CONTROLLER_TOKEN not set');
-  if (!sandboxOwner) throw new Error('GITHUB_SANDBOX_OWNER not set');
+export function ghConfigFromEnv(env: NodeJS.ProcessEnv = process.env): GhConfig {
+  const github = readGithubEnv(env);
   return {
-    controllerToken,
-    sandboxOwner,
-    host: process.env.GITHUB_HOST ?? 'api.github.com',
+    controllerToken: github.GITHUB_CONTROLLER_TOKEN,
+    sandboxOwner: github.GITHUB_SANDBOX_OWNER,
+    host: github.GITHUB_HOST ?? 'api.github.com',
   };
 }
 
@@ -258,5 +256,5 @@ async function deleteRepo(cfg: GhConfig, fullName: string): Promise<void> {
  */
 export function repoNameFor(taskId: string, seed: string): string {
   const short = seed.slice(0, 8);
-  return `lvrmcp-${taskId.replace(/_/g, '-')}-${short}`;
+  return `${SANDBOX_REPO_PREFIX}${taskId.replace(/_/g, '-')}-${short}`;
 }
