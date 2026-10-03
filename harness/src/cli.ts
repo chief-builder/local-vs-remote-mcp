@@ -118,7 +118,6 @@ program
   .requiredOption('--trials <n>', 'Number of trials per task', v => parseInt(v, 10))
   .option('--trial <n>', 'Run only this trial number within the configured trial count', v => parseInt(v, 10))
   .option('--model <model>', 'Claude model ID', 'claude-sonnet-4-6')
-  .option('--single-cli-command', 'Research mode: require one intended-CLI command per Bash tool call', false)
   .action(async (opts: {
     experiment: string;
     run: string;
@@ -128,7 +127,6 @@ program
     trials: number;
     trial?: number;
     model: string;
-    singleCliCommand: boolean;
   }) => {
     const armParse = ArmSchema.safeParse(opts.arm);
     if (!armParse.success) {
@@ -205,12 +203,9 @@ program
             trialN: n,
             rootDir,
             model: opts.model,
-            requireSingleCliCommand: opts.singleCliCommand,
           });
           const icon = result.success.pass ? '✓' : '✗';
-          const validSurface = result.metrics.validToolSurface
-            && (!opts.singleCliCommand || result.metrics.singleCliCommandPerToolCall);
-          const valid = validSurface ? 'valid' : 'INVALID';
+          const valid = result.metrics.validToolSurface ? 'valid' : 'INVALID';
           console.log(`  ${icon} score=${result.success.score.toFixed(2)}  ${valid}  tokens_in=${result.metrics.inputTokens}  turns=${result.metrics.turns}  time=${(result.metrics.wallClockMs / 1000).toFixed(1)}s`);
           if (result.error) console.error(`  error: ${result.error}`);
         } catch (err) {
@@ -231,7 +226,6 @@ program
   .option('--tier <n>', 'Report on a specific tier', v => parseInt(v, 10))
   .option('--all-tiers', 'Include all tiers', false)
   .option('--crossover-analysis', 'Include crossover analysis section', false)
-  .option('--single-cli-command', 'Research mode: chained CLI Bash calls count as invalid surface', false)
   .option('--include-cost', 'Append a USD cost appendix', false)
   .option('--output <path>', 'Write report to file instead of stdout')
   .action(async (opts: {
@@ -240,7 +234,6 @@ program
     tier?: number;
     allTiers: boolean;
     crossoverAnalysis: boolean;
-    singleCliCommand: boolean;
     includeCost: boolean;
     output?: string;
   }) => {
@@ -255,7 +248,6 @@ program
       ...(opts.tier !== undefined ? { tier: opts.tier } : {}),
       allTiers: opts.allTiers,
       crossover: opts.crossoverAnalysis,
-      requireSingleCliCommand: opts.singleCliCommand,
       includeCost: opts.includeCost,
     });
 

@@ -49,9 +49,7 @@ interface TaskSummary {
   arm: Arm;
   trials: number;
   successRate: number;
-  validToolSurfaceRate: number;
-  singleCliCommandRate: number;
-  effectiveValidSurfaceRate: number;
+  validSurfaceRate: number;
   avgScore: number;
   avgInputTokens: number;
   avgCachedTokens: number;
@@ -75,10 +73,8 @@ function avg(items: TrialResult[], fn: (r: TrialResult) => number): number {
   return items.reduce((sum, r) => sum + fn(r), 0) / items.length;
 }
 
-function isValidForMode(r: TrialResult, requireSingleCliCommand: boolean): boolean {
-  const validSurface = r.metrics.validToolSurface ?? true;
-  const validGranularity = r.metrics.singleCliCommandPerToolCall ?? true;
-  return validSurface && (!requireSingleCliCommand || validGranularity);
+function isValidSurface(r: TrialResult): boolean {
+  return r.metrics.validToolSurface ?? true;
 }
 
 function totalTokens(r: TrialResult): number {
@@ -106,7 +102,6 @@ function promptInjectionComplianceStats(results: TrialResult[]): { rate: number;
 
 function summarize(
   results: TrialResult[],
-  requireSingleCliCommand: boolean,
   filter?: (r: TrialResult) => boolean,
 ): TaskSummary[] {
   const groups = new Map<string, TrialResult[]>();
@@ -128,9 +123,7 @@ function summarize(
       arm: first.arm,
       trials: filtered.length,
       successRate: avg(filtered, r => (r.success.pass ? 1 : 0)),
-      validToolSurfaceRate: avg(filtered, r => (r.metrics.validToolSurface ?? true ? 1 : 0)),
-      singleCliCommandRate: avg(filtered, r => (r.metrics.singleCliCommandPerToolCall ?? true ? 1 : 0)),
-      effectiveValidSurfaceRate: avg(filtered, r => (isValidForMode(r, requireSingleCliCommand) ? 1 : 0)),
+      validSurfaceRate: avg(filtered, r => (isValidSurface(r) ? 1 : 0)),
       avgScore: avg(filtered, r => r.success.score),
       avgInputTokens: avg(filtered, r => r.metrics.inputTokens),
       avgCachedTokens: avg(filtered, r => r.metrics.cachedInputTokens),
@@ -167,9 +160,9 @@ function aggregatePromptInjectionCell(summaries: TaskSummary[]): string {
   return pct(complying / trials);
 }
 
-function perTaskTable(summaries: TaskSummary[], requireSingleCliCommand: boolean): string {
+function perTaskTable(summaries: TaskSummary[]): string {
   const taskIds = [...new Set(summaries.map(s => s.taskId))];
-  const validLabel = requireSingleCliCommand ? 'Valid Surface (single)' : 'Valid Surface';
+  const validLabel = 'Valid Surface';
   const rows = [
     `| Task | Tier | Arm | Trials | Success | ${validLabel} | Score | Input Tok | Cached Tok | Cache Create Tok | Output Tok | Total Tok | Tool Calls | Tool Lat | Turns | Time | Cold Start | Transport Fail | PI Comply | Secret Out |`,
     '|------|------|-----|--------|---------|---------------|-------|-----------|------------|------------------|------------|-----------|------------|----------|-------|------|------------|----------------|-----------|------------|',
@@ -179,16 +172,16 @@ function perTaskTable(summaries: TaskSummary[], requireSingleCliCommand: boolean
       const s = summaries.find(x => x.taskId === taskId && x.arm === arm);
       if (!s) continue;
       rows.push(
-        `| ${s.taskId} | ${s.tier} | ${s.arm} | ${s.trials} | ${pct(s.successRate)} | ${pct(s.effectiveValidSurfaceRate)} | ${n1(s.avgScore)} | ${Math.round(s.avgInputTokens)} | ${Math.round(s.avgCachedTokens)} | ${Math.round(s.avgCacheCreationTokens)} | ${Math.round(s.avgOutputTokens)} | ${Math.round(s.avgTotalTokens)} | ${n1(s.avgToolCalls)} | ${sec(s.avgPerToolCallLatencyMs)} | ${n1(s.avgTurns)} | ${sec(s.avgWallClockMs)} | ${sec(s.avgColdStartMs)} | ${n1(s.avgTransportFailures)} | ${pctOrNa(s.promptInjectionComplianceRate, s.promptInjectionComplianceTrials)} | ${pct(s.secretInOutputRate)} |`,
+        `| ${s.taskId} | ${s.tier} | ${s.arm} | ${s.trials} | ${pct(s.successRate)} | ${pct(s.validSurfaceRate)} | ${n1(s.avgScore)} | ${Math.round(s.avgInputTokens)} | ${Math.round(s.avgCachedTokens)} | ${Math.round(s.avgCacheCreationTokens)} | ${Math.round(s.avgOutputTokens)} | ${Math.round(s.avgTotalTokens)} | ${n1(s.avgToolCalls)} | ${sec(s.avgPerToolCallLatencyMs)} | ${n1(s.avgTurns)} | ${sec(s.avgWallClockMs)} | ${sec(s.avgColdStartMs)} | ${n1(s.avgTransportFailures)} | ${pctOrNa(s.promptInjectionComplianceRate, s.promptInjectionComplianceTrials)} | ${pct(s.secretInOutputRate)} |`,
       );
     }
   }
   return rows.join('\n');
 }
 
-function tierSummary(summaries: TaskSummary[], requireSingleCliCommand: boolean): string {
+function tierSummary(summaries: TaskSummary[]): string {
   const tiers = [...new Set(summaries.map(s => s.tier))].sort();
-  const validLabel = requireSingleCliCommand ? 'Avg Valid Surface (single)' : 'Avg Valid Surface';
+  const validLabel = 'Avg Valid Surface';
   const lines: string[] = [
     '## Per-Tier Summary',
     '',
@@ -205,7 +198,7 @@ function tierSummary(summaries: TaskSummary[], requireSingleCliCommand: boolean)
       if (armData.length === 0) continue;
       const a = (fn: (s: TaskSummary) => number) => armData.reduce((sum, s) => sum + fn(s), 0) / armData.length;
       const totalTrials = armData.reduce((sum, s) => sum + s.trials, 0);
-      lines.push(`| ${arm} | ${armData.length} | ${totalTrials} | ${pct(a(s => s.successRate))} | ${pct(a(s => s.effectiveValidSurfaceRate))} | ${Math.round(a(s => s.avgInputTokens))} | ${Math.round(a(s => s.avgCachedTokens))} | ${Math.round(a(s => s.avgCacheCreationTokens))} | ${Math.round(a(s => s.avgOutputTokens))} | ${Math.round(a(s => s.avgTotalTokens))} | ${sec(a(s => s.avgPerToolCallLatencyMs))} | ${n1(a(s => s.avgTurns))} | ${sec(a(s => s.avgWallClockMs))} | ${n1(a(s => s.avgTransportFailures))} | ${aggregatePromptInjectionCell(armData)} | ${pct(a(s => s.secretInOutputRate))} |`);
+      lines.push(`| ${arm} | ${armData.length} | ${totalTrials} | ${pct(a(s => s.successRate))} | ${pct(a(s => s.validSurfaceRate))} | ${Math.round(a(s => s.avgInputTokens))} | ${Math.round(a(s => s.avgCachedTokens))} | ${Math.round(a(s => s.avgCacheCreationTokens))} | ${Math.round(a(s => s.avgOutputTokens))} | ${Math.round(a(s => s.avgTotalTokens))} | ${sec(a(s => s.avgPerToolCallLatencyMs))} | ${n1(a(s => s.avgTurns))} | ${sec(a(s => s.avgWallClockMs))} | ${n1(a(s => s.avgTransportFailures))} | ${aggregatePromptInjectionCell(armData)} | ${pct(a(s => s.secretInOutputRate))} |`);
     }
     lines.push('');
   }
@@ -339,12 +332,11 @@ export interface ReportOptions {
   tier?: number | undefined;
   allTiers?: boolean | undefined;
   crossover?: boolean | undefined;
-  requireSingleCliCommand?: boolean | undefined;
   includeCost?: boolean | undefined;
 }
 
 export async function generateReport(opts: ReportOptions): Promise<string> {
-  const { rootDir, experiment, runName, tier, allTiers, crossover, requireSingleCliCommand = false, includeCost = false } = opts;
+  const { rootDir, experiment, runName, tier, allTiers, crossover, includeCost = false } = opts;
   const filterTier = allTiers ? undefined : tier;
 
   const all: TrialResult[] = [];
@@ -356,20 +348,15 @@ export async function generateReport(opts: ReportOptions): Promise<string> {
     return `# Report: ${experiment} / ${runName}\n\nNo results found.\n`;
   }
 
-  const summariesAll = summarize(all, requireSingleCliCommand);
-  const summariesValid = summarize(all, requireSingleCliCommand, r =>
-    isValidForMode(r, requireSingleCliCommand),
-  );
+  const summariesAll = summarize(all);
+  const summariesValid = summarize(all, isValidSurface);
   const label = allTiers ? 'All Tiers' : tier !== undefined ? `Tier ${tier}` : 'All';
   const title = `${experiment} / ${runName}`;
-  const validityMode = requireSingleCliCommand
-    ? 'Validity mode: research-single — chained intended-CLI Bash calls count as invalid surface.'
-    : 'Validity mode: practical — chained Bash calls are valid when every segment is the intended CLI.';
 
   const parts = [
     `# Experiment Report: ${title} — ${label}`,
     `_Generated: ${new Date().toISOString()}_`,
-    `_${validityMode}_`,
+    '_Valid surface: the trial used only tools allowed for its arm (no Bash, Skill, Task, Agent, web fetch, or off-arm MCP tools)._',
     '',
     '## Per-Task Results',
     '',
@@ -377,9 +364,9 @@ export async function generateReport(opts: ReportOptions): Promise<string> {
     '',
     hypothesisSummary(summariesValid),
     '',
-    perTaskTable(summariesAll, requireSingleCliCommand),
+    perTaskTable(summariesAll),
     '',
-    tierSummary(summariesValid, requireSingleCliCommand),
+    tierSummary(summariesValid),
   ];
 
   if (crossover) {

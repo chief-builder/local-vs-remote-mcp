@@ -35,12 +35,6 @@ export interface Metrics {
   validToolSurface: boolean;
   escapeToolUsed: boolean;
   escapeToolCalls: EscapeToolCallRecord[];
-  /**
-   * Research-mode flag: true when every Bash call contained exactly one
-   * intended-CLI command (no `&&`, `;`, `|`, redirections, or substitutions).
-   */
-  singleCliCommandPerToolCall: boolean;
-  cliCommandGranularityViolations: EscapeToolCallRecord[];
 }
 
 interface AssistantEvent {
@@ -106,38 +100,21 @@ function getBashCommand(input: unknown): string | undefined {
 
 const ALWAYS_BLOCKED_NAMES = new Set(['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger']);
 
+/** Returns why a tool call is off the arm's intended surface, or null if it is allowed. */
 function classifyToolUse(
   arm: Arm | undefined,
   classifier: ExperimentClassifier,
   name: string,
-  input: unknown,
-): { surfaceReason: string | null; granularityReason: string | null } {
-  if (!arm) return { surfaceReason: null, granularityReason: null };
-
-  if (ALWAYS_BLOCKED_NAMES.has(name)) {
-    const reason = `${name} is an out-of-band execution or fetch path`;
-    return { surfaceReason: reason, granularityReason: reason };
+): string | null {
+  if (!arm) return null;
+  if (ALWAYS_BLOCKED_NAMES.has(name)) return `${name} is an out-of-band execution or fetch path`;
+  if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent') {
+    return `${name} is not allowed in the ${arm} arm`;
   }
-
-  const isIntendedMcpTool = name.startsWith(classifier.intendedMcpPrefix);
-
-  if (arm === 'baseline') {
-    if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent' || isIntendedMcpTool) {
-      const reason = `${name} is not allowed in the baseline arm`;
-      return { surfaceReason: reason, granularityReason: reason };
-    }
-    return { surfaceReason: null, granularityReason: null };
+  if (arm === 'baseline' && name.startsWith(classifier.intendedMcpPrefix)) {
+    return `${name} is not allowed in the baseline arm`;
   }
-
-  if (arm === 'local-stdio' || arm === 'remote-http') {
-    if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent') {
-      const reason = `${name} is not allowed in the ${arm} arm`;
-      return { surfaceReason: reason, granularityReason: reason };
-    }
-    return { surfaceReason: null, granularityReason: null };
-  }
-
-  return { surfaceReason: null, granularityReason: null };
+  return null;
 }
 
 function parseEventTimeMs(event: { timestamp?: string }): number | null {
@@ -212,8 +189,6 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
     validToolSurface: true,
     escapeToolUsed: false,
     escapeToolCalls: [],
-    singleCliCommandPerToolCall: true,
-    cliCommandGranularityViolations: [],
   };
 
   let turnIndex = 0;
@@ -255,15 +230,11 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
             metrics.usedIntendedTool = true;
           }
 
-          const { surfaceReason, granularityReason } = classifyToolUse(arm, classifier, block.name, block.input);
+          const surfaceReason = classifyToolUse(arm, classifier, block.name);
           if (surfaceReason) {
             metrics.validToolSurface = false;
             metrics.escapeToolUsed = true;
             metrics.escapeToolCalls.push({ ...record, reason: surfaceReason });
-          }
-          if (granularityReason) {
-            metrics.singleCliCommandPerToolCall = false;
-            metrics.cliCommandGranularityViolations.push({ ...record, reason: granularityReason });
           }
         }
       }

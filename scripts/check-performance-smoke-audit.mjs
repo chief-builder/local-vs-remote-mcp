@@ -40,8 +40,6 @@ function resultFor(arm, seed = 'paired-seed') {
       validToolSurface: true,
       escapeToolUsed: false,
       escapeToolCalls: [],
-      singleCliCommandPerToolCall: true,
-      cliCommandGranularityViolations: [],
     },
     success: {
       pass: true,

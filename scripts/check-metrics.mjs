@@ -197,7 +197,6 @@ const localBashLines = [
 ];
 const localMetrics = parseTranscript(localBashLines, 'local-stdio', classifier);
 assertEqual(localMetrics.validToolSurface, false, 'local Bash validToolSurface');
-assertEqual(localMetrics.singleCliCommandPerToolCall, false, 'local Bash granularity');
 
 const poisonTask = tier3Tasks.find((task) => task.id === 'tier3_tool_poisoning_resilience');
 assert(poisonTask, 'tier3 tool poisoning task should exist');

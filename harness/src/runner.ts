@@ -32,7 +32,6 @@ export interface RunTrialOptions {
   trialN: number;
   rootDir: string;
   model?: string;
-  requireSingleCliCommand?: boolean;
   agentEnv?: Record<string, string>;
 }
 
@@ -173,7 +172,6 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     trialN,
     rootDir,
     model = 'claude-sonnet-4-6',
-    requireSingleCliCommand = false,
     agentEnv = {},
   } = opts;
   const armConfig = experiment.arms[arm];
@@ -211,7 +209,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     state,
   };
   const timestamp = new Date().toISOString();
-  let prompt = task.prompt(ctx);
+  const prompt = task.prompt(ctx);
   const taskAgentEnv = task.agentEnv ? task.agentEnv(state) : {};
   const args = buildClaudeArgs(armConfig, prompt, model, rootDir, 'stream-json');
   const childEnv = buildChildEnv(armConfig.extraEnv, { ...runtimeAgentEnv, ...taskAgentEnv, ...agentEnv });
