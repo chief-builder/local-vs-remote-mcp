@@ -7,6 +7,9 @@
   "scripts": {
     "test": "node --import tsx --test \"test/**/*.test.ts\"",
     "test:coverage": "node --import tsx --test --experimental-test-coverage --test-coverage-include=\"harness/src/**\" --test-coverage-include=\"experiments/**\" \"test/**/*.test.ts\"",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "harness": "node --import tsx harness/src/cli.ts",
     "typecheck": "tsc --noEmit",
     "probe:tools": "node --import tsx scripts/probe-tools-list.mjs",
