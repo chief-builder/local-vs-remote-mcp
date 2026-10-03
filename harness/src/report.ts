@@ -350,6 +350,7 @@ export async function generateReport(opts: ReportOptions): Promise<string> {
 
   const summariesAll = summarize(all);
   const summariesValid = summarize(all, isValidSurface);
+  const toolSearchModes = [...new Set(all.map(r => r.toolSearchMode ?? 'not recorded'))].sort().join(', ');
   const label = allTiers ? 'All Tiers' : tier !== undefined ? `Tier ${tier}` : 'All';
   const title = `${experiment} / ${runName}`;
 
@@ -357,6 +358,7 @@ export async function generateReport(opts: ReportOptions): Promise<string> {
     `# Experiment Report: ${title} — ${label}`,
     `_Generated: ${new Date().toISOString()}_`,
     '_Valid surface: the trial used only tools allowed for its arm (no Bash, Skill, Task, Agent, web fetch, or off-arm MCP tools)._',
+    `_Tool search mode (ENABLE_TOOL_SEARCH): ${toolSearchModes}_`,
     '',
     '## Per-Task Results',
     '',

@@ -20,6 +20,11 @@ export interface TrialResult {
   trialN: number;
   timestamp: string;
   seed: string;
+  /**
+   * ENABLE_TOOL_SEARCH as seen by the agent child (`unset` if absent). Tool
+   * discovery mode changes tool-selection results, so every trial records it.
+   */
+  toolSearchMode?: string;
   metrics: Metrics;
   success: SuccessResult;
   error?: string;
@@ -365,6 +370,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     trialN,
     timestamp,
     seed,
+    toolSearchMode: childEnv.ENABLE_TOOL_SEARCH ?? 'unset',
     metrics,
     success,
     ...(cliError ? { error: cliError } : {}),
