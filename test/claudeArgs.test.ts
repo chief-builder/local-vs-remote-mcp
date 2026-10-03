@@ -52,6 +52,23 @@ describe('buildClaudeArgs (github)', () => {
   });
 });
 
+describe('built-in tool whitelist (--tools)', () => {
+  for (const arm of ['baseline', 'local-stdio', 'remote-http'] as const) {
+    it(`${arm}: exposes only allow-listed built-ins, never cross-session or execution tools`, () => {
+      const args = buildClaudeArgs(githubExperiment.arms[arm], 'p', 'm', '/repo');
+      const tools = args[args.indexOf('--tools') + 1]!.split(',');
+      assert.ok(tools.includes('ToolSearch'));
+      assert.ok(
+        tools.every((t) => !t.startsWith('mcp__')),
+        'MCP tools come from --mcp-config, not --tools',
+      );
+      for (const banned of ['SendMessage', 'ListAgents', 'Workflow', 'Bash', 'Edit', 'WebFetch', 'PushNotification', 'EnterWorktree']) {
+        assert.ok(!tools.includes(banned), `${arm} must not expose ${banned}`);
+      }
+    });
+  }
+});
+
 describe('buildClaudeArgs (playwright)', () => {
   it('keeps browser_run_code_unsafe available on MCP arms (measured by Tier 3)', () => {
     const args = buildClaudeArgs(playwrightExperiment.arms['remote-http'], 'p', 'm', '/repo');

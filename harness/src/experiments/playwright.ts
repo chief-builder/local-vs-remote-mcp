@@ -6,6 +6,7 @@ import {
   EXECUTION_TOOLS,
   MCP_TIMEOUT_MS,
   PLAYWRIGHT_REMOTE_URL,
+  TASK_TRACKING_TOOLS,
 } from '../config.js';
 
 /**
@@ -77,7 +78,7 @@ const playwrightClassifier: ExperimentClassifier = {
 };
 
 function buildArms(): Record<Arm, ArmConfig> {
-  const mcpAllowedTools = ['ToolSearch', 'Read', 'Write', 'TodoWrite', ...OVERLAP_TOOLS];
+  const mcpAllowedTools = ['ToolSearch', 'Read', 'Write', ...TASK_TRACKING_TOOLS, ...OVERLAP_TOOLS];
   // The baseline disallows the playwright catalog as well, so its only
   // execution surface is local filesystem + ToolSearch — same shape as the
   // github baseline.
@@ -88,7 +89,7 @@ function buildArms(): Record<Arm, ArmConfig> {
       id: 'baseline',
       description: 'No Playwright MCP: pure reasoning floor against the local filesystem',
       mcpConfig: '{"mcpServers":{}}',
-      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', 'TodoWrite'],
+      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', ...TASK_TRACKING_TOOLS],
       disallowedTools: [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS, ...OVERLAP_TOOLS],
       extraFlags: [...COMMON_CLAUDE_FLAGS],
       timeoutMs: BASELINE_TIMEOUT_MS,

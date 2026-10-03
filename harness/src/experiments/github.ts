@@ -7,6 +7,7 @@ import {
   EXECUTION_TOOLS,
   MCP_TIMEOUT_MS,
   readGithubEnv,
+  TASK_TRACKING_TOOLS,
 } from '../config.js';
 
 interface CatalogDiff {
@@ -37,7 +38,7 @@ const githubClassifier: ExperimentClassifier = {
 };
 
 function buildArms(): Record<Arm, ArmConfig> {
-  const mcpAllowedTools = ['ToolSearch', 'Write', 'TodoWrite', ...OVERLAP_TOOLS];
+  const mcpAllowedTools = ['ToolSearch', 'Write', ...TASK_TRACKING_TOOLS, ...OVERLAP_TOOLS];
   const mcpDisallowedTools = [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS, ...NON_OVERLAP_TOOLS];
 
   return {
@@ -45,7 +46,7 @@ function buildArms(): Record<Arm, ArmConfig> {
       id: 'baseline',
       description: 'No GitHub execution surface: pure reasoning floor against off-host state',
       mcpConfig: '{"mcpServers":{}}',
-      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', 'TodoWrite'],
+      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', ...TASK_TRACKING_TOOLS],
       disallowedTools: [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS, ...OVERLAP_TOOLS, ...NON_OVERLAP_TOOLS],
       extraFlags: [...COMMON_CLAUDE_FLAGS],
       timeoutMs: BASELINE_TIMEOUT_MS,

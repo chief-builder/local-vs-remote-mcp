@@ -37,6 +37,15 @@ describe('checkArmTools', () => {
     assert.deepEqual(r.unexpectedTools, ['mcp__github__delete_repository']);
   });
 
+  // Regression: on 2026-10-03, baseline trial agents loaded ListAgents/SendMessage
+  // and messaged other Claude sessions on the machine asking for repo data.
+  it('fails any arm that loaded a built-in outside its allow-list', () => {
+    const baselineAllowed = githubExperiment.arms.baseline.allowedTools;
+    const r = checkArmTools('baseline', prefix, baselineAllowed, ['Read', 'Write', 'ListAgents', 'SendMessage']);
+    assert.equal(r.pass, false);
+    assert.deepEqual(r.unexpectedTools, ['ListAgents', 'SendMessage']);
+  });
+
   it('fails an MCP arm that is missing an allow-listed tool', () => {
     const r = checkArmTools('local-stdio', prefix, allowed, overlapTools.slice(1));
     assert.equal(r.pass, false);

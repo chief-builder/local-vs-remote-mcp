@@ -50,6 +50,14 @@ describe('parseTranscript', () => {
     assert.equal(allowed.validToolSurface, true);
   });
 
+  it('with an allow-list, flags any tool outside it (e.g. SendMessage) as off-surface', () => {
+    const allowed = ['ToolSearch', 'Write', 'mcp__github__get_me'];
+    const m = parseTranscript([toolUse('a', 'SendMessage', { to: 'peer' })], 'baseline', github, allowed);
+    assert.equal(m.validToolSurface, false);
+    assert.match(m.escapeToolCalls[0]!.reason, /not in the baseline arm's allowed tools/);
+    assert.equal(parseTranscript([toolUse('a', 'Write', {})], 'local-stdio', github, allowed).validToolSurface, true);
+  });
+
   it('detects token-shaped secrets in assistant text and the final result only', () => {
     assert.equal(parseTranscript([assistantText(`here: ${fakeToken}`)], 'local-stdio', github).secretInOutput, true);
     assert.equal(parseTranscript([resultEvent(`here: ${fakeToken}`)], 'local-stdio', github).secretInOutput, true);

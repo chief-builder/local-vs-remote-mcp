@@ -100,7 +100,12 @@ const ALWAYS_BLOCKED_NAMES = new Set(ALWAYS_BLOCKED_TOOLS);
 const EXECUTION_TOOL_NAMES = new Set(EXECUTION_TOOLS);
 
 /** Returns why a tool call is off the arm's intended surface, or null if it is allowed. */
-function classifyToolUse(arm: Arm | undefined, classifier: ExperimentClassifier, name: string): string | null {
+function classifyToolUse(
+  arm: Arm | undefined,
+  classifier: ExperimentClassifier,
+  name: string,
+  allowedTools: string[] | undefined,
+): string | null {
   if (!arm) return null;
   if (ALWAYS_BLOCKED_NAMES.has(name)) return `${name} is an out-of-band execution or fetch path`;
   if (EXECUTION_TOOL_NAMES.has(name)) {
@@ -109,6 +114,9 @@ function classifyToolUse(arm: Arm | undefined, classifier: ExperimentClassifier,
   if (arm === 'baseline' && name.startsWith(classifier.intendedMcpPrefix)) {
     return `${name} is not allowed in the baseline arm`;
   }
+  // With the arm's allow-list, anything else the agent reached (e.g. a newly
+  // added built-in such as SendMessage) is off-surface too.
+  if (allowedTools && !allowedTools.includes(name)) return `${name} is not in the ${arm} arm's allowed tools`;
   return null;
 }
 
@@ -153,7 +161,12 @@ export function mergeRecomputedMetrics(previous: Partial<Metrics> | undefined, r
   return merged;
 }
 
-export function parseTranscript(rawLines: string[], arm: Arm | undefined, classifier: ExperimentClassifier): Metrics {
+export function parseTranscript(
+  rawLines: string[],
+  arm: Arm | undefined,
+  classifier: ExperimentClassifier,
+  allowedTools?: string[],
+): Metrics {
   const events: StreamEvent[] = [];
   for (const line of rawLines) {
     const trimmed = line.trim();
@@ -225,7 +238,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
             metrics.usedIntendedTool = true;
           }
 
-          const surfaceReason = classifyToolUse(arm, classifier, block.name);
+          const surfaceReason = classifyToolUse(arm, classifier, block.name, allowedTools);
           if (surfaceReason) {
             metrics.validToolSurface = false;
             metrics.escapeToolUsed = true;

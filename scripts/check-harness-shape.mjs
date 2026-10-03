@@ -114,7 +114,7 @@ assert(
   'child env scrub must remove harness-internal GitHub tokens',
 );
 assert(
-  runnerSource.includes('parseTranscript(transcriptLines, arm, experiment.classifier)'),
+  runnerSource.includes('parseTranscript(transcriptLines, arm, experiment.classifier, armConfig.allowedTools)'),
   'runner must feed transcript through shared validity/metric parser',
 );
 

@@ -126,6 +126,11 @@ function artifactRoot(rootDir: string, experiment: string, runName: string): str
   return join(rootDir, 'experiments', experiment, 'runs', runName);
 }
 
+/** Built-in (non-MCP) tool names from an allow-list. */
+export function builtInTools(allowedTools: string[]): string[] {
+  return allowedTools.filter((tool) => !tool.startsWith('mcp__'));
+}
+
 export function buildClaudeArgs(
   armConfig: ArmConfig,
   prompt: string,
@@ -142,6 +147,10 @@ export function buildClaudeArgs(
   }
 
   if (armConfig.allowedTools && armConfig.allowedTools.length > 0) {
+    // --tools is the hard boundary: only these built-ins exist in the session
+    // (MCP tools come from --mcp-config). --allowed-tools only pre-approves, and
+    // a deny list cannot anticipate new built-ins such as SendMessage/ListAgents.
+    args.push('--tools', builtInTools(armConfig.allowedTools).join(','));
     args.push('--allowed-tools', armConfig.allowedTools.join(' '));
   }
 
@@ -286,7 +295,7 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
       filter: (src) => !src.includes(`${sep}.claude`),
     });
 
-    const metrics = parseTranscript(transcriptLines, arm, experiment.classifier);
+    const metrics = parseTranscript(transcriptLines, arm, experiment.classifier, armConfig.allowedTools);
     if (stderrText.trim()) {
       metrics.transportFailures += countTransportFailures(stderrText.split(/\r?\n/));
     }

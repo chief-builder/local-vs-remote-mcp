@@ -293,7 +293,7 @@ program
         }
         const transcriptRaw = await readFile(transcriptPath, 'utf-8');
         const result = JSON.parse(resultRaw) as { metrics?: Partial<Metrics> };
-        const metrics = parseTranscript(transcriptRaw.split('\n'), arm, experiment.classifier);
+        const metrics = parseTranscript(transcriptRaw.split('\n'), arm, experiment.classifier, experiment.arms[arm].allowedTools);
         const stderrPath = transcriptPath.replace(/\.jsonl$/, '.stderr.log');
         try {
           const stderrRaw = await readFile(stderrPath, 'utf-8');

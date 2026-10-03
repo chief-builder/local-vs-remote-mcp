@@ -16,6 +16,13 @@ export const MCP_TIMEOUT_MS = 240_000;
 /** Out-of-band fetch/execution paths blocked on every arm. */
 export const ALWAYS_BLOCKED_TOOLS = ['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger'];
 
+/**
+ * Task-tracking built-ins. TodoWrite was replaced by the Task* tools in newer
+ * Claude Code (the May 2026 baseline already used TaskCreate/TaskUpdate);
+ * `--tools` silently ignores names a given CLI version doesn't have.
+ */
+export const TASK_TRACKING_TOOLS = ['TodoWrite', 'TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate'];
+
 /** Agent/execution tools blocked on every arm (the MCP server is the only intended surface). */
 export const EXECUTION_TOOLS = ['Skill', 'Bash', 'Task', 'Agent'];
 
