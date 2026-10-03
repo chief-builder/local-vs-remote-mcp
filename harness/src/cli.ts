@@ -8,6 +8,7 @@ import { ArmSchema } from './experiment.js';
 import type { Arm, ExperimentSpec } from './experiment.js';
 import { runTrial, buildClaudeArgs } from './runner.js';
 import { buildChildEnv, loadDotEnv } from './env.js';
+import { checkArmTools, parseVerifyTranscript } from './verifyArms.js';
 import { DEFAULT_MODEL } from './config.js';
 import type { Task } from './tasks.js';
 import { generateReport } from './report.js';
@@ -70,48 +71,6 @@ async function claudeAuthStatus(): Promise<{
     loggedIn,
     authMethod,
     diagnostic: diagnostic || (output ? '(auth status output redacted)' : '(no auth status output)'),
-  };
-}
-
-function githubToolNames(values: string[] | undefined): string[] {
-  return (values ?? []).filter((name) => name.startsWith('mcp__github__')).sort();
-}
-
-function extractGithubToolNames(output: string): string[] {
-  return [...new Set(output.match(/\bmcp__github__[A-Za-z0-9_]+\b/g) ?? [])].sort();
-}
-
-function validateArmToolOutput(
-  arm: Arm,
-  cfg: { allowedTools?: string[] | undefined; disallowedTools: string[] },
-  output: string,
-): {
-  pass: boolean;
-  observedGithubTools: string[];
-  unexpectedGithubTools: string[];
-  notes: string[];
-} {
-  const observedGithubTools = extractGithubToolNames(output);
-  const allowed = new Set(githubToolNames(cfg.allowedTools));
-  const disallowed = new Set(githubToolNames(cfg.disallowedTools));
-  const unexpectedGithubTools = observedGithubTools.filter((name) => !allowed.has(name) || disallowed.has(name));
-  const notes: string[] = [];
-
-  if (arm === 'baseline' && observedGithubTools.length > 0) {
-    notes.push('baseline reported GitHub MCP tools');
-  }
-  if ((arm === 'local-stdio' || arm === 'remote-http') && observedGithubTools.length === 0) {
-    notes.push(`${arm} reported no exact GitHub MCP tool names`);
-  }
-  if (unexpectedGithubTools.length > 0) {
-    notes.push(`${arm} reported GitHub tools outside its allow-list`);
-  }
-
-  return {
-    pass: notes.length === 0,
-    observedGithubTools,
-    unexpectedGithubTools,
-    notes,
   };
 }
 
@@ -387,8 +346,9 @@ program
         description: string;
         exitCode: number | null;
         output: string;
-        observedGithubTools?: string[];
-        unexpectedGithubTools?: string[];
+        loadedMcpTools?: string[];
+        unexpectedTools?: string[];
+        missingTools?: string[];
         policyNotes?: string[];
         pass: boolean;
       }>;
@@ -433,7 +393,7 @@ program
       console.log(`Description: ${cfg.description}`);
       console.log('='.repeat(60));
 
-      const args = buildClaudeArgs(cfg, probe, opts.model, rootDir, 'text');
+      const args = buildClaudeArgs(cfg, probe, opts.model, rootDir, 'stream-json');
       const agentEnv = experiment.buildAgentEnv ? experiment.buildAgentEnv(arm) : {};
       const childEnv = buildChildEnv(cfg.extraEnv, agentEnv);
 
@@ -444,20 +404,22 @@ program
           env: childEnv,
           stdin: 'ignore',
         });
-        const output = [result.stdout, result.stderr].filter(Boolean).join('\n') || '(no output)';
+        // Verdict comes from the tools Claude Code actually loaded (system/init);
+        // the model's own answer is kept only for the record.
+        const { initTools, answer } = parseVerifyTranscript(result.stdout);
+        const output = answer || result.stderr || '(no output)';
         console.log(output);
-        const policy =
-          experiment.name === 'github'
-            ? validateArmToolOutput(arm, cfg, output)
-            : { pass: true, observedGithubTools: [], unexpectedGithubTools: [], notes: [] };
+        const policy = checkArmTools(arm, experiment.classifier.intendedMcpPrefix, cfg.allowedTools, initTools);
+        for (const note of policy.notes) console.log(`policy: ${note}`);
         const pass = result.exitCode === 0 && !/not logged in/i.test(output) && policy.pass;
         artifact.arms.push({
           arm,
           description: cfg.description,
           exitCode: result.exitCode ?? null,
           output,
-          observedGithubTools: policy.observedGithubTools,
-          unexpectedGithubTools: policy.unexpectedGithubTools,
+          loadedMcpTools: policy.observedTools,
+          unexpectedTools: policy.unexpectedTools,
+          missingTools: policy.missingTools,
           policyNotes: policy.notes,
           pass,
         });
