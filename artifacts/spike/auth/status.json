@@ -1,22 +1,41 @@
 {
-  "generatedAt": "2026-05-19T21:35:39.792Z",
+  "generatedAt": "2026-10-03T05:25:09.739Z",
   "envHasGitHubToken": true,
   "autoTokenAvailable": true,
   "ghAuthStatus": {
-    "ok": false,
-    "exitCode": 1,
-    "stdout": "",
-    "stderr": "github.com\n  X Failed to log in to github.com account chief-builder (default)\n  - Active account: true\n  - The token in default is invalid.\n  - To re-authenticate, run: gh auth login -h github.com\n  - To forget about this account, run: gh auth logout -h github.com -u chief-builder\n"
+    "ok": true,
+    "exitCode": 0
   },
   "claudeMcpList": {
     "ok": true,
     "exitCode": 0,
-    "stdout": "No MCP servers configured. Use `claude mcp add` to add a server.\n",
-    "stderr": ""
+    "githubServerConfigured": false
   },
   "remoteProtectedResourceMetadata": {
-    "ok": false,
-    "error": "fetch failed"
+    "ok": true,
+    "status": 200,
+    "body": {
+      "resource": "https://api.githubcopilot.com/mcp/",
+      "authorization_servers": [
+        "https://github.com/login/oauth"
+      ],
+      "scopes_supported": [
+        "repo",
+        "read:org",
+        "read:user",
+        "user:email",
+        "read:packages",
+        "write:packages",
+        "read:project",
+        "project",
+        "gist",
+        "notifications"
+      ],
+      "bearer_methods_supported": [
+        "header"
+      ],
+      "resource_name": "GitHub MCP Server"
+    }
   },
   "nextSteps": [
     "Set GITHUB_PERSONAL_ACCESS_TOKEN in .env or repair gh auth login.",

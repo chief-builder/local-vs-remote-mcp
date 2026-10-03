@@ -71,17 +71,11 @@ try {
     expectedReportRows: ['| tier1_repo_inventory | 1 | local-stdio | 5 |'],
   });
   assert(missingMatrixRow.pass === false, 'expected missing report matrix row check to fail');
-  assert(
-    missingMatrixRow.blocker?.includes('full expected matrix'),
-    `unexpected missing-row blocker: ${JSON.stringify(missingMatrixRow)}`,
-  );
+  assert(missingMatrixRow.blocker?.includes('full expected matrix'), `unexpected missing-row blocker: ${JSON.stringify(missingMatrixRow)}`);
 
   const wrongRun = await reportCurrent({ root, reportPath, runRoot, runName: 'other-run' });
   assert(wrongRun.pass === false, 'expected wrong-run report check to fail');
-  assert(
-    wrongRun.blocker?.includes('missing title'),
-    `unexpected wrong-run blocker: ${JSON.stringify(wrongRun)}`,
-  );
+  assert(wrongRun.blocker?.includes('missing title'), `unexpected wrong-run blocker: ${JSON.stringify(wrongRun)}`);
 
   await utimes(reportSource, newer, newer);
   const staleBySource = await reportCurrent({ root, reportPath, runRoot });

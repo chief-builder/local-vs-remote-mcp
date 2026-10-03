@@ -1,6 +1,6 @@
 import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { TOKEN_PATTERNS, lineNumber } from './secret-patterns.mjs';
+import { TOKEN_PATTERNS, lineNumber } from '../../harness/src/secretPatterns.ts';
 
 export function hasTokenShapedSecret(text) {
   return TOKEN_PATTERNS.some((pattern) => {
@@ -29,14 +29,16 @@ export async function transcriptStatus(path) {
     try {
       const text = await readFile(path, 'utf8');
       const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
-      validJsonl = lines.length > 0 && lines.every((line) => {
-        try {
-          JSON.parse(line);
-          return true;
-        } catch {
-          return false;
-        }
-      });
+      validJsonl =
+        lines.length > 0 &&
+        lines.every((line) => {
+          try {
+            JSON.parse(line);
+            return true;
+          } catch {
+            return false;
+          }
+        });
       secretFree = !hasTokenShapedSecret(text);
     } catch {
       validJsonl = false;
@@ -76,7 +78,7 @@ export async function artifactTreeSecretFree(path) {
   }
   if (!st.isDirectory()) return true;
   for (const entry of await readdir(path)) {
-    if (!await artifactTreeSecretFree(join(path, entry))) return false;
+    if (!(await artifactTreeSecretFree(join(path, entry)))) return false;
   }
   return true;
 }

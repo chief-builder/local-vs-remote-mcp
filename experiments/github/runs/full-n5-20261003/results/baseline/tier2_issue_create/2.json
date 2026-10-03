@@ -1,0 +1,76 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 2,
+  "timestamp": "2026-10-03T13:36:36.133Z",
+  "seed": "d1374b0fb7b79bf2",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 12,
+    "outputTokens": 950,
+    "cachedInputTokens": 66004,
+    "cacheCreationInputTokens": 9716,
+    "toolCalls": [
+      {
+        "id": "toolu_011RoPVDKMzqRqxnQJckez5p",
+        "name": "ToolSearch",
+        "turnIndex": 2
+      },
+      {
+        "id": "toolu_01Brght8TBJj7zNV4sYXpNsX",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01HSzyuvepEWV2zfuidFFJWY",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01DZz2Yuyw2qgTqiPmQnAhZ2",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01Giz2byJGSeERb5k8B2qM3L",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 10,
+    "wallClockMs": 16657,
+    "perToolCallLatencyMs": [
+      15,
+      10,
+      7,
+      10,
+      10
+    ],
+    "coldStartMs": 5,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 14965,
+    "totalCostUsd": 0.0923832,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate 3F0B5120\" after 8 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-d1374b0f",
+      "expectedTitle": "Investigate 3F0B5120"
+    }
+  }
+}

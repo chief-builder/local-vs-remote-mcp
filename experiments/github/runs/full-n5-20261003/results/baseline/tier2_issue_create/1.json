@@ -1,0 +1,70 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-10-03T13:35:49.836Z",
+  "seed": "a4542b68b904d6a2",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 11,
+    "outputTokens": 779,
+    "cachedInputTokens": 53504,
+    "cacheCreationInputTokens": 8198,
+    "toolCalls": [
+      {
+        "id": "toolu_017t26etMji4QKWPJgVo7vWx",
+        "name": "ToolSearch",
+        "turnIndex": 2
+      },
+      {
+        "id": "toolu_01GFUvuskJHRBBdDFD3bSgkc",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01A9iEcn9p2SsituUroEoNq4",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01CB8ciKoHsUKdzx8xjrwaAo",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      }
+    ],
+    "toolCallCount": 4,
+    "turns": 9,
+    "wallClockMs": 15844,
+    "perToolCallLatencyMs": [
+      15,
+      12,
+      12,
+      6
+    ],
+    "coldStartMs": 3,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 13447,
+    "totalCostUsd": 0.0769572,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate 11FAE2B2\" after 8 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-a4542b68",
+      "expectedTitle": "Investigate 11FAE2B2"
+    }
+  }
+}

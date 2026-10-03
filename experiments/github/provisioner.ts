@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import { readGithubEnv, SANDBOX_REPO_PREFIX } from '../../harness/src/config.js';
 
 /**
  * Minimal GitHub REST client used by Tier 1 provisioners. Holds the controller
@@ -14,15 +15,12 @@ export interface GhConfig {
   host: string;
 }
 
-export function ghConfigFromEnv(): GhConfig {
-  const controllerToken = process.env.GITHUB_CONTROLLER_TOKEN;
-  const sandboxOwner = process.env.GITHUB_SANDBOX_OWNER;
-  if (!controllerToken) throw new Error('GITHUB_CONTROLLER_TOKEN not set');
-  if (!sandboxOwner) throw new Error('GITHUB_SANDBOX_OWNER not set');
+export function ghConfigFromEnv(env: NodeJS.ProcessEnv = process.env): GhConfig {
+  const github = readGithubEnv(env);
   return {
-    controllerToken,
-    sandboxOwner,
-    host: process.env.GITHUB_HOST ?? 'api.github.com',
+    controllerToken: github.GITHUB_CONTROLLER_TOKEN,
+    sandboxOwner: github.GITHUB_SANDBOX_OWNER,
+    host: github.GITHUB_HOST ?? 'api.github.com',
   };
 }
 
@@ -64,7 +62,7 @@ async function ghRequest<T = unknown>(cfg: GhConfig, req: GhRequest): Promise<T 
     throw new Error(`GitHub API ${req.method} ${req.path} -> ${res.status}: ${text.slice(0, 500)}`);
   }
   if (res.status === 204) return null;
-  return await res.json() as T;
+  return (await res.json()) as T;
 }
 
 export interface ProvisionedRepo {
@@ -101,80 +99,84 @@ export interface RepoSeed {
  * before returning. Caller is responsible for calling cleanupHandle() in
  * finally — typically by passing it to Task.cleanup.
  */
-export async function provisionRepo(
-  cfg: GhConfig,
-  repoName: string,
-  seed: RepoSeed,
-): Promise<ProvisionedRepo> {
+export async function provisionRepo(cfg: GhConfig, repoName: string, seed: RepoSeed): Promise<ProvisionedRepo> {
   const isOrg = await isOrganization(cfg, cfg.sandboxOwner);
 
-  const createPath = isOrg
-    ? `/orgs/${cfg.sandboxOwner}/repos`
-    : `/user/repos`;
-  await ghRequest(cfg, {
-    method: 'POST',
-    path: createPath,
-    body: {
-      name: repoName,
-      private: true,
-      description: seed.description ?? 'local-vs-remote-mcp experiment sandbox',
-      auto_init: false,
-    },
-  });
-
   const fullName = `${cfg.sandboxOwner}/${repoName}`;
-
-  await waitForRepoReady(cfg, fullName);
-
-  if (seed.topics && seed.topics.length > 0) {
+  const createPath = isOrg ? `/orgs/${cfg.sandboxOwner}/repos` : `/user/repos`;
+  try {
     await ghRequest(cfg, {
-      method: 'PUT',
-      path: `/repos/${fullName}/topics`,
-      body: { names: seed.topics },
-    });
-  }
-
-  for (const file of seed.files) {
-    await ghRequest(cfg, {
-      method: 'PUT',
-      path: `/repos/${fullName}/contents/${encodeURI(file.path)}`,
+      method: 'POST',
+      path: createPath,
       body: {
-        message: `seed ${file.path}`,
-        content: Buffer.from(file.content, 'utf-8').toString('base64'),
+        name: repoName,
+        private: true,
+        description: seed.description ?? 'local-vs-remote-mcp experiment sandbox',
+        auto_init: false,
       },
     });
-  }
 
-  if (seed.labels) {
-    for (const label of seed.labels) {
+    await waitForRepoReady(cfg, fullName);
+    // GitHub adds its default labels asynchronously after creation. Wait for
+    // them so tasks that snapshot labels don't mistake them for agent changes.
+    await waitForLabelsStable(cfg, fullName);
+
+    if (seed.topics && seed.topics.length > 0) {
       await ghRequest(cfg, {
-        method: 'POST',
-        path: `/repos/${fullName}/labels`,
-        body: { name: label.name, color: label.color },
-        acceptConflict: true,
+        method: 'PUT',
+        path: `/repos/${fullName}/topics`,
+        body: { names: seed.topics },
       });
     }
-  }
 
-  if (seed.issues) {
-    for (const issue of seed.issues) {
-      const created = await ghRequest<{ number: number }>(cfg, {
-        method: 'POST',
-        path: `/repos/${fullName}/issues`,
+    for (const file of seed.files) {
+      await ghRequest(cfg, {
+        method: 'PUT',
+        path: `/repos/${fullName}/contents/${encodeURI(file.path)}`,
         body: {
-          title: issue.title,
-          body: issue.body,
-          ...(issue.labels ? { labels: issue.labels } : {}),
+          message: `seed ${file.path}`,
+          content: Buffer.from(file.content, 'utf-8').toString('base64'),
         },
       });
-      if (issue.closeAfter && created) {
+    }
+
+    if (seed.labels) {
+      for (const label of seed.labels) {
         await ghRequest(cfg, {
-          method: 'PATCH',
-          path: `/repos/${fullName}/issues/${created.number}`,
-          body: { state: 'closed' },
+          method: 'POST',
+          path: `/repos/${fullName}/labels`,
+          body: { name: label.name, color: label.color },
+          acceptConflict: true,
         });
       }
     }
+
+    if (seed.issues) {
+      for (const issue of seed.issues) {
+        const created = await ghRequest<{ number: number }>(cfg, {
+          method: 'POST',
+          path: `/repos/${fullName}/issues`,
+          body: {
+            title: issue.title,
+            body: issue.body,
+            ...(issue.labels ? { labels: issue.labels } : {}),
+          },
+        });
+        if (issue.closeAfter && created) {
+          await ghRequest(cfg, {
+            method: 'PATCH',
+            path: `/repos/${fullName}/issues/${created.number}`,
+            body: { state: 'closed' },
+          });
+        }
+      }
+    }
+  } catch (err) {
+    // Setup failed after (or while) creating the repo, so the task never got a
+    // cleanup handle. Delete it here or it leaks (seen 2026-10-03 when a network
+    // reset hit seeding). A 404 means it was never created.
+    await deleteRepo(cfg, fullName).catch(() => undefined);
+    throw err;
   }
 
   return {
@@ -203,9 +205,42 @@ async function waitForRepoReady(cfg: GhConfig, fullName: string): Promise<void> 
       acceptNotFound: true,
     });
     if (data) return;
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`repo ${fullName} not visible to API within 15s`);
+}
+
+/**
+ * Polls the label list until two consecutive non-empty reads, `intervalMs`
+ * apart, match. New repos start with zero labels and gain GitHub's defaults
+ * a few seconds later (observed 2026-10-03: 0 at 2.7s, 6 at 3.9s, 9 at 5.1s),
+ * so an empty list is never treated as settled. Owners without default
+ * labels fall through to `timeoutMs` and get the last read.
+ */
+export async function waitForLabelsStable(
+  cfg: GhConfig,
+  fullName: string,
+  { intervalMs = 1_000, timeoutMs = 15_000 } = {},
+): Promise<string[]> {
+  const read = async () => {
+    const labels = await ghRequest<Array<{ name?: string }>>(cfg, {
+      method: 'GET',
+      path: `/repos/${fullName}/labels?per_page=100`,
+    });
+    return (labels ?? [])
+      .map((label) => String(label.name ?? ''))
+      .filter(Boolean)
+      .sort();
+  };
+  const deadline = Date.now() + timeoutMs;
+  let previous = await read();
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, intervalMs));
+    const current = await read();
+    if (current.length > 0 && JSON.stringify(current) === JSON.stringify(previous)) return current;
+    previous = current;
+  }
+  return previous;
 }
 
 /**
@@ -228,5 +263,5 @@ async function deleteRepo(cfg: GhConfig, fullName: string): Promise<void> {
  */
 export function repoNameFor(taskId: string, seed: string): string {
   const short = seed.slice(0, 8);
-  return `lvrmcp-${taskId.replace(/_/g, '-')}-${short}`;
+  return `${SANDBOX_REPO_PREFIX}${taskId.replace(/_/g, '-')}-${short}`;
 }

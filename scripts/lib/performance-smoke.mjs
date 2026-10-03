@@ -17,10 +17,7 @@ function requireMetric(failures, condition, message) {
   if (!condition) failures.push(message);
 }
 
-export async function evaluatePerformanceSmoke({
-  root,
-  runName = 'latency-smoke',
-} = {}) {
+export async function evaluatePerformanceSmoke({ root, runName = 'latency-smoke' } = {}) {
   const runRoot = join(root, 'experiments', 'github', 'runs', runName);
   const failures = [];
   const results = [];
@@ -35,15 +32,17 @@ export async function evaluatePerformanceSmoke({
       continue;
     }
 
-    failures.push(...validateResultArtifact(result, {
-      experiment: 'github',
-      runName,
-      arm,
-      taskId: smokeTask,
-      tier: smokeTier,
-      trialN: smokeTrial,
-      path: resultPath,
-    }));
+    failures.push(
+      ...validateResultArtifact(result, {
+        experiment: 'github',
+        runName,
+        arm,
+        taskId: smokeTask,
+        tier: smokeTier,
+        trialN: smokeTrial,
+        path: resultPath,
+      }),
+    );
 
     const metrics = result.metrics ?? {};
     requireMetric(failures, metrics.toolCallCount > 0, `${resultPath}: smoke must include at least one tool call`);
@@ -101,10 +100,7 @@ export async function evaluatePerformanceSmoke({
         failures.push(`${reportPath}: missing required smoke report content ${required}`);
       }
     }
-    const newestEvidence = Math.max(
-      await newestMtimeMs(join(runRoot, 'results')),
-      await newestMtimeMs(join(runRoot, 'transcripts')),
-    );
+    const newestEvidence = Math.max(await newestMtimeMs(join(runRoot, 'results')), await newestMtimeMs(join(runRoot, 'transcripts')));
     const newestReportDependency = Math.max(
       await newestMtimeMs(join(root, 'harness', 'src', 'report.ts')),
       await newestMtimeMs(join(root, 'harness', 'src', 'cli.ts')),
@@ -122,8 +118,9 @@ export async function evaluatePerformanceSmoke({
     runName,
     evidence: runRoot,
     failures,
-    blocker: failures.length > 0
-      ? `Refresh Phase 2 performance smoke with local/remote ${smokeTask} N=1 and regenerate its report. Failures: ${failures.join('; ')}`
-      : null,
+    blocker:
+      failures.length > 0
+        ? `Refresh Phase 2 performance smoke with local/remote ${smokeTask} N=1 and regenerate its report. Failures: ${failures.join('; ')}`
+        : null,
   };
 }

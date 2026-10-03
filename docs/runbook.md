@@ -74,6 +74,12 @@ npm run run:final -- --run "$RUN" --trials 5 --resume
 
 Without `--resume`, the driver runs `check:static`, refreshes `latency-smoke`, and runs arm/tier batches. With `--resume`, it still runs `check:static`, then checks the Phase 2 smoke audit. Refresh Phase 2 performance smoke when local/remote N=1 smoke is missing or stale, then check existing final result JSON plus transcript JSONL and run only incomplete arm/task/trial cells. A final trial is considered complete only when it has a well-formed success judgment with a `0..1` score, valid tool surface, correct intended-tool evidence (`baseline` has no GitHub MCP calls; `local-stdio` and `remote-http` have at least one `mcp__github__*` call), no secret-shaped assistant output, required metric fields, a non-empty parseable transcript JSONL, and no token-shaped text in that trial's task-output directory. `success.pass=false` is still valid data, especially for the tool-less baseline floor. Partially complete tasks are resumed with `harness run --trial <n>` so valid trials are not overwritten. The resume driver and `check:run` share the transcript, result-invariant, and run-artifact scanning helpers so skip behavior tracks the final audit.
 
+## Unattended runs
+
+Run on AC power and keep the machine awake for the whole run (macOS: `caffeinate -i -s npm run run:final -- ...`).
+Sleep inflates wall-clock latency. After a run, compare trial windows with `pmset -g log` and delete and resume any
+trial that overlapped a sleep.
+
 ## Cleanup
 
 Interrupted live runs can leave private sandbox repos behind. The cleanup helper is dry-run by default and only targets harness-created repo names with the `lvrmcp-` prefix:

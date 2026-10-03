@@ -1,0 +1,102 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier1_issue_triage",
+  "tier": 1,
+  "trialN": 4,
+  "timestamp": "2026-05-20T10:38:06.531Z",
+  "seed": "d665ac2e8ccd592e",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01Fhk9HZjwJq9JnHyRe84sfk",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01WrMBso6jPHC47CfKVobDMS",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_0169PMU9X7ukV2E6yhrQQEXu",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01UxBjeuhoYfA8Bb5x94ks9j",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01Vsm153jGzGCJJVRp7g1yUn",
+        "name": "Glob",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_017hXJCDQpUdgapgiuLF7Q4e",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_01FdPwPNJczDuQPPdEfRuQ1a",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_01WhCKeTontC1uYzjqouYpfa",
+        "name": "ToolSearch",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_014PttqWvq3xSXjN8BxroX8z",
+        "name": "ToolSearch",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01GyXEaodh3Ec5zLbxpcWJax",
+        "name": "ToolSearch",
+        "turnIndex": 23
+      }
+    ],
+    "toolCallCount": 10,
+    "turns": 23,
+    "wallClockMs": 90157,
+    "perToolCallLatencyMs": [
+      3,
+      2,
+      9,
+      2,
+      66,
+      11,
+      52,
+      5,
+      17,
+      37
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 25395,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at experiments/github/runs/full-n5-20260520/results/baseline/tier1_issue_triage/4/issue_triage.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

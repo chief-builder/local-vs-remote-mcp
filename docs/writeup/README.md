@@ -1,6 +1,6 @@
 # Writeup Workspace
 
-Final writeup artifacts for `full-n5-20260520` live here. They are tied to `experiments/github/runs/full-n5-20260520/report.md` and are audited by `npm run check:completion-writeup-current` plus the final completion gate.
+Final writeup artifacts for `full-n5-20261003` live here. They are tied to [`experiments/github/runs/full-n5-20261003/report.md`](../../experiments/github/runs/full-n5-20261003/report.md) and are audited by `npm run check:completion-writeup-current` plus the final completion gate.
 
 Artifacts:
 
@@ -11,7 +11,7 @@ Artifacts:
 Companion experiment (Playwright) data, summarized in `long-form.md`:
 
 - `experiments/playwright/runs/full-repro-20260626/report.md` (H1 N=10, H2 N=30)
-- `experiments/playwright/runs/unsafe-deconf-20260627/` (de-confound control)
+- `experiments/playwright/runs/unsafe-deconf-20260627/report.md` (de-confound control)
 
 Concept background for both experiments lives in `../foundations/`.
 
@@ -21,9 +21,11 @@ Final data inputs:
 
 - `artifacts/spike/tools-list/overlap.md`
 - `artifacts/spike/phase1-status.md`
-- `experiments/github/runs/full-n5-20260520/report.md`
-- `experiments/github/runs/full-n5-20260520/results/**/<trial>.json`
-- `experiments/github/runs/full-n5-20260520/transcripts/**/*.jsonl`
+- `experiments/github/runs/full-n5-20261003/report.md`
+- `experiments/github/runs/full-n5-20261003/results/**/<trial>.json`
+- `experiments/github/runs/full-n5-20261003/transcripts/**/*.jsonl` (held locally; not published)
+
+The superseded 2026-05-20 run (`experiments/github/runs/full-n5-20260520/`) is kept as the historical record. Its H2 and scope-audit numbers were grader errors; see `long-form.md`.
 
 Use the placeholder form below when collecting a future final run:
 

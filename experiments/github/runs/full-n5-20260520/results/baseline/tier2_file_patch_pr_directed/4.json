@@ -1,0 +1,126 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 4,
+  "timestamp": "2026-05-20T11:10:21.722Z",
+  "seed": "c6ec1070b711b5a1",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01Sf1BRRhmmabUATrLDzgn7p",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01K7taGRkHMHiDkan27Xh3U4",
+        "name": "TaskCreate",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01JgXejmdrTuqnWvv2uZs9nu",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01WyYHksg2hY74DDhW9qb7RV",
+        "name": "TaskUpdate",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01TDnooUrSQ26Zy9LeEghUZQ",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01N9kh2gjYrovMsLTa6AmmhZ",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01NAjfujXfmmtfuWpWvnVqYH",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_018SV9D5hMQ5TSSCwJX49JCK",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_01XCbFvxW8BerLauynCs7y4s",
+        "name": "ToolSearch",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01DCa6BmZSVcoXKWN2QcSoWy",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_016yiZfCaDGpHA19na4ggKBm",
+        "name": "ToolSearch",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01Hw89v4enx1WGAvTZ3cyzC3",
+        "name": "ToolSearch",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_01Y4iAgTW3Z6dJfHeg2D1Xgb",
+        "name": "ToolSearch",
+        "turnIndex": 25
+      }
+    ],
+    "toolCallCount": 13,
+    "turns": 25,
+    "wallClockMs": 90275,
+    "perToolCallLatencyMs": [
+      9,
+      10,
+      5,
+      138,
+      6,
+      6,
+      54,
+      19,
+      7,
+      56,
+      84,
+      48,
+      29
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 27408,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-c6ec1070",
+      "prNumber": null,
+      "expectedFunctionName": "solve_43DA9F8D",
+      "expectedPrTitle": "Fix MARKER-43DA9F8D"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

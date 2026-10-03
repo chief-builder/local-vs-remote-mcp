@@ -1,0 +1,76 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 5,
+  "timestamp": "2026-05-20T11:21:34.953Z",
+  "seed": "66e18855aa106306",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_014xenRymQq3dmevfphxC4Bq",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01F1udLhnkyCbb9XxH2tjvLf",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01JCDJcBmXqLBGJGuapx4esx",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01SdPCRQmMQ8pF4carGYsu3r",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_013Ti1jQv47F61ADDeSYhSRx",
+        "name": "ToolSearch",
+        "turnIndex": 11
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 11,
+    "wallClockMs": 166112,
+    "perToolCallLatencyMs": [
+      4,
+      8,
+      8,
+      205,
+      73
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 17662,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate B5681918\" after 6 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-66e18855",
+      "expectedTitle": "Investigate B5681918"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

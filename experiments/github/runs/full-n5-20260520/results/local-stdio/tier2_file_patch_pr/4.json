@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr",
+  "tier": 2,
+  "trialN": 4,
+  "timestamp": "2026-05-20T11:46:01.744Z",
+  "seed": "42d70c9de7baeb01",
+  "metrics": {
+    "inputTokens": 649,
+    "outputTokens": 1392,
+    "cachedInputTokens": 79835,
+    "cacheCreationInputTokens": 8416,
+    "toolCalls": [
+      {
+        "id": "toolu_01P2yrmdt23ScheAziCZb7o6",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01Xnjyx2Vf3LxkrxJdqn68o2",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01ExddSi6wGd4MzucwvGXVLb",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01EuyST8jjieVBkqE7gykJoq",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01KGEaNamjtC4WjTfXCCb62C",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 10
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 11,
+    "wallClockMs": 27620,
+    "perToolCallLatencyMs": [
+      6,
+      455,
+      820,
+      910,
+      1192
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15909,
+    "totalCostUsd": 0.0768395,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-42d70c9d",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_BCFDC47C",
+      "expectedPrTitle": "Fix MARKER-BCFDC47C"
+    }
+  }
+}

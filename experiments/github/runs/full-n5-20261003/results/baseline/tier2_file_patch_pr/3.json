@@ -1,0 +1,72 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-10-03T12:40:45.078Z",
+  "seed": "b9083c88c08d2de7",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 8,
+    "outputTokens": 2053,
+    "cachedInputTokens": 37915,
+    "cacheCreationInputTokens": 6542,
+    "toolCalls": [
+      {
+        "id": "toolu_018mxdP9TkLtwbCHzme768fJ",
+        "name": "Read",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01EyiQVRstueDAL5WHjoRDoH",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01WXt3EohuUpVJXKpdK2F2Tk",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01SDPnEb3Ehn6XtWxSfKXfms",
+        "name": "Glob",
+        "turnIndex": 8
+      }
+    ],
+    "toolCallCount": 4,
+    "turns": 10,
+    "wallClockMs": 31692,
+    "perToolCallLatencyMs": [
+      18,
+      11,
+      12,
+      23
+    ],
+    "coldStartMs": 6,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 11791,
+    "totalCostUsd": 0.0814455,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-b9083c88",
+      "prNumber": null,
+      "expectedFunctionName": "solve_629FAD69",
+      "expectedPrTitle": "Fix MARKER-629FAD69"
+    }
+  }
+}

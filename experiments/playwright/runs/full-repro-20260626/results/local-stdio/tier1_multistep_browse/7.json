@@ -1,0 +1,77 @@
+{
+  "experiment": "playwright",
+  "runName": "full-repro-20260626",
+  "arm": "local-stdio",
+  "taskId": "tier1_multistep_browse",
+  "tier": 1,
+  "trialN": 7,
+  "timestamp": "2026-06-27T03:18:53.407Z",
+  "seed": "a66d0e30c7d539bf",
+  "metrics": {
+    "inputTokens": 727,
+    "outputTokens": 866,
+    "cachedInputTokens": 101688,
+    "cacheCreationInputTokens": 7179,
+    "toolCalls": [
+      {
+        "id": "toolu_01FvXCDThpA4AjVFQFT8EAy2",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01KSpmmmCJ5GU6PAouGmEXnP",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01WhmYxZicimZ8MF6pBRYuUP",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01UA8pn7gJtVbCJNQEmpRK92",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_013jTkhmeThnoTq15z5hjGmW",
+        "name": "Write",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 19588,
+    "perToolCallLatencyMs": [
+      12,
+      926,
+      581,
+      1104,
+      14
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 19126,
+    "totalCostUsd": 0.0871814,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "multistep token matches",
+    "extras": {
+      "expectedToken": "OK-1282E7262714"
+    }
+  }
+}

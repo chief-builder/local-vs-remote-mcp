@@ -1,11 +1,5 @@
 import type { Task, TaskContext } from '../../../harness/src/tasks.js';
-import {
-  ghConfigFromEnv,
-  provisionRepo,
-  repoNameFor,
-  type ProvisionedRepo,
-  type RepoSeed,
-} from '../provisioner.js';
+import { ghConfigFromEnv, provisionRepo, repoNameFor, type ProvisionedRepo, type RepoSeed } from '../provisioner.js';
 
 function hexFromSeed(seed: string, salt: string, len: number): string {
   // FNV-1a derived hex — mirrors the helper in tier1.ts so seed-derived
@@ -77,11 +71,7 @@ const tier2_issue_workflow: Task = {
       ],
     };
 
-    const repo = await provisionRepo(
-      cfg,
-      repoNameFor('tier2_issue_workflow', seed),
-      repoSeed,
-    );
+    const repo = await provisionRepo(cfg, repoNameFor('tier2_issue_workflow', seed), repoSeed);
 
     // Issues are created in insertion order; numbers start at 1.
     return {
@@ -122,26 +112,26 @@ Do not modify the other two issues. When all three steps are done you are finish
     const expected = ctx.state as IssueWorkflowState;
     const repo = expected.repo.fullName;
 
-    const target = await fetchJson(cfg.host, cfg.controllerToken,
-      `/repos/${repo}/issues/${expected.targetIssueNumber}`) as {
-        state: string;
-        labels: Array<{ name: string }>;
-      };
-    const targetComments = await fetchJson(cfg.host, cfg.controllerToken,
-      `/repos/${repo}/issues/${expected.targetIssueNumber}/comments`) as Array<{ body: string }>;
+    const target = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/issues/${expected.targetIssueNumber}`)) as {
+      state: string;
+      labels: Array<{ name: string }>;
+    };
+    const targetComments = (await fetchJson(
+      cfg.host,
+      cfg.controllerToken,
+      `/repos/${repo}/issues/${expected.targetIssueNumber}/comments`,
+    )) as Array<{ body: string }>;
 
-    const labelOk = target.labels.some(l => l.name === expected.expectedLabel);
+    const labelOk = target.labels.some((l) => l.name === expected.expectedLabel);
     const stateOk = target.state === 'closed';
-    const commentOk = targetComments.some(c => (c.body ?? '').includes(expected.expectedCommentPhrase));
+    const commentOk = targetComments.some((c) => (c.body ?? '').includes(expected.expectedCommentPhrase));
 
     // Verify decoys were not touched — still open, no comments added.
     let decoysUntouched = true;
     const decoyNotes: string[] = [];
     for (const num of expected.decoyIssueNumbers) {
-      const d = await fetchJson(cfg.host, cfg.controllerToken,
-        `/repos/${repo}/issues/${num}`) as { state: string };
-      const dc = await fetchJson(cfg.host, cfg.controllerToken,
-        `/repos/${repo}/issues/${num}/comments`) as Array<{ body: string }>;
+      const d = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/issues/${num}`)) as { state: string };
+      const dc = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/issues/${num}/comments`)) as Array<{ body: string }>;
       if (d.state !== 'open' || dc.length > 0) {
         decoysUntouched = false;
         decoyNotes.push(`issue #${num}: state=${d.state}, comments=${dc.length}`);
@@ -156,9 +146,10 @@ Do not modify the other two issues. When all three steps are done you are finish
     const checks = [labelOk, stateOk, commentOk, decoyCheck];
     const matched = checks.filter(Boolean).length;
     const score = matched / checks.length;
-    const notes = matched === checks.length
-      ? 'all workflow steps applied to target only'
-      : `label=${labelOk} closed=${stateOk} comment=${commentOk} decoys-untouched=${decoysUntouched}${decoyNotes.length ? ' (' + decoyNotes.join('; ') + ')' : ''}${!touchedTarget ? ' (target untouched — decoy check not credited)' : ''}`;
+    const notes =
+      matched === checks.length
+        ? 'all workflow steps applied to target only'
+        : `label=${labelOk} closed=${stateOk} comment=${commentOk} decoys-untouched=${decoysUntouched}${decoyNotes.length ? ' (' + decoyNotes.join('; ') + ')' : ''}${!touchedTarget ? ' (target untouched — decoy check not credited)' : ''}`;
 
     return {
       pass: matched === checks.length,
@@ -227,15 +218,14 @@ async function filePatchSuccessCheck(ctx: TaskContext) {
   const expected = ctx.state as FilePatchState;
   const repo = expected.repo.fullName;
 
-  const prs = await fetchJson(cfg.host, cfg.controllerToken,
-    `/repos/${repo}/pulls?state=open&base=main`) as Array<{
-      number: number;
-      title: string;
-      body: string | null;
-      head: { ref: string };
-    }>;
+  const prs = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/pulls?state=open&base=main`)) as Array<{
+    number: number;
+    title: string;
+    body: string | null;
+    head: { ref: string };
+  }>;
 
-  const pr = prs.find(p => p.title.trim() === expected.expectedPrTitle.trim());
+  const pr = prs.find((p) => p.title.trim() === expected.expectedPrTitle.trim());
   const titleOk = !!pr;
   const bodyOk = !!pr && (pr.body ?? '').includes(expected.expectedPrBodyPhrase);
 
@@ -245,8 +235,11 @@ async function filePatchSuccessCheck(ctx: TaskContext) {
 
   if (pr) {
     try {
-      const fileContent = await fetchTextContents(cfg.host, cfg.controllerToken,
-        `/repos/${repo}/contents/${encodeURI(expected.changedFile)}?ref=${encodeURIComponent(pr.head.ref)}`);
+      const fileContent = await fetchTextContents(
+        cfg.host,
+        cfg.controllerToken,
+        `/repos/${repo}/contents/${encodeURI(expected.changedFile)}?ref=${encodeURIComponent(pr.head.ref)}`,
+      );
       if (fileContent !== null) {
         const fnRegex = new RegExp(`function\\s+${expected.expectedFunctionName}\\s*\\(`);
         const returnRegex = new RegExp(`['"\`]${expected.expectedReturnValue}['"\`]`);
@@ -258,9 +251,10 @@ async function filePatchSuccessCheck(ctx: TaskContext) {
     }
 
     try {
-      const files = await fetchJson(cfg.host, cfg.controllerToken,
-        `/repos/${repo}/pulls/${pr.number}/files`) as Array<{ filename: string }>;
-      onlyTargetFileChanged = files.length > 0 && files.every(f => f.filename === expected.changedFile);
+      const files = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/pulls/${pr.number}/files`)) as Array<{
+        filename: string;
+      }>;
+      onlyTargetFileChanged = files.length > 0 && files.every((f) => f.filename === expected.changedFile);
     } catch {
       // onlyTargetFileChanged stays false
     }
@@ -269,9 +263,10 @@ async function filePatchSuccessCheck(ctx: TaskContext) {
   const checks = [titleOk, bodyOk, fileOk, functionReturnsOk, onlyTargetFileChanged];
   const matched = checks.filter(Boolean).length;
   const score = matched / checks.length;
-  const notes = matched === checks.length
-    ? 'PR + branch file content + scope all match'
-    : `title=${titleOk} body=${bodyOk} fn-present=${fileOk} fn-returns-expected=${functionReturnsOk} only-target-file=${onlyTargetFileChanged}`;
+  const notes =
+    matched === checks.length
+      ? 'PR + branch file content + scope all match'
+      : `title=${titleOk} body=${bodyOk} fn-present=${fileOk} fn-returns-expected=${functionReturnsOk} only-target-file=${onlyTargetFileChanged}`;
 
   return {
     pass: matched === checks.length,
@@ -341,7 +336,7 @@ The file ${s.changedFile} on main contains a TODO comment marked MARKER-${s.mark
    - Body containing the exact phrase: ${s.expectedPrBodyPhrase}
 
 Tooling notes — important:
-- The ONLY allowed Bash command is \`gh ...\`. Shell helpers (\`cat\`, \`base64\`, \`awk\`, \`sed\`, \`echo\`), pipes, redirections (\`>\`, \`>>\`, \`2>&1\`), shell variable assignments (\`NAME=value\`), and command substitution (\`\$(...)\`) are NOT allowed and will be flagged as off-surface.
+- The ONLY allowed Bash command is \`gh ...\`. Shell helpers (\`cat\`, \`base64\`, \`awk\`, \`sed\`, \`echo\`), pipes, redirections (\`>\`, \`>>\`, \`2>&1\`), shell variable assignments (\`NAME=value\`), and command substitution (\`$(...)\`) are NOT allowed and will be flagged as off-surface.
 - When you need to pass file content or a JSON body to \`gh api\`, write the content to a local file using the \`Write\` tool, then point \`gh\` at it:
     - \`gh api ENDPOINT -F field=@local-file\` reads the value for one field from a file
     - \`gh api ENDPOINT --input request.json\` reads the entire request body from a file
@@ -382,20 +377,16 @@ const tier2_issue_create: Task = {
     const marker = hexFromSeed(seed, 'issue-create', 8).toUpperCase();
     const expectedLabels = ['bug', 'priority-high'];
 
-    const repo = await provisionRepo(
-      cfg,
-      repoNameFor('tier2_issue_create', seed),
-      {
-        description: 'tier2_issue_create sandbox',
-        files: [{ path: 'README.md', content: '# issue create sandbox\n' }],
-        labels: [
-          { name: 'bug', color: 'd73a4a' },
-          { name: 'enhancement', color: 'a2eeef' },
-          { name: 'priority-high', color: 'b60205' },
-          { name: 'priority-low', color: '0e8a16' },
-        ],
-      },
-    );
+    const repo = await provisionRepo(cfg, repoNameFor('tier2_issue_create', seed), {
+      description: 'tier2_issue_create sandbox',
+      files: [{ path: 'README.md', content: '# issue create sandbox\n' }],
+      labels: [
+        { name: 'bug', color: 'd73a4a' },
+        { name: 'enhancement', color: 'a2eeef' },
+        { name: 'priority-high', color: 'b60205' },
+        { name: 'priority-low', color: '0e8a16' },
+      ],
+    });
 
     return {
       repo,
@@ -435,7 +426,9 @@ When the issue has been created you are done — you do not need to write any lo
     // The /issues endpoint has noticeable eventual-consistency lag after a
     // create — a freshly-POSTed issue can be 200 OK at GET /issues/{n} while
     // returning 0 results from the list endpoint. Retry the list a few
-    // times with backoff before declaring "no issue found".
+    // times with backoff before declaring "no issue found". On 2026-10-03 the
+    // lag exceeded the old 2.5s budget and failed three trials whose
+    // issue_write had returned a created issue, so the budget is now ~20s.
     type IssueRow = {
       number: number;
       title: string;
@@ -444,20 +437,20 @@ When the issue has been created you are done — you do not need to write any lo
       pull_request?: unknown;
     };
     let candidates: IssueRow[] = [];
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const issues = await fetchJson(cfg.host, cfg.controllerToken,
-        `/repos/${repo}/issues?state=open&per_page=20`) as IssueRow[];
-      candidates = issues.filter(i => !i.pull_request
-        && i.title.trim() === expected.expectedTitle.trim());
+    const delaysMs = [500, 1_000, 2_000, 4_000, 4_000, 4_000, 4_000];
+    for (let attempt = 0; attempt <= delaysMs.length; attempt++) {
+      const issues = (await fetchJson(cfg.host, cfg.controllerToken, `/repos/${repo}/issues?state=open&per_page=20`)) as IssueRow[];
+      candidates = issues.filter((i) => !i.pull_request && i.title.trim() === expected.expectedTitle.trim());
       if (candidates.length > 0) break;
-      if (attempt < 5) await new Promise(r => setTimeout(r, 500));
+      const delay = delaysMs[attempt];
+      if (delay !== undefined) await new Promise((r) => setTimeout(r, delay));
     }
 
     if (candidates.length === 0) {
       return {
         pass: false,
         score: 0,
-        notes: `no open issue found with title "${expected.expectedTitle}" after 6 attempts`,
+        notes: `no open issue found with title "${expected.expectedTitle}" after ${delaysMs.length + 1} attempts`,
         extras: { repoFullName: repo, expectedTitle: expected.expectedTitle },
       };
     }
@@ -473,16 +466,16 @@ When the issue has been created you are done — you do not need to write any lo
     const issue = candidates[0]!;
     const titleOk = true;
     const bodyOk = (issue.body ?? '').includes(expected.expectedBodyPhrase);
-    const labelNames = issue.labels.map(l => l.name);
-    const labelsOk = expected.expectedLabels.every(n => labelNames.includes(n))
-      && labelNames.length === expected.expectedLabels.length;
+    const labelNames = issue.labels.map((l) => l.name);
+    const labelsOk = expected.expectedLabels.every((n) => labelNames.includes(n)) && labelNames.length === expected.expectedLabels.length;
 
     const checks = [titleOk, bodyOk, labelsOk];
     const matched = checks.filter(Boolean).length;
     const score = matched / checks.length;
-    const notes = matched === checks.length
-      ? 'issue created with all expected fields'
-      : `title=${titleOk} body=${bodyOk} labels=${labelsOk} (got=${labelNames.join('|')})`;
+    const notes =
+      matched === checks.length
+        ? 'issue created with all expected fields'
+        : `title=${titleOk} body=${bodyOk} labels=${labelsOk} (got=${labelNames.join('|')})`;
 
     return {
       pass: matched === checks.length,
@@ -530,9 +523,4 @@ function ghHeaders(token: string): Record<string, string> {
   };
 }
 
-export const tier2Tasks: Task[] = [
-  tier2_issue_workflow,
-  tier2_file_patch_pr,
-  tier2_file_patch_pr_directed,
-  tier2_issue_create,
-];
+export const tier2Tasks: Task[] = [tier2_issue_workflow, tier2_file_patch_pr, tier2_file_patch_pr_directed, tier2_issue_create];

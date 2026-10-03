@@ -60,8 +60,12 @@ function run(command, args) {
     let stderr = '';
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
     child.on('close', (code, signal) => {
       resolve({ code: code ?? (signal ? 1 : 0), stdout, stderr });
     });
@@ -110,7 +114,12 @@ try {
 add('GitHub tool overlap is computed', overlapOk, overlapPath, 'Run local/remote tools/list probes and npm run probe:tools -- --compare.');
 
 const staticCheck = await run('npm', ['run', 'check:static']);
-add('Static preflight passes', staticCheck.code === 0, 'npm run check:static', staticCheck.stderr || staticCheck.stdout || 'Static preflight failed.');
+add(
+  'Static preflight passes',
+  staticCheck.code === 0,
+  'npm run check:static',
+  staticCheck.stderr || staticCheck.stdout || 'Static preflight failed.',
+);
 
 const claudeAuthCheck = await run('npm', ['run', 'check:claude-auth']);
 const claudeAuthOk = claudeAuthCheck.code === 0;
@@ -137,14 +146,14 @@ try {
     await newestMtimeMs(join(root, '.mcp.github.remote.json')),
     await newestMtimeMs(overlapPath),
   );
-  verifyArmsFresh = verifyArmsMtimeMs > 0
-    && verifyArmsMtimeMs + 1000 >= newestVerifyArmsDependency;
-  verifyArmsOk = claudeAuthOk
-    && verifyArmsFresh
-    && verifyArms.pass === true
-    && Array.isArray(verifyArms.arms)
-    && verifyArms.arms.length === 3
-    && verifyArms.arms.every((arm) => arm.pass === true);
+  verifyArmsFresh = verifyArmsMtimeMs > 0 && verifyArmsMtimeMs + 1000 >= newestVerifyArmsDependency;
+  verifyArmsOk =
+    claudeAuthOk &&
+    verifyArmsFresh &&
+    verifyArms.pass === true &&
+    Array.isArray(verifyArms.arms) &&
+    verifyArms.arms.length === 3 &&
+    verifyArms.arms.every((arm) => arm.pass === true);
 } catch {
   verifyArmsOk = false;
 }
@@ -153,22 +162,22 @@ add(
   verifyArmsOk,
   verifyArmsPath,
   claudeAuthOk
-    ? (verifyArmsFresh
-        ? 'Run npm run harness -- verify-arms --experiment github --output artifacts/verify-arms/github.json after Claude Code CLI login.'
-        : 'Rerun npm run harness -- verify-arms --experiment github --output artifacts/verify-arms/github.json; the stored verifier artifact predates current arm or MCP configuration sources.')
+    ? verifyArmsFresh
+      ? 'Run npm run harness -- verify-arms --experiment github --output artifacts/verify-arms/github.json after Claude Code CLI login.'
+      : 'Rerun npm run harness -- verify-arms --experiment github --output artifacts/verify-arms/github.json; the stored verifier artifact predates current arm or MCP configuration sources.'
     : 'Current Claude Code CLI auth is failing; rerun verify-arms after login so the artifact reflects live arm isolation.',
 );
 
 const performanceSmoke = await evaluatePerformanceSmoke({ root, runName: 'latency-smoke' });
-add(
-  'Phase 2 performance smoke passes',
-  performanceSmoke.pass,
-  performanceSmoke.evidence,
-  performanceSmoke.blocker,
-);
+add('Phase 2 performance smoke passes', performanceSmoke.pass, performanceSmoke.evidence, performanceSmoke.blocker);
 
 if (!runName) {
-  add('Final run name provided', false, '--run <final-run>', 'Run npm run check:completion -- --run <final-run> after collecting full N=5.');
+  add(
+    'Final run name provided',
+    false,
+    '--run <final-run>',
+    'Run npm run check:completion -- --run <final-run> after collecting full N=5.',
+  );
 } else {
   const runRoot = join(root, 'experiments', 'github', 'runs', runName);
   const reportPath = join(root, 'experiments', 'github', 'runs', runName, 'report.md');
@@ -183,11 +192,21 @@ if (!runName) {
   add('Final report exists and is current', report.pass, reportPath, report.blocker);
 
   const runCheck = await run('npm', ['run', 'check:run', '--', '--run', runName, '--trials', String(expectedTrials)]);
-  add('Final run matrix passes', runCheck.code === 0, `npm run check:run -- --run ${runName} --trials ${expectedTrials}`, briefOutput(runCheck, 'Final run matrix check failed.'));
+  add(
+    'Final run matrix passes',
+    runCheck.code === 0,
+    `npm run check:run -- --run ${runName} --trials ${expectedTrials}`,
+    briefOutput(runCheck, 'Final run matrix check failed.'),
+  );
 
   if (await exists(runRoot)) {
     const runSecretScan = await run('npm', ['run', 'scan:secrets', '--', '--path', `experiments/github/runs/${runName}`]);
-    add('Final run artifacts have no token-shaped secrets', runSecretScan.code === 0, `npm run scan:secrets -- --path experiments/github/runs/${runName}`, briefOutput(runSecretScan, 'Run artifact secret scan failed.'));
+    add(
+      'Final run artifacts have no token-shaped secrets',
+      runSecretScan.code === 0,
+      `npm run scan:secrets -- --path experiments/github/runs/${runName}`,
+      briefOutput(runSecretScan, 'Run artifact secret scan failed.'),
+    );
   } else {
     add(
       'Final run artifacts have no token-shaped secrets',

@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Task, TaskContext, SuccessResult } from '../../../harness/src/tasks.js';
 
@@ -94,9 +94,7 @@ When the file is written, you are done.
     return {
       pass: matched === checks.length,
       score: matched / checks.length,
-      notes: matched === checks.length
-        ? 'page title and heading match'
-        : `mismatch: page_title=${titleOk} heading=${headingOk}`,
+      notes: matched === checks.length ? 'page title and heading match' : `mismatch: page_title=${titleOk} heading=${headingOk}`,
       extras: { expectedTitle: expected.expectedTitle, expectedHeading: expected.expectedHeading },
     };
   },
@@ -151,31 +149,35 @@ export const tier1_multistep_browse: Task = {
 
     if (req.method === 'GET' && url === s.startPath) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end([
-        '<!doctype html>',
-        '<html><head><title>Step 1</title></head><body>',
-        `<h1>${s.phraseA}</h1>`,
-        '<p>This is the first page. Follow the link below to continue.</p>',
-        `<a id="next-link" href="${s.page2Path}">Continue to step 2</a>`,
-        '</body></html>',
-      ].join('\n'));
+      res.end(
+        [
+          '<!doctype html>',
+          '<html><head><title>Step 1</title></head><body>',
+          `<h1>${s.phraseA}</h1>`,
+          '<p>This is the first page. Follow the link below to continue.</p>',
+          `<a id="next-link" href="${s.page2Path}">Continue to step 2</a>`,
+          '</body></html>',
+        ].join('\n'),
+      );
       return true;
     }
 
     if (req.method === 'GET' && url === s.page2Path) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end([
-        '<!doctype html>',
-        '<html><head><title>Step 2</title></head><body>',
-        `<h1>${s.phraseB}</h1>`,
-        '<p>Fill both phrases into the form and submit.</p>',
-        `<form id="phrase-form" action="${s.submitPath}" method="POST">`,
-        '  <label>Phrase A: <input type="text" name="phrase_a" id="phrase_a"></label>',
-        '  <label>Phrase B: <input type="text" name="phrase_b" id="phrase_b"></label>',
-        '  <button type="submit" id="submit-button">Submit</button>',
-        '</form>',
-        '</body></html>',
-      ].join('\n'));
+      res.end(
+        [
+          '<!doctype html>',
+          '<html><head><title>Step 2</title></head><body>',
+          `<h1>${s.phraseB}</h1>`,
+          '<p>Fill both phrases into the form and submit.</p>',
+          `<form id="phrase-form" action="${s.submitPath}" method="POST">`,
+          '  <label>Phrase A: <input type="text" name="phrase_a" id="phrase_a"></label>',
+          '  <label>Phrase B: <input type="text" name="phrase_b" id="phrase_b"></label>',
+          '  <button type="submit" id="submit-button">Submit</button>',
+          '</form>',
+          '</body></html>',
+        ].join('\n'),
+      );
       return true;
     }
 
@@ -185,14 +187,16 @@ export const tier1_multistep_browse: Task = {
       const b = params.get('phrase_b') ?? '';
       const ok = a === s.phraseA && b === s.phraseB;
       res.writeHead(ok ? 200 : 400, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end([
-        '<!doctype html>',
-        '<html><head><title>Result</title></head><body>',
-        ok
-          ? `<h1>Confirmation</h1><p>Token: <code id="token">${s.expectedToken}</code></p>`
-          : `<h1>Mismatch</h1><p>The submitted phrases did not match. (got a=${a}, b=${b})</p>`,
-        '</body></html>',
-      ].join('\n'));
+      res.end(
+        [
+          '<!doctype html>',
+          '<html><head><title>Result</title></head><body>',
+          ok
+            ? `<h1>Confirmation</h1><p>Token: <code id="token">${s.expectedToken}</code></p>`
+            : `<h1>Mismatch</h1><p>The submitted phrases did not match. (got a=${a}, b=${b})</p>`,
+          '</body></html>',
+        ].join('\n'),
+      );
       return true;
     }
 

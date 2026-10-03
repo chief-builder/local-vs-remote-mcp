@@ -44,13 +44,7 @@ for (const commandOrArtifact of [
   assertIncludes(commandOrArtifact, `evidence reference: ${commandOrArtifact}`);
 }
 
-for (const helper of [
-  'reportCurrent',
-  'evaluateWriteup',
-  'evaluatePerformanceSmoke',
-  'newestMtimeMs',
-  'briefOutput',
-]) {
+for (const helper of ['reportCurrent', 'evaluateWriteup', 'evaluatePerformanceSmoke', 'newestMtimeMs', 'briefOutput']) {
   assertIncludes(helper, `coverage helper: ${helper}`);
 }
 

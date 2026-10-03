@@ -1,0 +1,131 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier1_pr_diff_answer",
+  "tier": 1,
+  "trialN": 3,
+  "timestamp": "2026-10-03T06:03:32.278Z",
+  "seed": "1e488b28d935474e",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01Mnu8Udd2DeEeKw5xvBcHSW",
+        "name": "Glob",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01DkheEVQqjEVHrJZcnJTXb2",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_0191eKH8fcuPgGMh61Ayf8su",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_017BNnrrJuAUrT5BCHMao48d",
+        "name": "Read",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01QW73X6K1vAVp8wcPH759KR",
+        "name": "Glob",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01VzaMNmN3iSxzKCR86xDrHm",
+        "name": "Glob",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_01GdJmP34Wc1WP3F1jJDLpYj",
+        "name": "Read",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_01JXyZeLBHqjcVGQj73V1uCu",
+        "name": "Read",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_015MFiHirfbciWcm9T1q5tnt",
+        "name": "Glob",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_0135QcrsatPrvcvShfg8kpna",
+        "name": "Read",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_0163rQHMY4zLBEBZjvicuyqH",
+        "name": "ToolSearch",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_014ZgzZGfjPFNVuEe9Ti4y6a",
+        "name": "ToolSearch",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_016REziMRWk2p3SgM3LncCst",
+        "name": "Glob",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_017jGadffe5CDs7vdkA1VRuG",
+        "name": "Glob",
+        "turnIndex": 24
+      },
+      {
+        "id": "toolu_01AbaVxvDYgn3jDMdaNeTnA7",
+        "name": "Read",
+        "turnIndex": 27
+      }
+    ],
+    "toolCallCount": 15,
+    "turns": 27,
+    "wallClockMs": 90224,
+    "perToolCallLatencyMs": [
+      30,
+      11,
+      11,
+      17,
+      264,
+      4,
+      20019,
+      12,
+      27,
+      17,
+      7,
+      9,
+      1190,
+      20020,
+      22
+    ],
+    "coldStartMs": 13,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 24535,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at pr_diff.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

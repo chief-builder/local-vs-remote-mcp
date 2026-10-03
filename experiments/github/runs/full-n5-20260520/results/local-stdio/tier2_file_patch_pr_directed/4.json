@@ -1,0 +1,78 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 4,
+  "timestamp": "2026-05-20T11:49:27.478Z",
+  "seed": "c6ec1070b711b5a1",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01B3vx2j8a7DoBqz9kq68CJW",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01V24CofaDyFNNM3hmXxjSFY",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01HxnXnMPNvkmWAfjc7gop7u",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_017vyJq7YgvyYWCn9JGwtVK4",
+        "name": "mcp__github__push_files",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01JZZofXARBih7PeRV9up6Hj",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 10
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 10,
+    "wallClockMs": 385640,
+    "perToolCallLatencyMs": [
+      7,
+      414,
+      888,
+      2121,
+      1013
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15576,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-c6ec1070",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_43DA9F8D",
+      "expectedPrTitle": "Fix MARKER-43DA9F8D"
+    }
+  },
+  "error": "claude timed out after 240000ms"
+}

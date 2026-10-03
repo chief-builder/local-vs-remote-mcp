@@ -27,9 +27,15 @@ assert(localGithub?.env && Object.keys(localGithub.env).length === 0, 'local Git
 assert(Array.isArray(localGithub?.args), 'local GitHub MCP config must provide docker args');
 
 const args = localGithub.args;
-assert(args[0] === 'run' && args.includes('-i') && args.includes('--rm'), 'local Docker args must run interactively and remove the container');
+assert(
+  args[0] === 'run' && args.includes('-i') && args.includes('--rm'),
+  'local Docker args must run interactively and remove the container',
+);
 assert(args.includes(EXPECTED_IMAGE), `local Docker args must use the expected digest-pinned image ${EXPECTED_IMAGE}`);
-assert(!args.some((arg) => typeof arg === 'string' && /github-mcp-server:(latest|main|master)\b/.test(arg)), 'local Docker args must not use floating image tags');
+assert(
+  !args.some((arg) => typeof arg === 'string' && /github-mcp-server:(latest|main|master)\b/.test(arg)),
+  'local Docker args must not use floating image tags',
+);
 assert(args.filter((arg) => arg === EXPECTED_IMAGE).length === 1, 'local Docker args must include the pinned image exactly once');
 assert(args[args.length - 1] === 'stdio', 'local Docker args must invoke github-mcp-server stdio mode');
 for (const expectedEnv of ['GITHUB_PERSONAL_ACCESS_TOKEN', 'GITHUB_TOOLSETS', 'GITHUB_HOST', 'HARMLESS_TOKEN']) {
@@ -40,11 +46,21 @@ for (const expectedEnv of ['GITHUB_PERSONAL_ACCESS_TOKEN', 'GITHUB_TOOLSETS', 'G
 const remoteGithub = remote?.mcpServers?.github;
 assert(remoteGithub?.type === 'http', 'remote GitHub MCP server must use http transport');
 assert(remoteGithub?.url === EXPECTED_REMOTE_URL, `remote GitHub MCP URL must be ${EXPECTED_REMOTE_URL}`);
-assert(remoteGithub?.headers?.Authorization === 'Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}', 'remote Authorization header must use the GITHUB_PERSONAL_ACCESS_TOKEN placeholder');
+assert(
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: checks the literal placeholder Claude Code expands at runtime
+  remoteGithub?.headers?.Authorization === 'Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}',
+  'remote Authorization header must use the GITHUB_PERSONAL_ACCESS_TOKEN placeholder',
+);
 
 const probeSource = await readFile('scripts/probe-tools-list.mjs', 'utf8');
-assert(probeSource.includes(`const IMAGE = '${EXPECTED_IMAGE}'`), 'tools/list local probe must use the same pinned image as the MCP config');
-assert(probeSource.includes(`const REMOTE_URL = '${EXPECTED_REMOTE_URL}'`), 'tools/list remote probe must use the same remote URL as the MCP config');
+assert(
+  probeSource.includes(`const IMAGE = '${EXPECTED_IMAGE}'`),
+  'tools/list local probe must use the same pinned image as the MCP config',
+);
+assert(
+  probeSource.includes(`const REMOTE_URL = '${EXPECTED_REMOTE_URL}'`),
+  'tools/list remote probe must use the same remote URL as the MCP config',
+);
 
 const githubExperimentSource = await readFile('harness/src/experiments/github.ts', 'utf8');
 assert(githubExperimentSource.includes("mcpConfig: '.mcp.github.local.json'"), 'local arm must point at .mcp.github.local.json');

@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 4,
+  "timestamp": "2026-05-20T10:32:06.677Z",
+  "seed": "526cd43112e03651",
+  "metrics": {
+    "inputTokens": 654,
+    "outputTokens": 853,
+    "cachedInputTokens": 97087,
+    "cacheCreationInputTokens": 11411,
+    "toolCalls": [
+      {
+        "id": "toolu_01RGxU22mtJVv2k9YYKhxbZ8",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_012HLnhSN9vbadjcjJfbvWki",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_015b4NKn8U6xZNS3PakhN99Y",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_018JPqx9B6Kc8UgZSpneVEnM",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01D7eLvm38Y9TAABX7kG9SWU",
+        "name": "ToolSearch",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_013R2eYaT5ViGpZaLMZNVV6v",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      }
+    ],
+    "toolCallCount": 6,
+    "turns": 16,
+    "wallClockMs": 20632,
+    "perToolCallLatencyMs": [
+      50,
+      48,
+      2,
+      77,
+      71,
+      8
+    ],
+    "coldStartMs": 2,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 18670,
+    "totalCostUsd": 0.08523435,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at experiments/github/runs/full-n5-20260520/results/baseline/tier1_repo_inventory/4/repo_inventory.json"
+  }
+}

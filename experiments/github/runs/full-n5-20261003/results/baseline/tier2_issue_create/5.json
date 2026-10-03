@@ -1,0 +1,106 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 5,
+  "timestamp": "2026-10-03T13:38:54.394Z",
+  "seed": "46cbca2cab431579",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 21,
+    "outputTokens": 2283,
+    "cachedInputTokens": 138387,
+    "cacheCreationInputTokens": 12808,
+    "toolCalls": [
+      {
+        "id": "toolu_01K5o7vvn53VGGet3uiygWhZ",
+        "name": "ToolSearch",
+        "turnIndex": 2
+      },
+      {
+        "id": "toolu_01EGrNDg9xXkaYeF6RLczGqk",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01EX2d329QGAWN3FXppzNRHh",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01NjD8wANj44WYu3RHayoAwX",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01V8W6kCopZ3DXaE69jWrw86",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_0178tKPDfPEqot1Fxec5pCYh",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_013kxuMaJe71VH4w9TA7iJPG",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_019zezFB2EbfMopSX6BLu6CW",
+        "name": "ToolSearch",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_014K4ppHEFqEHj7gmLgjxQXg",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_019Y2r4ndiwrgobYWVAw8A24",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      }
+    ],
+    "toolCallCount": 10,
+    "turns": 19,
+    "wallClockMs": 49894,
+    "perToolCallLatencyMs": [
+      15,
+      11,
+      9,
+      4,
+      10,
+      11,
+      4,
+      11,
+      10,
+      10
+    ],
+    "coldStartMs": 5,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 18057,
+    "totalCostUsd": 0.1526721,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate 875B0FB0\" after 8 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-46cbca2c",
+      "expectedTitle": "Investigate 875B0FB0"
+    }
+  }
+}

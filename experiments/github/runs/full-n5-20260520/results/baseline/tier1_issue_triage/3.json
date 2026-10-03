@@ -1,0 +1,90 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier1_issue_triage",
+  "tier": 1,
+  "trialN": 3,
+  "timestamp": "2026-05-20T10:36:28.045Z",
+  "seed": "9189fbd0900e79c7",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_016vxyHqwanxCCH8DV1xiX4M",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_019tKm24Qv8VCfh6Q2SGzmje",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01KJnQMr1FN1yLi9qpUqYGc3",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_016r2AmNsuUarbK1bs4tH8nP",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01YYvccqjUQAgQYjZCfQXCXr",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_01BJf4eHMu9bqAZy8RamRmRE",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01Rp1RR2TGgtT2TRQprrcAY2",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01RhmrZFVKysUdmHtDUA62Bf",
+        "name": "Glob",
+        "turnIndex": 22
+      }
+    ],
+    "toolCallCount": 8,
+    "turns": 22,
+    "wallClockMs": 90116,
+    "perToolCallLatencyMs": [
+      6,
+      1,
+      2,
+      50,
+      55,
+      62,
+      59,
+      17
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 22459,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at experiments/github/runs/full-n5-20260520/results/baseline/tier1_issue_triage/3/issue_triage.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

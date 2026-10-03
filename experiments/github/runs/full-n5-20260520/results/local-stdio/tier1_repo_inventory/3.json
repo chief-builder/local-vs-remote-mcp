@@ -1,0 +1,83 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 3,
+  "timestamp": "2026-05-20T11:29:30.295Z",
+  "seed": "a24e1880a2245fd3",
+  "metrics": {
+    "inputTokens": 648,
+    "outputTokens": 940,
+    "cachedInputTokens": 51483,
+    "cacheCreationInputTokens": 10071,
+    "toolCalls": [
+      {
+        "id": "toolu_01LNC6PnrPFiPyi1DzxsJdrR",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01AsSXDP1i22zMytrpFEQ5fp",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01WDTf33zATvbPna4mD9qncK",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01SJiPu4WPpckexgAk4H4kSc",
+        "name": "mcp__github__search_repositories",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_012wuNz2FimejN97rCShd6BN",
+        "name": "Write",
+        "turnIndex": 10
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 11,
+    "wallClockMs": 22973,
+    "perToolCallLatencyMs": [
+      10,
+      9,
+      549,
+      1076,
+      56
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 17564,
+    "totalCostUsd": 0.06781915000000001,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all repo facts match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-repo-inventory-a24e1880",
+      "expectedDescription": "local-vs-remote-mcp sandbox repo (a24e18)",
+      "expectedTopics": [
+        "topic-71ce",
+        "topic-64b3",
+        "local-vs-remote-mcp"
+      ]
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "remote-http",
+  "taskId": "tier2_issue_workflow",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-10-03T13:20:37.313Z",
+  "seed": "0778904329ed5df2",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 9,
+    "outputTokens": 919,
+    "cachedInputTokens": 48921,
+    "cacheCreationInputTokens": 9719,
+    "toolCalls": [
+      {
+        "id": "toolu_01VEcPvvKehEhg3YBoEAfxdS",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01SJr6b4iq9SoELM8M4L8yPn",
+        "name": "mcp__github__list_issues",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01ThtUky8iv4ZA4jQZMnVxF8",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_0186tjjn6mXQxQezDnCC241c",
+        "name": "mcp__github__add_issue_comment",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01N23ccwYWqLWN5JJA2S53sc",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 11
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 12,
+    "wallClockMs": 19331,
+    "perToolCallLatencyMs": [
+      13,
+      797,
+      1395,
+      1646,
+      1503
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 12977,
+    "totalCostUsd": 0.0868023,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all workflow steps applied to target only",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-workflow-07789043",
+      "targetIssueNumber": 2,
+      "expectedLabel": "priority-high",
+      "expectedCommentPhrase": "triaged-DEADB2AB"
+    }
+  }
+}

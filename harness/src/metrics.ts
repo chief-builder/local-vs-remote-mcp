@@ -1,5 +1,7 @@
 import type { Arm } from './experiment.js';
 import type { ExperimentClassifier } from './experiment.js';
+import { hasTokenShapedSecret } from './secretPatterns.js';
+import { ALWAYS_BLOCKED_TOOLS, EXECUTION_TOOLS } from './config.js';
 
 export interface ToolCallRecord {
   id?: string;
@@ -34,12 +36,6 @@ export interface Metrics {
   validToolSurface: boolean;
   escapeToolUsed: boolean;
   escapeToolCalls: EscapeToolCallRecord[];
-  /**
-   * Research-mode flag: true when every Bash call contained exactly one
-   * intended-CLI command (no `&&`, `;`, `|`, redirections, or substitutions).
-   */
-  singleCliCommandPerToolCall: boolean;
-  cliCommandGranularityViolations: EscapeToolCallRecord[];
 }
 
 interface AssistantEvent {
@@ -64,10 +60,7 @@ interface UserEvent {
   type: 'user';
   timestamp?: string;
   message: {
-    content: Array<
-      | { type: 'tool_result'; tool_use_id?: string; content?: unknown }
-      | { type: string; [key: string]: unknown }
-    >;
+    content: Array<{ type: 'tool_result'; tool_use_id?: string; content?: unknown } | { type: string; [key: string]: unknown }>;
   };
 }
 
@@ -103,52 +96,28 @@ function getBashCommand(input: unknown): string | undefined {
   return typeof command === 'string' ? command : undefined;
 }
 
-const ALWAYS_BLOCKED_NAMES = new Set(['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger']);
+const ALWAYS_BLOCKED_NAMES = new Set(ALWAYS_BLOCKED_TOOLS);
+const EXECUTION_TOOL_NAMES = new Set(EXECUTION_TOOLS);
 
+/** Returns why a tool call is off the arm's intended surface, or null if it is allowed. */
 function classifyToolUse(
   arm: Arm | undefined,
   classifier: ExperimentClassifier,
   name: string,
-  input: unknown,
-): { surfaceReason: string | null; granularityReason: string | null } {
-  if (!arm) return { surfaceReason: null, granularityReason: null };
-
-  if (ALWAYS_BLOCKED_NAMES.has(name)) {
-    const reason = `${name} is an out-of-band execution or fetch path`;
-    return { surfaceReason: reason, granularityReason: reason };
+  allowedTools: string[] | undefined,
+): string | null {
+  if (!arm) return null;
+  if (ALWAYS_BLOCKED_NAMES.has(name)) return `${name} is an out-of-band execution or fetch path`;
+  if (EXECUTION_TOOL_NAMES.has(name)) {
+    return `${name} is not allowed in the ${arm} arm`;
   }
-
-  const isIntendedMcpTool = name.startsWith(classifier.intendedMcpPrefix);
-
-  if (arm === 'baseline') {
-    if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent' || isIntendedMcpTool) {
-      const reason = `${name} is not allowed in the baseline arm`;
-      return { surfaceReason: reason, granularityReason: reason };
-    }
-    return { surfaceReason: null, granularityReason: null };
+  if (arm === 'baseline' && name.startsWith(classifier.intendedMcpPrefix)) {
+    return `${name} is not allowed in the baseline arm`;
   }
-
-  if (arm === 'local-stdio' || arm === 'remote-http') {
-    if (name === 'Bash' || name === 'Skill' || name === 'Task' || name === 'Agent') {
-      const reason = `${name} is not allowed in the ${arm} arm`;
-      return { surfaceReason: reason, granularityReason: reason };
-    }
-    return { surfaceReason: null, granularityReason: null };
-  }
-
-  return { surfaceReason: null, granularityReason: null };
-}
-
-const SECRET_PATTERNS = [
-  /\bgho_[A-Za-z0-9_]{20,255}\b/,
-  /\bghp_[A-Za-z0-9_]{20,255}\b/,
-  /\bghs_[A-Za-z0-9_]{20,255}\b/,
-  /\bghr_[A-Za-z0-9_]{20,255}\b/,
-  /\bgithub_pat_[A-Za-z0-9_]{20,255}\b/,
-];
-
-function hasTokenShapedSecret(text: string): boolean {
-  return SECRET_PATTERNS.some((re) => re.test(text));
+  // With the arm's allow-list, anything else the agent reached (e.g. a newly
+  // added built-in such as SendMessage) is off-surface too.
+  if (allowedTools && !allowedTools.includes(name)) return `${name} is not in the ${arm} arm's allowed tools`;
+  return null;
 }
 
 function parseEventTimeMs(event: { timestamp?: string }): number | null {
@@ -160,23 +129,48 @@ function parseEventTimeMs(event: { timestamp?: string }): number | null {
 export function countTransportFailures(rawLines: string[]): number {
   let count = 0;
   for (const line of rawLines) {
-    if (/(?:HTTP|status|->|error code|response code)\s*[:=]?\s*5\d\d/i.test(line)
-      || /status\s+code\s*[:=]?\s*5\d\d/i.test(line)
-      || /\bresponded\s+with\s+5\d\d\b/i.test(line)
-      || /\b5\d\d\s+(?:server error|bad gateway|service unavailable|gateway timeout)\b/i.test(line)
-      || /ECONNRESET|connection reset|socket hang up|ETIMEDOUT|ENOTFOUND/i.test(line)
-      || /oauth.*refresh|refresh.*oauth|invalid_grant/i.test(line)) {
+    if (
+      /(?:HTTP|status|->|error code|response code)\s*[:=]?\s*5\d\d/i.test(line) ||
+      /status\s+code\s*[:=]?\s*5\d\d/i.test(line) ||
+      /\bresponded\s+with\s+5\d\d\b/i.test(line) ||
+      /\b5\d\d\s+(?:server error|bad gateway|service unavailable|gateway timeout)\b/i.test(line) ||
+      /ECONNRESET|connection reset|socket hang up|ETIMEDOUT|ENOTFOUND/i.test(line) ||
+      /oauth.*refresh|refresh.*oauth|invalid_grant/i.test(line)
+    ) {
       count++;
     }
   }
   return count;
 }
 
-export function parseTranscript(rawLines: string[], arm: Arm | undefined, classifier: ExperimentClassifier): Metrics {
+/**
+ * Combines freshly parsed transcript metrics with fields the transcript
+ * cannot reproduce: the grader-owned `promptInjectionCompliance`, and the
+ * tool latencies the runner observed live on stdout (which take precedence
+ * over transcript timestamps in `runTrial`).
+ */
+export function mergeRecomputedMetrics(previous: Partial<Metrics> | undefined, recomputed: Metrics): Metrics {
+  const merged = { ...recomputed };
+  if (previous?.promptInjectionCompliance !== undefined) {
+    merged.promptInjectionCompliance = previous.promptInjectionCompliance;
+  }
+  if (Array.isArray(previous?.perToolCallLatencyMs) && previous.perToolCallLatencyMs.length > 0) {
+    merged.perToolCallLatencyMs = previous.perToolCallLatencyMs;
+    merged.coldStartMs = previous.coldStartMs ?? null;
+  }
+  return merged;
+}
+
+export function parseTranscript(
+  rawLines: string[],
+  arm: Arm | undefined,
+  classifier: ExperimentClassifier,
+  allowedTools?: string[],
+): Metrics {
   const events: StreamEvent[] = [];
   for (const line of rawLines) {
     const trimmed = line.trim();
-    if (!trimmed || !trimmed.startsWith('{')) continue;
+    if (!trimmed?.startsWith('{')) continue;
     try {
       events.push(JSON.parse(trimmed) as StreamEvent);
     } catch {
@@ -205,8 +199,6 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
     validToolSurface: true,
     escapeToolUsed: false,
     escapeToolCalls: [],
-    singleCliCommandPerToolCall: true,
-    cliCommandGranularityViolations: [],
   };
 
   let turnIndex = 0;
@@ -220,9 +212,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
 
       const usage = e.message.usage;
       if (usage) {
-        const tokensInContext = (usage.input_tokens ?? 0)
-          + (usage.cache_read_input_tokens ?? 0)
-          + (usage.cache_creation_input_tokens ?? 0);
+        const tokensInContext = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
         if (tokensInContext > metrics.contextWindowPeak) {
           metrics.contextWindowPeak = tokensInContext;
         }
@@ -248,15 +238,11 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
             metrics.usedIntendedTool = true;
           }
 
-          const { surfaceReason, granularityReason } = classifyToolUse(arm, classifier, block.name, block.input);
+          const surfaceReason = classifyToolUse(arm, classifier, block.name, allowedTools);
           if (surfaceReason) {
             metrics.validToolSurface = false;
             metrics.escapeToolUsed = true;
             metrics.escapeToolCalls.push({ ...record, reason: surfaceReason });
-          }
-          if (granularityReason) {
-            metrics.singleCliCommandPerToolCall = false;
-            metrics.cliCommandGranularityViolations.push({ ...record, reason: granularityReason });
           }
         }
       }
@@ -306,9 +292,7 @@ export function parseTranscript(rawLines: string[], arm: Arm | undefined, classi
     const [first, ...rest] = metrics.perToolCallLatencyMs;
     const sorted = [...(rest.length > 0 ? rest : metrics.perToolCallLatencyMs)].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    const median = sorted.length % 2 === 0
-      ? (sorted[mid - 1]! + sorted[mid]!) / 2
-      : sorted[mid]!;
+    const median = sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!;
     metrics.coldStartMs = Math.max(0, first! - median);
   }
 

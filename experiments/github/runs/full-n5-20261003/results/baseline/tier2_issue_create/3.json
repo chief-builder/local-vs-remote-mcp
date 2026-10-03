@@ -1,0 +1,70 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-10-03T13:37:22.384Z",
+  "seed": "fcc370646767b154",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 9,
+    "outputTokens": 955,
+    "cachedInputTokens": 51270,
+    "cacheCreationInputTokens": 7322,
+    "toolCalls": [
+      {
+        "id": "toolu_01Y44ZKsgiDb9vaFN4cNF3x5",
+        "name": "ToolSearch",
+        "turnIndex": 2
+      },
+      {
+        "id": "toolu_016c7u82hehyf2DNKcDmRJ7L",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01HcbGqCy38Y9VgHFbDatGm5",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_016ZTG53fPgJjavDYRduYWYa",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      }
+    ],
+    "toolCallCount": 4,
+    "turns": 8,
+    "wallClockMs": 15609,
+    "perToolCallLatencyMs": [
+      14,
+      9,
+      10,
+      11
+    ],
+    "coldStartMs": 4,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 12571,
+    "totalCostUsd": 0.07366500000000001,
+    "modelsUsed": [
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate F784DADB\" after 8 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-fcc37064",
+      "expectedTitle": "Investigate F784DADB"
+    }
+  }
+}

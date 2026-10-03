@@ -9,10 +9,7 @@ function assert(condition, message) {
 
 function runPhase1Status(cwd) {
   return new Promise((resolvePromise) => {
-    const child = spawn(process.execPath, [
-      resolve('scripts/phase1-status.mjs'),
-      '--strict',
-    ], {
+    const child = spawn(process.execPath, [resolve('scripts/phase1-status.mjs'), '--strict'], {
       cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -20,8 +17,12 @@ function runPhase1Status(cwd) {
     let stderr = '';
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk) => { stdout += chunk; });
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
     child.on('close', (code, signal) => {
       resolvePromise({ code: code ?? (signal ? 1 : 0), stdout, stderr });
     });
@@ -38,26 +39,35 @@ async function writeFixture(root) {
   await mkdir(toolsDir, { recursive: true });
   await mkdir(authDir, { recursive: true });
   await mkdir(scrubDir, { recursive: true });
-  await mkdir(join(root, 'scripts', 'lib'), { recursive: true });
+  await mkdir(join(root, 'scripts'), { recursive: true });
+  await mkdir(join(root, 'harness', 'src'), { recursive: true });
 
   await writeFile(join(root, 'scripts', 'probe-tools-list.mjs'), 'export {}\n', 'utf8');
   await writeFile(join(root, 'scripts', 'env-scrub-probe.mjs'), 'export {}\n', 'utf8');
-  await writeFile(join(root, 'scripts', 'lib', 'github-env.mjs'), 'export {}\n', 'utf8');
+  await writeFile(join(root, 'harness', 'src', 'env.ts'), 'export {}\n', 'utf8');
   await writeFile(join(root, '.mcp.github.local.json'), '{}\n', 'utf8');
 
   await writeFile(join(toolsDir, 'local.json'), '{"count":1,"tools":[{"name":"issue_read"}]}\n', 'utf8');
   await writeFile(join(toolsDir, 'remote.json'), '{"count":1,"tools":[{"name":"issue_read"}]}\n', 'utf8');
-  await writeFile(join(toolsDir, 'overlap.json'), `${JSON.stringify({
-    generatedAt: '2026-05-20T00:00:00.000Z',
-    localCount: 1,
-    remoteCount: 1,
-    overlapCount: 1,
-    localOnlyCount: 0,
-    remoteOnlyCount: 0,
-    overlap: ['issue_read'],
-    localOnly: [],
-    remoteOnly: [],
-  }, null, 2)}\n`, 'utf8');
+  await writeFile(
+    join(toolsDir, 'overlap.json'),
+    `${JSON.stringify(
+      {
+        generatedAt: '2026-05-20T00:00:00.000Z',
+        localCount: 1,
+        remoteCount: 1,
+        overlapCount: 1,
+        localOnlyCount: 0,
+        remoteOnlyCount: 0,
+        overlap: ['issue_read'],
+        localOnly: [],
+        remoteOnly: [],
+      },
+      null,
+      2,
+    )}\n`,
+    'utf8',
+  );
   await writeFile(join(toolsDir, 'overlap.md'), '# overlap\n', 'utf8');
   await writeFile(join(authDir, 'remote-smoke.json'), '{"pass":true,"method":"bearer-header-from-env-agent-token"}\n', 'utf8');
   await writeFile(join(scrubDir, 'local-stdio-env.json'), '{"pass":true,"forbiddenSurvivors":[]}\n', 'utf8');
@@ -73,7 +83,7 @@ try {
   for (const sourcePath of [
     join(root, 'scripts', 'probe-tools-list.mjs'),
     join(root, 'scripts', 'env-scrub-probe.mjs'),
-    join(root, 'scripts', 'lib', 'github-env.mjs'),
+    join(root, 'harness', 'src', 'env.ts'),
     join(root, '.mcp.github.local.json'),
   ]) {
     await utimes(sourcePath, old, old);
@@ -96,8 +106,7 @@ try {
   const staleCatalog = await runPhase1Status(root);
   assert(staleCatalog.code !== 0, 'expected stale catalog/auth artifacts to fail when probe source is newer');
   assert(
-    staleCatalog.stdout.includes('tools/list artifact is stale')
-      && staleCatalog.stdout.includes('remote auth smoke artifact is stale'),
+    staleCatalog.stdout.includes('tools/list artifact is stale') && staleCatalog.stdout.includes('remote auth smoke artifact is stale'),
     `unexpected stale catalog output:\n${staleCatalog.stderr}\n${staleCatalog.stdout}`,
   );
 

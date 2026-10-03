@@ -1,0 +1,100 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-05-20T11:13:32.831Z",
+  "seed": "eef6a90077e0683d",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01HnxmuRweJKozHSLkRJSSpm",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_0164pDBTD56iHCT7B4qveR24",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01GYBCcj4d6PACekRn5mL7hd",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01L2uuoesMH2LsM6fX9sbMyB",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01Kpb1F5ZX7oUSgH5T7mydTT",
+        "name": "ToolSearch",
+        "turnIndex": 11
+      },
+      {
+        "id": "toolu_01QmnqcHSKK2oNRzhiW3WdL9",
+        "name": "ToolSearch",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_01G76xwswJuEc9t6yHWuuUjm",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01XUT9X7cuH5tbEVtKuurBg5",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_0168h5DRWPwxKXoJLS8PsrtH",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      }
+    ],
+    "toolCallCount": 9,
+    "turns": 19,
+    "wallClockMs": 90165,
+    "perToolCallLatencyMs": [
+      78,
+      62,
+      51,
+      8,
+      51,
+      63,
+      58,
+      51,
+      12
+    ],
+    "coldStartMs": 27,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 26381,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate CEFC88CD\" after 6 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-eef6a900",
+      "expectedTitle": "Investigate CEFC88CD"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

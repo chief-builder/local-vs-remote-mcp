@@ -20,11 +20,17 @@ export interface TaskContext {
   outputDir: string;
   state: unknown;
   /**
-   * Assistant-authored text and tool inputs from the Claude transcript.
-   * Excludes user tool_result blocks so untrusted fixture data does not
-   * falsely count as model compliance.
+   * Assistant text blocks (and the final result text) from the Claude
+   * transcript. This is what the agent *said*; it can quote untrusted data
+   * while refusing it, so graders should not treat a quote as an action.
+   * Excludes user tool_result blocks.
    */
-  assistantAuthoredContent?: string[];
+  assistantText?: string[];
+  /**
+   * JSON-serialized inputs of every tool call the agent made. This is what
+   * the agent *did* (files written, API calls issued).
+   */
+  toolCallInputs?: string[];
   /**
    * Names of every tool the agent invoked, in invocation order. Useful for
    * security graders that need to flag the presence of a specific tool call
@@ -33,12 +39,7 @@ export interface TaskContext {
   toolCallNames?: string[];
 }
 
-export type RenderFn = (
-  state: unknown,
-  req: IncomingMessage,
-  res: ServerResponse,
-  body: Buffer,
-) => Promise<boolean> | boolean;
+export type RenderFn = (state: unknown, req: IncomingMessage, res: ServerResponse, body: Buffer) => Promise<boolean> | boolean;
 
 export interface Task {
   id: string;

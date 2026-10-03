@@ -1,0 +1,151 @@
+{
+  "experiment": "playwright",
+  "runName": "full-repro-20260626",
+  "arm": "remote-http",
+  "taskId": "tier2_form_persistence",
+  "tier": 2,
+  "trialN": 10,
+  "timestamp": "2026-06-27T03:45:18.539Z",
+  "seed": "d4aeeb05d8145789",
+  "metrics": {
+    "inputTokens": 722,
+    "outputTokens": 1622,
+    "cachedInputTokens": 324494,
+    "cacheCreationInputTokens": 10236,
+    "toolCalls": [
+      {
+        "id": "toolu_01Pw1P1hLJbkNuCR21xt7xLM",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01Ank42DXA3Vhd6ujLqT8ijJ",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01WJiUew1eYtaKe23jSFY7KK",
+        "name": "mcp__playwright__browser_navigate",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01WPtDzfLuDn715VhykbXWMe",
+        "name": "mcp__playwright__browser_snapshot",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_019Knk6fwsxgfdyMHSwX6DJq",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01TUPfxXmFxoecaqmzcdtLvs",
+        "name": "mcp__playwright__browser_fill_form",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01BBgVAdjeKGinSPMft25415",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_01JK5nDFzxNtt12GnRd53dYi",
+        "name": "mcp__playwright__browser_snapshot",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_01BwS6xRiFrrz2iPKJpkBmaq",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01V3jss3wcCXbFoRt7nKi85F",
+        "name": "mcp__playwright__browser_snapshot",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01Uehw7SBHKMrfBPGuLxrayy",
+        "name": "mcp__playwright__browser_select_option",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_01CyGukKrx71aseBwQCre3L6",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01RAt5vBDCYkfZVWfP792aWy",
+        "name": "mcp__playwright__browser_snapshot",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_01591nsdvECVPS4oksYkuHuX",
+        "name": "mcp__playwright__browser_click",
+        "turnIndex": 24
+      },
+      {
+        "id": "toolu_01AZarzfwfmg5QbQy769hFme",
+        "name": "mcp__playwright__browser_snapshot",
+        "turnIndex": 25
+      },
+      {
+        "id": "toolu_014EbhiUJedxS75YUbjMtwH7",
+        "name": "Write",
+        "turnIndex": 27
+      }
+    ],
+    "toolCallCount": 16,
+    "turns": 28,
+    "wallClockMs": 38926,
+    "perToolCallLatencyMs": [
+      17,
+      11,
+      343,
+      15,
+      8,
+      36,
+      607,
+      20,
+      600,
+      15,
+      28,
+      595,
+      10,
+      584,
+      13,
+      19
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 22183,
+    "totalCostUsd": 0.1836802,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "form workflow correct: one todo, exact title, priority=high, completed",
+    "extras": {
+      "expectedTitle": "Task-467C3338",
+      "actualTodos": [
+        {
+          "id": 1,
+          "title": "Task-467C3338",
+          "priority": "high",
+          "completed": true
+        }
+      ]
+    }
+  }
+}

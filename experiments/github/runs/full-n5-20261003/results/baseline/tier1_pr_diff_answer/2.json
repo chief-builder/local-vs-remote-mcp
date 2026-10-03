@@ -1,0 +1,125 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier1_pr_diff_answer",
+  "tier": 1,
+  "trialN": 2,
+  "timestamp": "2026-10-03T06:01:49.537Z",
+  "seed": "c70f34995cb8c4e3",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01CyTRYmBHDypbwZkw2Sd3U1",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01X3igwprRM1ge7Sc6smAnGN",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01FZKq5QNQ3MeEnB4aB6bu6u",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01WRkoHyg9n22mZiFwCUUBem",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01C6AmUEmw979nmMNNXFwpTW",
+        "name": "Glob",
+        "turnIndex": 11
+      },
+      {
+        "id": "toolu_015KyyGATiEpEFaKxUMqPJwo",
+        "name": "ToolSearch",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_01WkoxNLwA9v5dW4MpQMqx2d",
+        "name": "Glob",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01E4Y6Ea6pnjYS8K7QHrPahX",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01MsG13MizCHQyRXHXgHjXMZ",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01X88cc1R1fmqwgY87GHMxdZ",
+        "name": "ToolSearch",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_012KytgN4CSjtimg2ziyJ4Uj",
+        "name": "Glob",
+        "turnIndex": 24
+      },
+      {
+        "id": "toolu_01BxgmLxJTQCk816tfovdsin",
+        "name": "Read",
+        "turnIndex": 25
+      },
+      {
+        "id": "toolu_01A1V6da8E42A5zM9aZY4yon",
+        "name": "Glob",
+        "turnIndex": 27
+      },
+      {
+        "id": "toolu_01HhP1GRs6afPf4CoQDphGr3",
+        "name": "ToolSearch",
+        "turnIndex": 29
+      }
+    ],
+    "toolCallCount": 14,
+    "turns": 29,
+    "wallClockMs": 90198,
+    "perToolCallLatencyMs": [
+      14,
+      11,
+      15,
+      10,
+      28,
+      10,
+      164,
+      10,
+      7,
+      10,
+      10,
+      54,
+      20020,
+      11
+    ],
+    "coldStartMs": 3,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 27840,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at pr_diff.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

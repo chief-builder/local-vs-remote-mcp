@@ -1,0 +1,89 @@
+{
+  "experiment": "playwright",
+  "runName": "full-repro-20260626",
+  "arm": "remote-http",
+  "taskId": "tier1_multistep_browse",
+  "tier": 1,
+  "trialN": 8,
+  "timestamp": "2026-06-27T03:27:02.226Z",
+  "seed": "b95644969267aa61",
+  "metrics": {
+    "inputTokens": 729,
+    "outputTokens": 998,
+    "cachedInputTokens": 138082,
+    "cacheCreationInputTokens": 7423,
+    "toolCalls": [
+      {
+        "id": "toolu_01M5HRtgL9GgEF8CCoAyZcUV",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01V3QvZTWMQjAowg5ihbLhZP",
+        "name": "mcp__playwright__browser_navigate",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01LraE5hxAjbwjXUgDFsTdhs",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01K1PLPBxERaKKkkh6LD8KCw",
+        "name": "mcp__playwright__browser_navigate",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_016QRZ6zDs7yQr3SnXhkhC8E",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_011d7gywaHALGHjevpjUX6tN",
+        "name": "mcp__playwright__browser_run_code_unsafe",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01SPGTKv3WDfnFh2bKVeygde",
+        "name": "Write",
+        "turnIndex": 14
+      }
+    ],
+    "toolCallCount": 7,
+    "turns": 15,
+    "wallClockMs": 23586,
+    "perToolCallLatencyMs": [
+      15,
+      152,
+      535,
+      55,
+      547,
+      1100,
+      8
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 19370,
+    "totalCostUsd": 0.1015196,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "multistep token matches",
+    "extras": {
+      "expectedToken": "OK-7B800447FC36"
+    }
+  }
+}

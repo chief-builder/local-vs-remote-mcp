@@ -15,7 +15,10 @@ const requiredClaudePatterns = [
   [/filesystem[\s\S]*environment/i, 'CLAUDE.md must describe local filesystem and env exposure'],
   [/OAuth[\s\S]*confused-deputy/i, 'CLAUDE.md must describe remote OAuth confused-deputy risk'],
   [/keychain[\s\S]*(refresh-token|token compromise|compromise)/i, 'CLAUDE.md must describe keychain token compromise risk'],
-  [/tool poisoning[\s\S]*indirect prompt injection[\s\S]*protocol-level/i, 'CLAUDE.md must frame tool poisoning and indirect prompt injection as protocol-level risks'],
+  [
+    /tool poisoning[\s\S]*indirect prompt injection[\s\S]*protocol-level/i,
+    'CLAUDE.md must frame tool poisoning and indirect prompt injection as protocol-level risks',
+  ],
   [/local and remote transports equally/i, 'CLAUDE.md must state protocol-level attacks affect both transports equally'],
 ];
 

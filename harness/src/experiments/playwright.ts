@@ -1,4 +1,13 @@
 import type { ExperimentSpec, ExperimentClassifier, ArmConfig, Arm } from '../experiment.js';
+import {
+  ALWAYS_BLOCKED_TOOLS,
+  BASELINE_TIMEOUT_MS,
+  COMMON_CLAUDE_FLAGS,
+  EXECUTION_TOOLS,
+  MCP_TIMEOUT_MS,
+  PLAYWRIGHT_REMOTE_URL,
+  TASK_TRACKING_TOOLS,
+} from '../config.js';
 
 /**
  * Playwright transport comparison. Both MCP arms point at the *same* server
@@ -17,21 +26,19 @@ import type { ExperimentSpec, ExperimentClassifier, ArmConfig, Arm } from '../ex
  * The remote-http arm requires the server to be running externally before
  * trials start, e.g.
  *
- *   npx @playwright/mcp@latest --port 8931 --headless --isolated
+ *   npx @playwright/mcp@0.0.76 --port 8931 --headless --isolated
  *
  * The preflight only reaches the URL when the targeted arm includes
  * remote-http, so running local-stdio alone doesn't require the HTTP server.
  */
 
-const ALWAYS_BLOCKED = ['WebFetch', 'WebSearch', 'Monitor', 'CronCreate', 'RemoteTrigger'];
-const COMMON_FLAGS = ['--setting-sources', 'project,local', '--permission-mode', 'bypassPermissions'];
-
 /**
- * Live catalog from `@playwright/mcp` 1.61.0-alpha against protocolVersion
- * 2025-06-18, captured on 2026-05-29 (see
- * artifacts/spike/playwright-tools-list/list.json). Since both arms use the
- * same server, the catalog is identical across transports by construction —
- * "overlap" is just everything the server exposes.
+ * Live catalog captured on 2026-05-29 (artifacts/spike/playwright-tools-list/list.json,
+ * server `Playwright 1.61.0-alpha-1778188671000` = @playwright/mcp 0.0.75).
+ * Re-probed 2026-10-03 against the pinned 0.0.76: same 23 tools. 0.0.83
+ * adds `browser_emulate_media` and `browser_find`; re-probe before bumping
+ * the pin. Since both arms use the same server, the catalog is identical
+ * across transports by construction.
  *
  * Note: `browser_run_code_unsafe` is deliberately kept in the allow-list,
  * not denied. Security-tier tasks need it available so they can measure
@@ -71,21 +78,21 @@ const playwrightClassifier: ExperimentClassifier = {
 };
 
 function buildArms(): Record<Arm, ArmConfig> {
-  const mcpAllowedTools = ['ToolSearch', 'Read', 'Write', 'TodoWrite', ...OVERLAP_TOOLS];
+  const mcpAllowedTools = ['ToolSearch', 'Read', 'Write', ...TASK_TRACKING_TOOLS, ...OVERLAP_TOOLS];
   // The baseline disallows the playwright catalog as well, so its only
   // execution surface is local filesystem + ToolSearch — same shape as the
   // github baseline.
-  const mcpDisallowedTools = ['Skill', 'Bash', 'Task', 'Agent', ...ALWAYS_BLOCKED];
+  const mcpDisallowedTools = [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS];
 
   return {
     baseline: {
       id: 'baseline',
       description: 'No Playwright MCP: pure reasoning floor against the local filesystem',
       mcpConfig: '{"mcpServers":{}}',
-      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', 'TodoWrite'],
-      disallowedTools: ['Skill', 'Bash', 'Task', 'Agent', ...ALWAYS_BLOCKED, ...OVERLAP_TOOLS],
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 90_000,
+      allowedTools: ['ToolSearch', 'Read', 'Glob', 'Grep', 'Write', ...TASK_TRACKING_TOOLS],
+      disallowedTools: [...EXECUTION_TOOLS, ...ALWAYS_BLOCKED_TOOLS, ...OVERLAP_TOOLS],
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: BASELINE_TIMEOUT_MS,
     },
     'local-stdio': {
       id: 'local-stdio',
@@ -93,8 +100,8 @@ function buildArms(): Record<Arm, ArmConfig> {
       mcpConfig: '.mcp.playwright.local.json',
       allowedTools: mcpAllowedTools,
       disallowedTools: mcpDisallowedTools,
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 240_000,
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: MCP_TIMEOUT_MS,
     },
     'remote-http': {
       id: 'remote-http',
@@ -102,13 +109,11 @@ function buildArms(): Record<Arm, ArmConfig> {
       mcpConfig: '.mcp.playwright.remote.json',
       allowedTools: mcpAllowedTools,
       disallowedTools: mcpDisallowedTools,
-      extraFlags: [...COMMON_FLAGS],
-      timeoutMs: 240_000,
+      extraFlags: [...COMMON_CLAUDE_FLAGS],
+      timeoutMs: MCP_TIMEOUT_MS,
     },
   };
 }
-
-const REMOTE_HTTP_URL = 'http://localhost:8931/mcp';
 
 async function preflightHttpReachable(url: string): Promise<void> {
   try {
@@ -120,7 +125,7 @@ async function preflightHttpReachable(url: string): Promise<void> {
     throw new Error(
       `remote-http arm requires the Playwright MCP server to be reachable at ${url}.\n` +
         `Start it in another terminal with:\n` +
-        `  npx @playwright/mcp@latest --port 8931 --headless --isolated\n` +
+        `  npx @playwright/mcp@0.0.76 --port 8931 --headless --isolated\n` +
         `Underlying error: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
@@ -136,7 +141,7 @@ export const playwrightExperiment: ExperimentSpec = {
     // Only check the HTTP listener when the run actually targets remote-http.
     // local-stdio launches its own child per trial and needs no external service.
     if (arms.includes('remote-http')) {
-      await preflightHttpReachable(REMOTE_HTTP_URL);
+      await preflightHttpReachable(PLAYWRIGHT_REMOTE_URL);
     }
   },
 };

@@ -1,6 +1,10 @@
 {
-  "generatedAt": "2026-05-19T21:34:52.436Z",
-  "count": 45,
+  "generatedAt": "2026-10-03T05:29:17.180Z",
+  "protocolVersion": "2026-07-28",
+  "clientCapabilities": {
+    "elicitation": {}
+  },
+  "count": 50,
   "tools": [
     {
       "name": "add_comment_to_pending_review",
@@ -8,15 +12,15 @@
     },
     {
       "name": "add_issue_comment",
-      "description": "Add a comment to a specific issue in a GitHub repository. Use this tool to add comments to pull requests as well (in this case pass pull request number as issue_number), but only if user is not asking specifically to add review comments."
+      "description": "Add a comment and/or reaction to a specific issue or issue comment in a GitHub repository. Use this tool with pull requests as well (in this case pass pull request number as issue_number), but only if user is not asking specifically to add or react to review comments. At least one of body or reaction is required."
     },
     {
       "name": "add_reply_to_pull_request_comment",
-      "description": "Add a reply to an existing pull request comment. This creates a new comment that is linked as a reply to the specified comment."
+      "description": "Add a reply and/or reaction to an existing pull request comment. This can create a new comment linked as a reply to the specified comment, add an emoji reaction to the specified comment, or do both. At least one of body or reaction is required."
     },
     {
       "name": "assign_copilot_to_issue",
-      "description": "Assign Copilot to a specific issue in a GitHub repository.\n\nThis tool can help with the following outcomes:\n- a Pull Request created with source code changes to resolve the issue\n\n\nMore information can be found at:\n- https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/about-assigning-tasks-to-copilot\n"
+      "description": "Assign Copilot to a specific issue in a GitHub repository.\n\nThis tool can help with the following outcomes:\n- a Pull Request created with source code changes to resolve the issue\n\n\nMore information can be found at:\n- https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent\n"
     },
     {
       "name": "create_branch",
@@ -24,7 +28,7 @@
     },
     {
       "name": "create_or_update_file",
-      "description": "Create or update a single file in a GitHub repository. \nIf updating, you should provide the SHA of the file you want to update. Use this tool to create or update a file in a GitHub repository remotely; do not use it for local file operations.\n\nIn order to obtain the SHA of original file version before updating, use the following git command:\ngit rev-parse <branch>:<path to file>\n\nSHA MUST be provided for existing file updates.\n"
+      "description": "Create or update a single file in a GitHub repository. \nIf updating, you should provide the SHA of the file you want to update. Use this tool to create or update a file in a GitHub repository remotely; do not use it for local file operations.\n\nTo obtain the current blob SHA before updating, call the get_file_contents tool with the same owner, repo, and path, and set its ref parameter to this tool's branch value. The first text result reports the blob SHA for the requested path.\n\nSHA MUST be provided for existing file updates.\n"
     },
     {
       "name": "create_pull_request",
@@ -41,6 +45,10 @@
     {
       "name": "delete_file",
       "description": "Delete a file from a GitHub repository"
+    },
+    {
+      "name": "delete_repository",
+      "description": "Delete a GitHub repository after the user confirms the exact owner/repository name"
     },
     {
       "name": "fork_repository",
@@ -103,8 +111,12 @@
       "description": "Get list of commits of a branch in a GitHub repository. Returns at least 30 results per page by default, but can return more if specified using the perPage parameter (up to 100)."
     },
     {
+      "name": "list_issue_fields",
+      "description": "List issue fields for a repository or organization. Returns field definitions including name, type (text, number, date, single_select), and for single_select fields the list of valid option names. When repo is omitted, returns org-level fields directly."
+    },
+    {
       "name": "list_issue_types",
-      "description": "List supported issue types for repository owner (organization)."
+      "description": "List supported issue types for a repository or its owner organization. When repo is omitted, returns org-level issue types directly."
     },
     {
       "name": "list_issues",
@@ -155,8 +167,12 @@
       "description": "Fast and precise code search across ALL GitHub repositories using GitHub's native search engine. Best for finding exact symbols, functions, classes, or specific code patterns."
     },
     {
+      "name": "search_commits",
+      "description": "Search for commits across GitHub repositories using GitHub's commit search syntax. Useful for finding specific changes, authors, or messages across one or many repositories. Searches the default branch only."
+    },
+    {
       "name": "search_issues",
-      "description": "Search for issues in GitHub repositories using issues search syntax already scoped to is:issue"
+      "description": "Search issues using natural-language semantic matching. Best for conceptual or paraphrased queries (e.g. \"login fails after password reset\"). Already scoped to is:issue."
     },
     {
       "name": "search_pull_requests",
@@ -173,6 +189,14 @@
     {
       "name": "sub_issue_write",
       "description": "Add a sub-issue to a parent issue in a GitHub repository."
+    },
+    {
+      "name": "ui_get",
+      "description": "Fetch UI data for MCP Apps (labels, assignees, milestones, issue types, branches, issue fields, reviewers)."
+    },
+    {
+      "name": "update_issue_comment",
+      "description": "Update the body of an existing issue or pull request conversation comment. This tool cannot update pull request review comments."
     },
     {
       "name": "update_pull_request",

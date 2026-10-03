@@ -1,0 +1,83 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "remote-http",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 4,
+  "timestamp": "2026-05-21T00:52:51.789Z",
+  "seed": "526cd43112e03651",
+  "metrics": {
+    "inputTokens": 647,
+    "outputTokens": 970,
+    "cachedInputTokens": 64684,
+    "cacheCreationInputTokens": 9936,
+    "toolCalls": [
+      {
+        "id": "toolu_01NvAnZDkARLWTXg1PFwyi6o",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01E82wxm1YtwtST5spFVQ16r",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_013D9sqmvVqCCeB7MzSa5493",
+        "name": "mcp__github__search_repositories",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01BsyjP6qnBh912vJWVxTvAJ",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_014VQbJ9v1SiQEPWLUZrEaFt",
+        "name": "Write",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 31111,
+    "perToolCallLatencyMs": [
+      11,
+      7,
+      460,
+      863,
+      60
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 17429,
+    "totalCostUsd": 0.0717342,
+    "modelsUsed": [
+      "claude-sonnet-4-6",
+      "claude-haiku-4-5-20251001"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all repo facts match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-repo-inventory-526cd431",
+      "expectedDescription": "local-vs-remote-mcp sandbox repo (526cd4)",
+      "expectedTopics": [
+        "topic-4615",
+        "topic-5058",
+        "local-vs-remote-mcp"
+      ]
+    }
+  }
+}

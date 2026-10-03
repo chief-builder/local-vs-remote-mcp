@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-19T22:55:45.757Z",
-  "probe": "local-stdio-shaped child env",
+  "generatedAt": "2026-10-03T05:29:28.584Z",
+  "probe": "local-stdio trial child env (harness/src/env.ts buildChildEnv + github buildAgentEnv)",
   "command": "env",
   "grepEquivalent": "github|^gh_",
   "pass": true,
@@ -8,7 +8,9 @@
     "GITHUB_CONTROLLER_TOKEN",
     "GITHUB_AGENT_TOKEN",
     "GH_TOKEN",
-    "GITHUB_TOKEN"
+    "GITHUB_TOKEN",
+    "CONTROLLER_FUTURE_TOKEN",
+    "AGENT_FUTURE_TOKEN"
   ],
   "forbiddenSurvivors": [],
   "canaryForbiddenKeys": [

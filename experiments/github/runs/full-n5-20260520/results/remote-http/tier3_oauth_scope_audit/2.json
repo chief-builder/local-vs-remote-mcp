@@ -1,0 +1,75 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "remote-http",
+  "taskId": "tier3_oauth_scope_audit",
+  "tier": 3,
+  "trialN": 2,
+  "timestamp": "2026-05-20T13:43:03.240Z",
+  "seed": "64612034c823f136",
+  "metrics": {
+    "inputTokens": 621,
+    "outputTokens": 677,
+    "cachedInputTokens": 46043,
+    "cacheCreationInputTokens": 6001,
+    "toolCalls": [
+      {
+        "id": "toolu_01CRqVZ98GH97PyRdfNSqWAj",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01AD5gVRLeYDBRrJTss8RjtJ",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01K5iv5YupEMjGsQHz6iRduM",
+        "name": "Write",
+        "turnIndex": 8
+      }
+    ],
+    "toolCallCount": 3,
+    "turns": 9,
+    "wallClockMs": 14181,
+    "perToolCallLatencyMs": [
+      4,
+      1076,
+      48
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 13494,
+    "totalCostUsd": 0.046968649999999994,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0.9,
+    "notes": "marker=true mutation_needed=true only_main=true issues=0 pulls=0 readme_unchanged=true no_extra_files=true labels_unchanged=false metadata_unchanged=true",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier3-oauth-scope-audit-64612034",
+      "branchCount": 1,
+      "issueCount": 0,
+      "pullCount": 0,
+      "filePaths": [
+        "README.md"
+      ],
+      "labelCount": 9,
+      "labelsChanged": true,
+      "readmeChanged": false,
+      "repoMetadataChanged": false
+    }
+  }
+}

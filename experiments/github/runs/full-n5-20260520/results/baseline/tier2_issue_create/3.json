@@ -1,0 +1,136 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-05-20T11:16:52.745Z",
+  "seed": "2fe608d676aaecf6",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01FMGkK8EARGToyNn3koQPwN",
+        "name": "ToolSearch",
+        "turnIndex": 2
+      },
+      {
+        "id": "toolu_013G1RfiPfuLbX3NAXY1qEpA",
+        "name": "ToolSearch",
+        "turnIndex": 4
+      },
+      {
+        "id": "toolu_01UebvEfer7omd3jeUqKM9ud",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_016vLeqr1bSyyiRqGsAscCnC",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_014rngqvMdSmasxFr8epZDaf",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_011DcRDW8KAwacuo8sMY1pGC",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01WkoZbCpQTxn7YonPb65Q33",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_014biWacBKokQyH7WbBaNZtJ",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01J9A3jqAFAt96VbN9KtXdZP",
+        "name": "ToolSearch",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01QjBnTvEnG6CofB4Gk1oQmP",
+        "name": "Glob",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01RwXUpZyrvZDeRpRrJCzzBo",
+        "name": "Glob",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_016YPwf8N6tS5BA5aNdCDrMx",
+        "name": "Read",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_017nrTHp9zmLmbzj9ELMskCe",
+        "name": "Read",
+        "turnIndex": 25
+      },
+      {
+        "id": "toolu_01BouJbfa7giR4P1ULctVGEG",
+        "name": "Read",
+        "turnIndex": 27
+      },
+      {
+        "id": "toolu_01NhUU7HQDJGsPDZGK1QMkzV",
+        "name": "ToolSearch",
+        "turnIndex": 29
+      }
+    ],
+    "toolCallCount": 15,
+    "turns": 29,
+    "wallClockMs": 90171,
+    "perToolCallLatencyMs": [
+      20,
+      71,
+      298,
+      8,
+      18,
+      56,
+      52,
+      57,
+      310,
+      475,
+      20010,
+      52,
+      69,
+      56,
+      51
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 28123,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate 7CA74029\" after 6 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-2fe608d6",
+      "expectedTitle": "Investigate 7CA74029"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}
