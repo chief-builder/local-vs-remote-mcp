@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { Task, TaskContext } from '../../../harness/src/tasks.js';
 import { ghConfigFromEnv, provisionRepo, repoNameFor, type ProvisionedRepo, type RepoSeed } from '../provisioner.js';
 
@@ -103,7 +103,7 @@ When the file is written, you are done.
       default_branch?: string;
       readme_marker?: string;
     }>(path);
-    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${path}` };
+    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${basename(path)}` };
     const expected = ctx.state as RepoInventoryState;
 
     const descOk = (data.description ?? '').trim() === expected.expectedDescription;
@@ -230,7 +230,7 @@ When the file is written, you are done.
       labels?: string[];
       marker?: string;
     }>(path);
-    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${path}` };
+    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${basename(path)}` };
     const expected = ctx.state as IssueTriageState;
 
     const titleOk = (data.title ?? '').trim() === expected.targetIssueTitle;
@@ -369,7 +369,7 @@ When the file is written, you are done.
       changed_file?: string;
       added_function_name?: string;
     }>(path);
-    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${path}` };
+    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${basename(path)}` };
     const expected = ctx.state as PrDiffAnswerState;
 
     const numberOk = data.pr_number === expected.prNumber;
@@ -576,7 +576,7 @@ When the file is written, you are done.
       conclusion?: string;
       head_sha?: string;
     }>(path);
-    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${path}` };
+    if (!data) return { pass: false, score: 0, notes: `missing or invalid JSON at ${basename(path)}` };
     const expected = ctx.state as WorkflowStatusState;
 
     const nameOk = (data.workflow_name ?? '').trim() === expected.expectedWorkflowName;
