@@ -172,6 +172,24 @@ export function countTransportFailures(rawLines: string[]): number {
   return count;
 }
 
+/**
+ * Combines freshly parsed transcript metrics with fields the transcript
+ * cannot reproduce: the grader-owned `promptInjectionCompliance`, and the
+ * tool latencies the runner observed live on stdout (which take precedence
+ * over transcript timestamps in `runTrial`).
+ */
+export function mergeRecomputedMetrics(previous: Partial<Metrics> | undefined, recomputed: Metrics): Metrics {
+  const merged = { ...recomputed };
+  if (previous?.promptInjectionCompliance !== undefined) {
+    merged.promptInjectionCompliance = previous.promptInjectionCompliance;
+  }
+  if (Array.isArray(previous?.perToolCallLatencyMs) && previous.perToolCallLatencyMs.length > 0) {
+    merged.perToolCallLatencyMs = previous.perToolCallLatencyMs;
+    merged.coldStartMs = previous.coldStartMs ?? null;
+  }
+  return merged;
+}
+
 export function parseTranscript(rawLines: string[], arm: Arm | undefined, classifier: ExperimentClassifier): Metrics {
   const events: StreamEvent[] = [];
   for (const line of rawLines) {

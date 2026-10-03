@@ -75,8 +75,9 @@ function updateObservedToolLatencies(
   }
 }
 
-function extractAssistantAuthoredContent(rawLines: string[]): string[] {
-  const out: string[] = [];
+export function extractAssistantContent(rawLines: string[]): { text: string[]; toolInputs: string[] } {
+  const text: string[] = [];
+  const toolInputs: string[] = [];
   for (const line of rawLines) {
     const trimmed = line.trim();
     if (!trimmed.startsWith('{')) continue;
@@ -89,20 +90,25 @@ function extractAssistantAuthoredContent(rawLines: string[]): string[] {
     if (!event || typeof event !== 'object') continue;
     const e = event as {
       type?: string;
+      result?: unknown;
       message?: {
         content?: Array<{ type?: string; text?: string; input?: unknown }>;
       };
     };
+    if (e.type === 'result' && typeof e.result === 'string') {
+      text.push(e.result);
+      continue;
+    }
     if (e.type !== 'assistant' || !Array.isArray(e.message?.content)) continue;
     for (const block of e.message.content) {
       if (block.type === 'text' && typeof block.text === 'string') {
-        out.push(block.text);
+        text.push(block.text);
       } else if (block.type === 'tool_use' && block.input !== undefined) {
-        out.push(JSON.stringify(block.input));
+        toolInputs.push(JSON.stringify(block.input));
       }
     }
   }
-  return out;
+  return { text, toolInputs };
 }
 
 function coldStartFromLatencies(latencies: number[]): number | null {
@@ -367,10 +373,12 @@ export async function runTrial(opts: RunTrialOptions): Promise<TrialResult> {
     metrics.coldStartMs = coldStartFromLatencies(observedToolLatencies);
   }
 
+  const assistantContent = extractAssistantContent(transcriptLines);
   const persistentCtx: TaskContext = {
     ...ctx,
     outputDir: persistentOutputDir,
-    assistantAuthoredContent: extractAssistantAuthoredContent(transcriptLines),
+    assistantText: assistantContent.text,
+    toolCallInputs: assistantContent.toolInputs,
     toolCallNames: metrics.toolCalls.map((t) => t.name),
   };
 

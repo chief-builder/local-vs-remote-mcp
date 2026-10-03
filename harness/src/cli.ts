@@ -8,7 +8,8 @@ import type { Arm } from './experiment.js';
 import { runTrial, buildClaudeArgs, buildChildEnv } from './runner.js';
 import type { Task } from './tasks.js';
 import { generateReport } from './report.js';
-import { countTransportFailures, parseTranscript } from './metrics.js';
+import { countTransportFailures, mergeRecomputedMetrics, parseTranscript } from './metrics.js';
+import type { Metrics } from './metrics.js';
 import { getExperiment, experiments } from './experiments/index.js';
 
 const require = createRequire(import.meta.url);
@@ -345,7 +346,7 @@ program
           continue;
         }
         const transcriptRaw = await readFile(transcriptPath, 'utf-8');
-        const result = JSON.parse(resultRaw) as { metrics?: unknown };
+        const result = JSON.parse(resultRaw) as { metrics?: Partial<Metrics> };
         const metrics = parseTranscript(transcriptRaw.split('\n'), arm, experiment.classifier);
         const stderrPath = transcriptPath.replace(/\.jsonl$/, '.stderr.log');
         try {
@@ -354,7 +355,7 @@ program
         } catch {
           // Older or clean trials may not have a stderr artifact.
         }
-        result.metrics = metrics;
+        result.metrics = mergeRecomputedMetrics(result.metrics, metrics);
         await writeFile(resultPath, JSON.stringify(result, null, 2), 'utf-8');
         updated++;
       }
