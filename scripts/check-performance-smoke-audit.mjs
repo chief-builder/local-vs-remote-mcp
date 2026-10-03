@@ -22,9 +22,7 @@ function resultFor(arm, seed = 'paired-seed') {
       outputTokens: 5,
       cachedInputTokens: 20,
       cacheCreationInputTokens: 3,
-      toolCalls: [
-        { id: `tool-${arm}`, name: 'mcp__github__pull_request_read', turnIndex: 1 },
-      ],
+      toolCalls: [{ id: `tool-${arm}`, name: 'mcp__github__pull_request_read', turnIndex: 1 }],
       toolCallCount: 1,
       turns: 2,
       wallClockMs: 1000,
@@ -40,8 +38,6 @@ function resultFor(arm, seed = 'paired-seed') {
       validToolSurface: true,
       escapeToolUsed: false,
       escapeToolCalls: [],
-      singleCliCommandPerToolCall: true,
-      cliCommandGranularityViolations: [],
     },
     success: {
       pass: true,

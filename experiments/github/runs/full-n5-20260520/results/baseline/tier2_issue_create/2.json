@@ -1,0 +1,124 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_issue_create",
+  "tier": 2,
+  "trialN": 2,
+  "timestamp": "2026-05-20T11:15:12.728Z",
+  "seed": "bcb15a1db70ff0c3",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01FYwTKx6BntNaGfLxEdzR8p",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01V4qBoGFGpPVG7Dq2Z3Hxv4",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01PJFyMEdvEDDTJ29Hy5Fd3m",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01EnyaEThSTj6o8cNMAq66Q3",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_012Xuo9hiBWas2wFunHVDmqu",
+        "name": "ToolSearch",
+        "turnIndex": 11
+      },
+      {
+        "id": "toolu_01Cv2uqm5TPM9wzs8Rtb7Wia",
+        "name": "ToolSearch",
+        "turnIndex": 13
+      },
+      {
+        "id": "toolu_0141CZDbzKid4bScrQhbSPmt",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01NWosU1Lrd47EPkg4s5NhRi",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01Y81QUxZK9keeMiejCafmYm",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01KeMqhiu3SKZGjSah7LCUwj",
+        "name": "Glob",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_014JU4m8V9BiHNaXv1f78L7t",
+        "name": "ToolSearch",
+        "turnIndex": 24
+      },
+      {
+        "id": "toolu_011pdriuVktnxieEh1rBSjov",
+        "name": "Read",
+        "turnIndex": 27
+      },
+      {
+        "id": "toolu_01UeeRL7HdHCxBQtZaYfcn2A",
+        "name": "Glob",
+        "turnIndex": 29
+      }
+    ],
+    "toolCallCount": 13,
+    "turns": 29,
+    "wallClockMs": 90146,
+    "perToolCallLatencyMs": [
+      54,
+      50,
+      50,
+      2,
+      53,
+      138,
+      3,
+      57,
+      55,
+      35,
+      97,
+      52,
+      65
+    ],
+    "coldStartMs": 1.5,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 30832,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "no open issue found with title \"Investigate A500EA39\" after 6 attempts",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-create-bcb15a1d",
+      "expectedTitle": "Investigate A500EA39"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

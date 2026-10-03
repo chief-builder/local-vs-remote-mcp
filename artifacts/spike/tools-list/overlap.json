@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-05-19T21:34:57.117Z",
+  "generatedAt": "2026-10-03T05:29:17.324Z",
   "localCount": 79,
-  "remoteCount": 45,
+  "remoteCount": 50,
   "overlapCount": 41,
   "localOnlyCount": 38,
-  "remoteOnlyCount": 4,
+  "remoteOnlyCount": 9,
   "overlap": [
     "add_comment_to_pending_review",
     "add_issue_comment",
@@ -90,8 +90,13 @@
   ],
   "remoteOnly": [
     "create_pull_request_with_copilot",
+    "delete_repository",
     "get_copilot_job_status",
+    "list_issue_fields",
     "list_repository_collaborators",
-    "run_secret_scanning"
+    "run_secret_scanning",
+    "search_commits",
+    "ui_get",
+    "update_issue_comment"
   ]
 }

@@ -23,8 +23,10 @@ to the child's stdin and reads responses from its stdout.
 
 The server runs as a **long-lived HTTP service**; the agent connects to a URL
 (for GitHub, `https://api.githubcopilot.com/mcp/`; for the Playwright arm,
-`http://localhost:8931/mcp`). It is the current spec transport, having replaced
-SSE in March 2025 (SSE is being deprecated across the ecosystem through 2026).
+`http://localhost:8931/mcp`). It replaced the older HTTP+SSE transport in spec
+revision `2025-03-26`. The current revision,
+[`2026-07-28`](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports),
+still defines exactly two standard transports: stdio and Streamable HTTP.
 
 - Started **once**, before the run, and reused across trials. The process stays
   warm between trials.
@@ -72,3 +74,15 @@ See [threat models](./threat-models.md) for the security consequences of each
 transport, and [experiment design](./experiment-design.md) for how the arms are
 wired.
 </content>
+
+## Spec revision this repo targets
+
+The tools/list probe (`scripts/probe-tools-list.mjs`) speaks the handshake-based
+protocol revision `2025-06-18`. The pinned Playwright server (0.0.76) also accepts
+`2025-11-25` when asked (re-probed 2026-10-03). The current spec revision is
+[`2026-07-28`](https://modelcontextprotocol.io/specification/versioning) (checked
+2026-10-03). It replaces the `initialize` handshake with per-request version
+metadata and a `server/discover` call, and defines backward-compatibility rules
+for older peers. The probe has not been moved to `2026-07-28`, because the
+servers pinned for reproducibility predate it. Trials themselves go through the
+Claude Code CLI, which negotiates the revision with each server.

@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_issue_workflow",
+  "tier": 2,
+  "trialN": 2,
+  "timestamp": "2026-05-20T11:41:46.930Z",
+  "seed": "cff8a7a738818aaa",
+  "metrics": {
+    "inputTokens": 603,
+    "outputTokens": 1024,
+    "cachedInputTokens": 64912,
+    "cacheCreationInputTokens": 8144,
+    "toolCalls": [
+      {
+        "id": "toolu_018x8qUaw1VgaXCpHeQFYTuZ",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01Lt7zJupnsTo75yR81RuEiG",
+        "name": "mcp__github__list_issues",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01551GDppt1JfjvJxXs3EgrN",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01XQmpNoYG6jEB1TdUH9BGwM",
+        "name": "mcp__github__add_issue_comment",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01X78FGVGPGbxGfXtz6RHjRf",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 10
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 11,
+    "wallClockMs": 20425,
+    "perToolCallLatencyMs": [
+      12,
+      444,
+      858,
+      864,
+      1965
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15637,
+    "totalCostUsd": 0.06579460000000001,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all workflow steps applied to target only",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-workflow-cff8a7a7",
+      "targetIssueNumber": 2,
+      "expectedLabel": "priority-high",
+      "expectedCommentPhrase": "triaged-17FF9066"
+    }
+  }
+}

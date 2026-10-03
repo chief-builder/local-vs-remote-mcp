@@ -1,0 +1,108 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier1_pr_diff_answer",
+  "tier": 1,
+  "trialN": 3,
+  "timestamp": "2026-05-20T10:44:37.730Z",
+  "seed": "3d9afed51c7e291a",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01Gi83rcCHWFgdGtGFA8xut8",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01XkxceC3d1KS35ZoRESWdmq",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_015cnHEbmmrCcs39YrdNfY2T",
+        "name": "ToolSearch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01SYKYqDZygr1ZqUeU1muRb7",
+        "name": "ToolSearch",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01WKW6r9p5UjhEdL8MWi9UUy",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01685J39yPTRNCGZazxbDCym",
+        "name": "Glob",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_016YpuY7saqcZ6Fc5zY7jQ13",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01KVU2ZMPf4L5YqDCvxLj47J",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_014h775Pd4EfWoZGQLdQxd8c",
+        "name": "ToolSearch",
+        "turnIndex": 21
+      },
+      {
+        "id": "toolu_01LC6QfUkymzjXbzEo6btrmU",
+        "name": "ToolSearch",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_018gPYuWXnnsbgQi8q7RbDhx",
+        "name": "ToolSearch",
+        "turnIndex": 24
+      }
+    ],
+    "toolCallCount": 11,
+    "turns": 24,
+    "wallClockMs": 90166,
+    "perToolCallLatencyMs": [
+      14,
+      9,
+      60,
+      100,
+      55,
+      42,
+      1,
+      59,
+      24,
+      605,
+      136
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 22202,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at experiments/github/runs/full-n5-20260520/results/baseline/tier1_pr_diff_answer/3/pr_diff.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

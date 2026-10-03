@@ -1,0 +1,77 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier1_repo_inventory",
+  "tier": 1,
+  "trialN": 4,
+  "timestamp": "2026-05-21T00:52:25.266Z",
+  "seed": "526cd43112e03651",
+  "metrics": {
+    "inputTokens": 645,
+    "outputTokens": 849,
+    "cachedInputTokens": 50853,
+    "cacheCreationInputTokens": 9481,
+    "toolCalls": [
+      {
+        "id": "toolu_01NvoDFRX2LCwpQAvGiA1nXt",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01YDzQ8412ykaPJLbs3SjtDe",
+        "name": "mcp__github__search_repositories",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01NaXYhts3MNp9AatJHzA1km",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01NfpABqencpK3qYXyRVqdmU",
+        "name": "Write",
+        "turnIndex": 9
+      }
+    ],
+    "toolCallCount": 4,
+    "turns": 10,
+    "wallClockMs": 21918,
+    "perToolCallLatencyMs": [
+      13,
+      381,
+      687,
+      392
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 16974,
+    "totalCostUsd": 0.06405565,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all repo facts match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier1-repo-inventory-526cd431",
+      "expectedDescription": "local-vs-remote-mcp sandbox repo (526cd4)",
+      "expectedTopics": [
+        "topic-4615",
+        "topic-5058",
+        "local-vs-remote-mcp"
+      ]
+    }
+  }
+}

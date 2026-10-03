@@ -24,14 +24,7 @@ export async function newestMtimeMs(path) {
   return newest;
 }
 
-export async function reportCurrent({
-  root,
-  reportPath,
-  runRoot,
-  experiment = 'github',
-  runName,
-  expectedReportRows = [],
-}) {
+export async function reportCurrent({ root, reportPath, runRoot, experiment = 'github', runName, expectedReportRows = [] }) {
   let reportStat;
   try {
     reportStat = await stat(reportPath);
@@ -77,10 +70,7 @@ export async function reportCurrent({
     };
   }
 
-  const newestEvidence = Math.max(
-    await newestMtimeMs(join(runRoot, 'results')),
-    await newestMtimeMs(join(runRoot, 'transcripts')),
-  );
+  const newestEvidence = Math.max(await newestMtimeMs(join(runRoot, 'results')), await newestMtimeMs(join(runRoot, 'transcripts')));
   const newestReportDependency = Math.max(
     await newestMtimeMs(join(root, 'harness', 'src', 'report.ts')),
     await newestMtimeMs(join(root, 'harness', 'src', 'cli.ts')),

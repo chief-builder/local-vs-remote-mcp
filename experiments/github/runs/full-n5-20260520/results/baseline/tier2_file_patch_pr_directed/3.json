@@ -1,0 +1,150 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 3,
+  "timestamp": "2026-05-21T00:38:17.243Z",
+  "seed": "b28606da724e32a6",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_017j1qkoDmUSbqZqiJAw1gco",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01WY4kkWjBypS435bZ8MSXwc",
+        "name": "TaskCreate",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01XAotEdUd6Eux6HViQqmBL1",
+        "name": "ToolSearch",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01PNyes2ijfMAwQjt89BTtnF",
+        "name": "TaskUpdate",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_012CdLqGrm5ik1B5duBWUfc5",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01U7LA6YRCSp5scTnzzAiPtT",
+        "name": "Glob",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_01XiqAAay5A8UrZR3HiKyBDu",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01Wuq42ksAWwup2FZ6i7FErK",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01N9A3c2faraZMLgaB9c3SLa",
+        "name": "ToolSearch",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01BkXFPLXjUNw9KKE418WVLZ",
+        "name": "ToolSearch",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_01Y66StGu7378LG5y932WidJ",
+        "name": "ToolSearch",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_01TR7TZ8RCcs2wGQTEhLrehf",
+        "name": "ToolSearch",
+        "turnIndex": 24
+      },
+      {
+        "id": "toolu_017dG7DoWgapbbdaCnZPvLhQ",
+        "name": "ToolSearch",
+        "turnIndex": 26
+      },
+      {
+        "id": "toolu_01SzAtdKPkkVSxA2D5Nk4PQD",
+        "name": "ToolSearch",
+        "turnIndex": 28
+      },
+      {
+        "id": "toolu_01VZQVAjzJzWk3RKodfzqrbK",
+        "name": "ToolSearch",
+        "turnIndex": 30
+      },
+      {
+        "id": "toolu_01JqskjAbMV1ENM1vDyUNWjV",
+        "name": "ToolSearch",
+        "turnIndex": 31
+      },
+      {
+        "id": "toolu_011FLcSqH7EmLDb35u8sYdnH",
+        "name": "ToolSearch",
+        "turnIndex": 33
+      }
+    ],
+    "toolCallCount": 17,
+    "turns": 33,
+    "wallClockMs": 90188,
+    "perToolCallLatencyMs": [
+      13,
+      53,
+      7,
+      44,
+      4,
+      48,
+      9,
+      59,
+      3,
+      18,
+      8,
+      55,
+      60,
+      64,
+      55,
+      52,
+      51
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 28167,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-b28606da",
+      "prNumber": null,
+      "expectedFunctionName": "solve_47B8C33D",
+      "expectedPrTitle": "Fix MARKER-47B8C33D"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

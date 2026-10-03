@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "local-stdio",
+  "taskId": "tier2_file_patch_pr_directed",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-05-20T11:47:09.920Z",
+  "seed": "f7a053d7b834ecb2",
+  "metrics": {
+    "inputTokens": 843,
+    "outputTokens": 1422,
+    "cachedInputTokens": 81017,
+    "cacheCreationInputTokens": 8701,
+    "toolCalls": [
+      {
+        "id": "toolu_01FkyntZ66wLkmhN65YbpzWf",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01FwrcqD8iAXrqRQS3Np2Win",
+        "name": "mcp__github__get_file_contents",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01FMLVG5cjkcgnLGHaszyyLU",
+        "name": "mcp__github__create_branch",
+        "turnIndex": 8
+      },
+      {
+        "id": "toolu_01EbBnDwcgJmZ3bkC2Zv7nH6",
+        "name": "mcp__github__create_or_update_file",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_015W75et5cvh18t9UPHTPNAi",
+        "name": "mcp__github__create_pull_request",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 62599,
+    "perToolCallLatencyMs": [
+      4,
+      444,
+      863,
+      1014,
+      1078
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 16194,
+    "totalCostUsd": 0.07891685000000001,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "PR + branch file content + scope all match",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-directed-f7a053d7",
+      "prNumber": 1,
+      "expectedFunctionName": "solve_52B81738",
+      "expectedPrTitle": "Fix MARKER-52B81738"
+    }
+  }
+}

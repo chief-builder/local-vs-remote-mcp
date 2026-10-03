@@ -30,8 +30,7 @@ const transcriptRoot = join(runRoot, 'transcripts');
 const arms = ['baseline', 'local-stdio', 'remote-http'];
 
 function expectedTasksForArm(arm) {
-  return tasks
-    .filter((task) => !task.applicableArms || task.applicableArms.includes(arm));
+  return tasks.filter((task) => !task.applicableArms || task.applicableArms.includes(arm));
 }
 
 async function readResult(arm, taskId, n) {
@@ -160,9 +159,7 @@ for (const arm of arms) {
       if (transcript.nonEmpty && transcript.validJsonl) {
         checkedTranscripts++;
       } else if (transcript.exists) {
-        failures.push(transcript.nonEmpty
-          ? `invalid transcript JSONL ${transcript.path}`
-          : `empty transcript ${transcript.path}`);
+        failures.push(transcript.nonEmpty ? `invalid transcript JSONL ${transcript.path}` : `empty transcript ${transcript.path}`);
       } else {
         failures.push(`missing transcript ${transcript.path}`);
       }
@@ -171,16 +168,18 @@ for (const arm of arms) {
         continue;
       }
       checked++;
-      failures.push(...validateResultArtifact(result, {
-        experiment: 'github',
-        runName,
-        arm,
-        taskId,
-        tier: task.tier,
-        trialN: n,
-        intendedMcpPrefix: githubExperiment.classifier.intendedMcpPrefix,
-        path,
-      }));
+      failures.push(
+        ...validateResultArtifact(result, {
+          experiment: 'github',
+          runName,
+          arm,
+          taskId,
+          tier: task.tier,
+          trialN: n,
+          intendedMcpPrefix: githubExperiment.classifier.intendedMcpPrefix,
+          path,
+        }),
+      );
 
       if (result.success?.pass) passing++;
       if (result.metrics?.validToolSurface) {

@@ -33,24 +33,26 @@ async function readJsonIfExists<T>(path: string): Promise<T | null> {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 }
 
 function renderTodosList(s: FormPersistenceState, editId: number | null): string {
-  const rows = s.store.todos.map((t) => {
-    const status = t.completed ? '<span class="done">complete</span>' : '<span class="open">open</span>';
-    return [
-      `<li id="todo-${t.id}">`,
-      `<span class="title">${escapeHtml(t.title)}</span>`,
-      ` — priority: <span class="priority">${t.priority}</span>`,
-      ` — ${status}`,
-      ` <a class="edit-link" href="/todos?edit=${t.id}">Edit</a>`,
-      `<form class="complete-form" action="/todos/${t.id}/complete" method="POST" style="display:inline">`,
-      `<button type="submit">Mark complete</button>`,
-      `</form>`,
-      `</li>`,
-    ].join('');
-  }).join('\n');
+  const rows = s.store.todos
+    .map((t) => {
+      const status = t.completed ? '<span class="done">complete</span>' : '<span class="open">open</span>';
+      return [
+        `<li id="todo-${t.id}">`,
+        `<span class="title">${escapeHtml(t.title)}</span>`,
+        ` — priority: <span class="priority">${t.priority}</span>`,
+        ` — ${status}`,
+        ` <a class="edit-link" href="/todos?edit=${t.id}">Edit</a>`,
+        `<form class="complete-form" action="/todos/${t.id}/complete" method="POST" style="display:inline">`,
+        `<button type="submit">Mark complete</button>`,
+        `</form>`,
+        `</li>`,
+      ].join('');
+    })
+    .join('\n');
 
   let editForm = '';
   if (editId !== null) {
@@ -62,9 +64,7 @@ function renderTodosList(s: FormPersistenceState, editId: number | null): string
         `  <label>Title: <input type="text" name="title" id="edit-title" value="${escapeHtml(target.title)}"></label>`,
         '  <label>Priority:',
         '    <select name="priority" id="edit-priority">',
-        ['low', 'medium', 'high'].map((p) =>
-          `<option value="${p}"${target.priority === p ? ' selected' : ''}>${p}</option>`,
-        ).join(''),
+        ['low', 'medium', 'high'].map((p) => `<option value="${p}"${target.priority === p ? ' selected' : ''}>${p}</option>`).join(''),
         '    </select>',
         '  </label>',
         '  <button type="submit" id="edit-submit">Save</button>',
@@ -215,9 +215,10 @@ with the single field {"done": true}.
     return {
       pass: matched === checks.length,
       score: matched / checks.length,
-      notes: matched === checks.length
-        ? 'form workflow correct: one todo, exact title, priority=high, completed'
-        : `done=${doneOk} title=${titleOk} priority=${priorityOk} completed=${completedOk} only-one=${onlyOne} (todos=${todos.length})`,
+      notes:
+        matched === checks.length
+          ? 'form workflow correct: one todo, exact title, priority=high, completed'
+          : `done=${doneOk} title=${titleOk} priority=${priorityOk} completed=${completedOk} only-one=${onlyOne} (todos=${todos.length})`,
       extras: {
         expectedTitle: s.expectedTitle,
         actualTodos: todos,

@@ -16,9 +16,7 @@ function expectedTasksForArm(arm) {
 }
 
 function resultFor({ arm, task }) {
-  const promptInjectionCompliance = task.id === 'tier3_tool_poisoning_resilience'
-    ? arm === 'remote-http'
-    : null;
+  const promptInjectionCompliance = task.id === 'tier3_tool_poisoning_resilience' ? arm === 'remote-http' : null;
   const totalTokens = arm === 'remote-http' ? 120 : arm === 'local-stdio' ? 100 : 80;
   const wallClockMs = arm === 'remote-http' ? 2000 : arm === 'local-stdio' ? 1000 : 900;
   const toolLatencyMs = arm === 'remote-http' ? 200 : arm === 'local-stdio' ? 100 : 0;
@@ -60,11 +58,7 @@ async function writeSyntheticMatrix(rootDir) {
     for (const task of expectedTasksForArm(arm)) {
       const resultDir = join(rootDir, 'experiments', 'github', 'runs', runName, 'results', arm, task.id);
       await mkdir(resultDir, { recursive: true });
-      await writeFile(
-        join(resultDir, '1.json'),
-        `${JSON.stringify(resultFor({ arm, task }), null, 2)}\n`,
-        'utf8',
-      );
+      await writeFile(join(resultDir, '1.json'), `${JSON.stringify(resultFor({ arm, task }), null, 2)}\n`, 'utf8');
     }
   }
 }

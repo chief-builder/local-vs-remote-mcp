@@ -25,7 +25,6 @@ const writeupReadme = await read('docs/writeup/README.md');
 const phase1 = await read('docs/spikes/phase1-gates.md');
 
 for (const command of [
-  'npm run check:evidence-matrix',
   'npm run check:static',
   'npm run check:completion -- --run <final-run> --trials 5',
   'npm run run:final -- --run <final-run> --trials 5 --dry-run',
@@ -34,13 +33,7 @@ for (const command of [
   assertIncludes(readme, command, `README command ${command}`);
 }
 
-assertIncludes(readme, 'evidence-matrix audit', 'README static-check description of evidence-matrix audit');
 assertIncludes(readme, 'claude auth login', 'README auth recovery command');
-assertIncludes(readme, 'N=5 result matrix, final report, run-artifact secret scan, visual brief, and long-form writeup now pass', 'README current final-run status');
-assertIncludes(readme, 'remaining expected failures are current Claude Code auth and live `verify-arms` freshness', 'README current completion blocker');
-assertNotIncludes(readme, 'remaining trial cells', 'obsolete README remaining trial cells status');
-assertNotIncludes(readme, 'writeup can finish', 'obsolete README writeup status');
-assertNotIncludes(readme, 'writeup scaffolds have been replaced', 'obsolete README writeup scaffold status');
 
 for (const command of [
   'npm run check:static',
@@ -62,9 +55,9 @@ assertIncludes(runbook, 'Refresh Phase 2 performance smoke', 'runbook resume smo
 for (const artifact of [
   'artifacts/spike/tools-list/overlap.md',
   'artifacts/spike/phase1-status.md',
-  'experiments/github/runs/full-n5-20260520/report.md',
-  'experiments/github/runs/full-n5-20260520/results/**/<trial>.json',
-  'experiments/github/runs/full-n5-20260520/transcripts/**/*.jsonl',
+  'experiments/github/runs/full-n5-20261003/report.md',
+  'experiments/github/runs/full-n5-20261003/results/**/<trial>.json',
+  'experiments/github/runs/full-n5-20261003/transcripts/**/*.jsonl',
   'experiments/github/runs/<final-run>/report.md',
   'experiments/github/runs/<final-run>/results/**/<trial>.json',
   'experiments/github/runs/<final-run>/transcripts/**/*.jsonl',

@@ -2,15 +2,11 @@ import { execFile } from 'node:child_process';
 import { lstat, readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { promisify } from 'node:util';
-import { TOKEN_PATTERNS, lineNumber } from './lib/secret-patterns.mjs';
+import { TOKEN_PATTERNS, lineNumber } from '../harness/src/secretPatterns.ts';
 
 const execFileAsync = promisify(execFile);
 
-const SKIP_DIRS = new Set([
-  '.git',
-  'node_modules',
-  'harness/dist',
-]);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'harness/dist']);
 
 function argValues(name) {
   const values = [];

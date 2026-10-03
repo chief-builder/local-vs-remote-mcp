@@ -1,0 +1,173 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20261003",
+  "arm": "baseline",
+  "taskId": "tier1_pr_diff_answer",
+  "tier": 1,
+  "trialN": 5,
+  "timestamp": "2026-10-03T12:30:25.984Z",
+  "seed": "7d63be9483eccc88",
+  "toolSearchMode": "unset",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01EpH85exNvXbuiSBqoHkWKM",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01Ts8ab2fBcwvkEARu4KR3uR",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_013RjucAZyp4SPj913dSyR36",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01UsgmXkZQffPHnua5BzFaKE",
+        "name": "Glob",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01SkziK9LguD1SwhegphNKu4",
+        "name": "Glob",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_013Y9MqrpnRDtQjZ8gcEXSuK",
+        "name": "ToolSearch",
+        "turnIndex": 15
+      },
+      {
+        "id": "toolu_01CUVQQqJADCz7TH2svAgKoJ",
+        "name": "ToolSearch",
+        "turnIndex": 16
+      },
+      {
+        "id": "toolu_01Ji9e75ZBnZJvgAfogyuKCv",
+        "name": "Glob",
+        "turnIndex": 18
+      },
+      {
+        "id": "toolu_01VZgLwznFCTbaPfGqfQa4mK",
+        "name": "Glob",
+        "turnIndex": 19
+      },
+      {
+        "id": "toolu_01D7gHhKSkQu2BMmK43W3Spr",
+        "name": "Read",
+        "turnIndex": 22
+      },
+      {
+        "id": "toolu_01FCHvDDxDwFWxCCgectHi2m",
+        "name": "Read",
+        "turnIndex": 23
+      },
+      {
+        "id": "toolu_01Fw1QfDs2rWALkvz8vJHKva",
+        "name": "Glob",
+        "turnIndex": 26
+      },
+      {
+        "id": "toolu_01HLTwxqEr8X8Dz7Ki7out4Z",
+        "name": "ToolSearch",
+        "turnIndex": 27
+      },
+      {
+        "id": "toolu_01CYtMxhZeikNFC1mqKwAck3",
+        "name": "Glob",
+        "turnIndex": 30
+      },
+      {
+        "id": "toolu_01AZypcSJyrsD6MLrAfVkjwV",
+        "name": "Glob",
+        "turnIndex": 31
+      },
+      {
+        "id": "toolu_014S8cPTxcZEaPa1c1XE9tAZ",
+        "name": "Read",
+        "turnIndex": 33
+      },
+      {
+        "id": "toolu_01FSo2NfpWTauPUFUyE6ovYm",
+        "name": "Grep",
+        "turnIndex": 34
+      },
+      {
+        "id": "toolu_01PeTruTsfXgjcwnvxpgHzJr",
+        "name": "Grep",
+        "turnIndex": 36
+      },
+      {
+        "id": "toolu_019cFp99z23QaR4i6pCC6hKP",
+        "name": "Read",
+        "turnIndex": 38
+      },
+      {
+        "id": "toolu_01HiAs8aJhqEyKNBNVY95XdH",
+        "name": "Read",
+        "turnIndex": 40
+      },
+      {
+        "id": "toolu_01AnPGgcpTxQtxR7ciBki5Zd",
+        "name": "Read",
+        "turnIndex": 41
+      },
+      {
+        "id": "toolu_016wwDEjXdhtJcFkzPrecpbt",
+        "name": "Read",
+        "turnIndex": 43
+      }
+    ],
+    "toolCallCount": 22,
+    "turns": 43,
+    "wallClockMs": 90214,
+    "perToolCallLatencyMs": [
+      9,
+      12,
+      12,
+      25,
+      22,
+      10,
+      8,
+      132,
+      53,
+      18,
+      20,
+      53,
+      10,
+      23,
+      20,
+      164,
+      21,
+      28,
+      11,
+      133,
+      12,
+      129
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 28019,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "missing or invalid JSON at pr_diff.json"
+  },
+  "error": "claude timed out after 90000ms"
+}

@@ -1,5 +1,9 @@
 {
-  "generatedAt": "2026-05-19T21:34:54.477Z",
+  "generatedAt": "2026-10-03T05:29:16.676Z",
+  "protocolVersion": "2025-06-18",
+  "clientCapabilities": {
+    "elicitation": {}
+  },
   "count": 79,
   "tools": [
     {

@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
+import { TOKEN_PATTERNS } from '../harness/src/secretPatterns.ts';
 import { loadDotEnv, resolveGitHubToken } from './lib/github-env.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -30,10 +31,16 @@ async function commandStatus(command, args) {
 }
 
 function sanitize(text) {
-  return String(text)
-    .replace(/\bgh[opsr]_[A-Za-z0-9_]{20,255}\b/g, '***GITHUB_TOKEN_REDACTED***')
-    .replace(/\bgithub_pat_[A-Za-z0-9_]{20,255}\b/g, '***GITHUB_TOKEN_REDACTED***')
-    .replace(/Bearer\s+(?!error=)[A-Za-z0-9._~+/-]{8,}=*/gi, 'Bearer ***REDACTED***');
+  let out = String(text);
+  for (const { re } of TOKEN_PATTERNS) out = out.replace(re, '***GITHUB_TOKEN_REDACTED***');
+  return out.replace(/Bearer\s+(?!error=)[A-Za-z0-9._~+/-]{8,}=*/gi, 'Bearer ***REDACTED***');
+}
+
+// The artifact is committed, so keep only what the gate needs: whether the
+// command worked, and (for `claude mcp list`) whether a GitHub server is
+// configured. Raw output can list unrelated personal connectors.
+function summarize(result, extra = {}) {
+  return { ok: result.ok, exitCode: result.exitCode, ...extra };
 }
 
 async function remoteMetadataStatus() {
@@ -55,7 +62,7 @@ async function remoteMetadataStatus() {
 await loadDotEnv();
 const envHasToken = Boolean(process.env.GITHUB_PERSONAL_ACCESS_TOKEN || process.env.GITHUB_AGENT_TOKEN);
 const token = await resolveGitHubToken({ authSource: 'auto' });
-const ghStatus = await commandStatus('gh', ['auth', 'status', '--show-token']);
+const ghStatus = await commandStatus('gh', ['auth', 'status']);
 const claudeMcpList = await commandStatus('claude', ['mcp', 'list']);
 const metadata = await remoteMetadataStatus();
 
@@ -63,8 +70,8 @@ const status = {
   generatedAt: new Date().toISOString(),
   envHasGitHubToken: envHasToken,
   autoTokenAvailable: Boolean(token),
-  ghAuthStatus: ghStatus,
-  claudeMcpList,
+  ghAuthStatus: summarize(ghStatus),
+  claudeMcpList: summarize(claudeMcpList, { githubServerConfigured: /github/i.test(claudeMcpList.stdout) }),
   remoteProtectedResourceMetadata: metadata,
   nextSteps: [
     'Set GITHUB_PERSONAL_ACCESS_TOKEN in .env or repair gh auth login.',

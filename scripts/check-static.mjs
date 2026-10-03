@@ -25,7 +25,6 @@ const checks = [
   ['npm', ['run', 'check:harness-shape']],
   ['npm', ['run', 'check:provider-config']],
   ['npm', ['run', 'check:scripts']],
-  ['npm', ['run', 'check:hooks']],
   ['npm', ['run', 'scan:secrets']],
   ['npm', ['run', 'check:whitespace']],
 ];

@@ -1,5 +1,5 @@
 import { access, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { newestMtimeMs } from './lib/completion-report.mjs';
 
 const root = process.cwd();
@@ -32,16 +32,21 @@ async function fileMtimeMs(path) {
 }
 
 async function requireNewerThan(path, dependencyPaths, blockers, label) {
-  if (!await exists(path)) return;
+  if (!(await exists(path))) return;
   const artifactTime = await fileMtimeMs(path);
-  const newestDependency = Math.max(...await Promise.all(dependencyPaths.map((dep) => newestMtimeMs(dep))));
+  const newestDependency = Math.max(...(await Promise.all(dependencyPaths.map((dep) => newestMtimeMs(dep)))));
   if (newestDependency > 0 && artifactTime + 1000 < newestDependency) {
     blockers.push(`${label} is stale; regenerate ${path} because probe/config sources are newer`);
   }
 }
 
+// Record repo-relative paths so the committed artifact is machine-independent.
+function rel(text) {
+  return text.split(root + '/').join('');
+}
+
 function gate(id, name, pass, evidence, blockers) {
-  return { id, name, pass, evidence, blockers };
+  return { id, name, pass, evidence: evidence.map((path) => relative(root, path)), blockers: blockers.map(rel) };
 }
 
 function probeSourcePath() {
@@ -52,16 +57,10 @@ async function gate1() {
   const toolsDir = join(outDir, 'tools-list');
   const localPath = join(toolsDir, 'local.json');
   const remotePath = join(toolsDir, 'remote.json');
-  const localErrorPath = join(toolsDir, 'local.error.txt');
-  const remoteErrorPath = join(toolsDir, 'remote.error.txt');
   const overlapPath = join(toolsDir, 'overlap.json');
   const overlapMdPath = join(toolsDir, 'overlap.md');
   const evidence = [];
   const blockers = [];
-
-  for (const path of [localErrorPath, remoteErrorPath]) {
-    if (await exists(path)) evidence.push(path);
-  }
 
   for (const path of [localPath, remotePath, overlapPath, overlapMdPath]) {
     if (await exists(path)) evidence.push(path);
@@ -72,41 +71,31 @@ async function gate1() {
   if (await exists(overlapPath)) {
     try {
       const overlap = await readJson(overlapPath);
-      countsOk = Number(overlap.localCount) > 0
-        && Number(overlap.remoteCount) > 0
-        && Number(overlap.overlapCount) > 0
-        && Array.isArray(overlap.overlap);
+      countsOk =
+        Number(overlap.localCount) > 0 &&
+        Number(overlap.remoteCount) > 0 &&
+        Number(overlap.overlapCount) > 0 &&
+        Array.isArray(overlap.overlap);
       if (!countsOk) blockers.push('overlap artifact exists but counts are empty or malformed');
     } catch (err) {
       blockers.push(`overlap artifact is not readable JSON: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  const catalogDependencies = [
-    probeSourcePath(),
-  ];
+  const catalogDependencies = [probeSourcePath()];
   await requireNewerThan(localPath, catalogDependencies, blockers, 'local tools/list artifact');
   await requireNewerThan(remotePath, catalogDependencies, blockers, 'remote tools/list artifact');
   await requireNewerThan(overlapPath, [localPath, remotePath, ...catalogDependencies], blockers, 'overlap artifact');
   await requireNewerThan(overlapMdPath, [overlapPath], blockers, 'overlap markdown artifact');
 
-  return gate(
-    'gate1',
-    'tools/list local+remote overlap computed',
-    blockers.length === 0 && countsOk,
-    evidence,
-    blockers,
-  );
+  return gate('gate1', 'tools/list local+remote overlap computed', blockers.length === 0 && countsOk, evidence, blockers);
 }
 
 async function gate2() {
   const remoteCatalog = join(outDir, 'tools-list', 'remote.json');
-  const remoteErrorPath = join(outDir, 'tools-list', 'remote.error.txt');
   const smokePath = join(outDir, 'auth', 'remote-smoke.json');
   const evidence = [];
   const blockers = [];
-
-  if (await exists(remoteErrorPath)) evidence.push(remoteErrorPath);
 
   if (await exists(remoteCatalog)) evidence.push(remoteCatalog);
   else blockers.push(`missing successful remote tools/list artifact ${remoteCatalog}`);
@@ -123,17 +112,9 @@ async function gate2() {
   } else {
     blockers.push(`missing non-interactive remote smoke artifact ${smokePath}`);
   }
-  await requireNewerThan(smokePath, [
-    probeSourcePath(),
-  ], blockers, 'remote auth smoke artifact');
+  await requireNewerThan(smokePath, [probeSourcePath()], blockers, 'remote auth smoke artifact');
 
-  return gate(
-    'gate2',
-    'non-interactive remote auth smoke',
-    blockers.length === 0,
-    evidence,
-    blockers,
-  );
+  return gate('gate2', 'non-interactive remote auth smoke', blockers.length === 0, evidence, blockers);
 }
 
 async function gate3() {
@@ -154,30 +135,18 @@ async function gate3() {
   } else {
     blockers.push(`missing env scrub artifact ${scrubPath}`);
   }
-  await requireNewerThan(scrubPath, [
-    join(root, 'scripts', 'env-scrub-probe.mjs'),
-    join(root, 'scripts', 'lib', 'github-env.mjs'),
-    join(root, '.mcp.github.local.json'),
-  ], blockers, 'local env-scrub artifact');
-
-  return gate(
-    'gate3',
-    'local-stdio env scrub probe',
-    blockers.length === 0,
-    evidence,
+  await requireNewerThan(
+    scrubPath,
+    [join(root, 'scripts', 'env-scrub-probe.mjs'), join(root, 'harness', 'src', 'env.ts'), join(root, '.mcp.github.local.json')],
     blockers,
+    'local env-scrub artifact',
   );
+
+  return gate('gate3', 'local-stdio env scrub probe', blockers.length === 0, evidence, blockers);
 }
 
 function markdownReport(status) {
-  const lines = [
-    '# Phase 1 Gate Status',
-    '',
-    `Generated: ${status.generatedAt}`,
-    '',
-    `Overall: ${status.pass ? 'PASS' : 'BLOCKED'}`,
-    '',
-  ];
+  const lines = ['# Phase 1 Gate Status', '', `Generated: ${status.generatedAt}`, '', `Overall: ${status.pass ? 'PASS' : 'BLOCKED'}`, ''];
 
   for (const g of status.gates) {
     lines.push(`## ${g.id}: ${g.name}`);
@@ -203,7 +172,6 @@ function markdownReport(status) {
   return `${lines.join('\n')}\n`;
 }
 
-await mkdir(outDir, { recursive: true });
 const gates = [await gate1(), await gate2(), await gate3()];
 const status = {
   generatedAt: new Date().toISOString(),
@@ -211,8 +179,12 @@ const status = {
   gates,
 };
 
-await writeFile(join(outDir, 'phase1-status.json'), `${JSON.stringify(status, null, 2)}\n`, 'utf8');
-await writeFile(join(outDir, 'phase1-status.md'), markdownReport(status), 'utf8');
+// --strict is a read-only gate; the plain command refreshes the artifacts.
+if (!hasFlag('--strict')) {
+  await mkdir(outDir, { recursive: true });
+  await writeFile(join(outDir, 'phase1-status.json'), `${JSON.stringify(status, null, 2)}\n`, 'utf8');
+  await writeFile(join(outDir, 'phase1-status.md'), markdownReport(status), 'utf8');
+}
 
 for (const g of gates) {
   console.log(`${g.pass ? 'PASS' : 'BLOCKED'} ${g.id}: ${g.name}`);

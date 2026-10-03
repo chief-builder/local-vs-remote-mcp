@@ -1,6 +1,6 @@
 # Phase 1 Gate Status
 
-Generated: 2026-05-30T15:16:46.619Z
+Generated: 2026-10-03T05:29:28.711Z
 
 Overall: PASS
 
@@ -9,12 +9,10 @@ Overall: PASS
 Status: PASS
 
 Evidence:
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/local.error.txt
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.error.txt
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/local.json
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.json
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/overlap.json
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/overlap.md
+- artifacts/spike/tools-list/local.json
+- artifacts/spike/tools-list/remote.json
+- artifacts/spike/tools-list/overlap.json
+- artifacts/spike/tools-list/overlap.md
 
 Blockers:
 - none
@@ -24,9 +22,8 @@ Blockers:
 Status: PASS
 
 Evidence:
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.error.txt
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/tools-list/remote.json
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/auth/remote-smoke.json
+- artifacts/spike/tools-list/remote.json
+- artifacts/spike/auth/remote-smoke.json
 
 Blockers:
 - none
@@ -36,7 +33,7 @@ Blockers:
 Status: PASS
 
 Evidence:
-- /Users/chiefbuilder/Documents/Projects/Experiments/local-vs-remote-mcp/artifacts/spike/env-scrub/local-stdio-env.json
+- artifacts/spike/env-scrub/local-stdio-env.json
 
 Blockers:
 - none

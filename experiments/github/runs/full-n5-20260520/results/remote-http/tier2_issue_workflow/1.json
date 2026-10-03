@@ -1,0 +1,80 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "remote-http",
+  "taskId": "tier2_issue_workflow",
+  "tier": 2,
+  "trialN": 1,
+  "timestamp": "2026-05-20T12:43:29.388Z",
+  "seed": "0f0f4bb9471be780",
+  "metrics": {
+    "inputTokens": 605,
+    "outputTokens": 1028,
+    "cachedInputTokens": 62738,
+    "cacheCreationInputTokens": 7589,
+    "toolCalls": [
+      {
+        "id": "toolu_01JwVK2YeutcNQY3jTy22yMA",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01UnG5en5Hvk6M8432Qw2Lv5",
+        "name": "mcp__github__list_issues",
+        "turnIndex": 6
+      },
+      {
+        "id": "toolu_01U513V4w3HF2jJf1QMF2t3s",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01Nv8nauX2uF8pV1J2wiUgpL",
+        "name": "mcp__github__add_issue_comment",
+        "turnIndex": 10
+      },
+      {
+        "id": "toolu_01QgykwXLLjNMLr6GrxeMmAn",
+        "name": "mcp__github__issue_write",
+        "turnIndex": 12
+      }
+    ],
+    "toolCallCount": 5,
+    "turns": 13,
+    "wallClockMs": 29909,
+    "perToolCallLatencyMs": [
+      8,
+      913,
+      1476,
+      2087,
+      2447
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 15082,
+    "totalCostUsd": 0.06316315,
+    "modelsUsed": [
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6"
+    ],
+    "usedIntendedTool": true,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": true,
+    "score": 1,
+    "notes": "all workflow steps applied to target only",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-issue-workflow-0f0f4bb9",
+      "targetIssueNumber": 2,
+      "expectedLabel": "priority-high",
+      "expectedCommentPhrase": "triaged-608B2C08"
+    }
+  }
+}

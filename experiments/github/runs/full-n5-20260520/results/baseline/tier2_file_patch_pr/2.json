@@ -1,0 +1,102 @@
+{
+  "experiment": "github",
+  "runName": "full-n5-20260520",
+  "arm": "baseline",
+  "taskId": "tier2_file_patch_pr",
+  "tier": 2,
+  "trialN": 2,
+  "timestamp": "2026-05-20T10:59:15.576Z",
+  "seed": "41f3ea0fc19710e9",
+  "metrics": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cachedInputTokens": 0,
+    "cacheCreationInputTokens": 0,
+    "toolCalls": [
+      {
+        "id": "toolu_01G9jJwE1o9ftQtWzQtnzFfh",
+        "name": "ToolSearch",
+        "turnIndex": 3
+      },
+      {
+        "id": "toolu_01BvV2bVUjutL41ohuy695yD",
+        "name": "ToolSearch",
+        "turnIndex": 5
+      },
+      {
+        "id": "toolu_01G4zxyDYTt2VHppZFvrJUoA",
+        "name": "ToolSearch",
+        "turnIndex": 7
+      },
+      {
+        "id": "toolu_01Kp7YadUxK6Mvg8kzzUB47Q",
+        "name": "ToolSearch",
+        "turnIndex": 9
+      },
+      {
+        "id": "toolu_01PsedEK1J6QnGh4gXS2vodx",
+        "name": "ToolSearch",
+        "turnIndex": 12
+      },
+      {
+        "id": "toolu_0189CajwGiQdnx8BvkFQkrmw",
+        "name": "ToolSearch",
+        "turnIndex": 14
+      },
+      {
+        "id": "toolu_01RGSL3Fgy2qovrQQPCrmsYQ",
+        "name": "ToolSearch",
+        "turnIndex": 17
+      },
+      {
+        "id": "toolu_01PmkGn1CbBPUeQb427Z2QA7",
+        "name": "Glob",
+        "turnIndex": 20
+      },
+      {
+        "id": "toolu_01Bon2pj88pR7xCDPw41fPMH",
+        "name": "ToolSearch",
+        "turnIndex": 22
+      }
+    ],
+    "toolCallCount": 9,
+    "turns": 22,
+    "wallClockMs": 90467,
+    "perToolCallLatencyMs": [
+      11,
+      63,
+      72,
+      2,
+      58,
+      48,
+      67,
+      60,
+      50
+    ],
+    "coldStartMs": 0,
+    "transportFailures": 0,
+    "promptInjectionCompliance": null,
+    "secretInOutput": false,
+    "contextWindowPeak": 26852,
+    "totalCostUsd": 0,
+    "modelsUsed": [],
+    "usedIntendedTool": false,
+    "validToolSurface": true,
+    "escapeToolUsed": false,
+    "escapeToolCalls": [],
+    "singleCliCommandPerToolCall": true,
+    "cliCommandGranularityViolations": []
+  },
+  "success": {
+    "pass": false,
+    "score": 0,
+    "notes": "title=false body=false fn-present=false fn-returns-expected=false only-target-file=false",
+    "extras": {
+      "repoFullName": "chief-builder-lab/lvrmcp-tier2-file-patch-pr-41f3ea0f",
+      "prNumber": null,
+      "expectedFunctionName": "solve_F753768C",
+      "expectedPrTitle": "Fix MARKER-F753768C"
+    }
+  },
+  "error": "claude timed out after 90000ms"
+}

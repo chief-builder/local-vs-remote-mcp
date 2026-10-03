@@ -1,14 +1,19 @@
-import { Command } from 'commander';
+import { Command, InvalidArgumentError } from 'commander';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
+import type { Dirent } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { execa } from 'execa';
 import { ArmSchema } from './experiment.js';
-import type { Arm } from './experiment.js';
-import { runTrial, buildClaudeArgs, buildChildEnv } from './runner.js';
+import type { Arm, ExperimentSpec } from './experiment.js';
+import { runTrial, buildClaudeArgs } from './runner.js';
+import { buildChildEnv, loadDotEnv } from './env.js';
+import { checkArmTools, parseVerifyTranscript } from './verifyArms.js';
+import { DEFAULT_MODEL } from './config.js';
 import type { Task } from './tasks.js';
 import { generateReport } from './report.js';
-import { countTransportFailures, parseTranscript } from './metrics.js';
+import { countTransportFailures, mergeRecomputedMetrics, parseTranscript } from './metrics.js';
+import type { Metrics } from './metrics.js';
 import { getExperiment, experiments } from './experiments/index.js';
 
 const require = createRequire(import.meta.url);
@@ -16,35 +21,19 @@ const pkg = require('../../package.json') as { version: string };
 
 const program = new Command();
 
-async function loadDotEnv(rootDir: string): Promise<void> {
-  let text = '';
-  try {
-    text = await readFile(join(rootDir, '.env'), 'utf8');
-  } catch {
-    return;
-  }
-  for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq <= 0) continue;
-    const key = trimmed.slice(0, eq).trim();
-    let value = trimmed.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!process.env[key]) process.env[key] = value;
-  }
+function intOption(name: string, min = 1): (value: string) => number {
+  return (value: string) => {
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < min) throw new InvalidArgumentError(`${name} must be an integer >= ${min}.`);
+    return n;
+  };
 }
 
-program
-  .name('harness')
-  .description('Local stdio MCP vs remote streamable HTTP MCP experiment harness')
-  .version(pkg.version);
+program.name('harness').description('Local stdio MCP vs remote streamable HTTP MCP experiment harness').version(pkg.version);
 
 async function loadTasks(rootDir: string, tasksPath: string): Promise<Task[]> {
   const indexPath = join(rootDir, tasksPath);
-  const mod = await import(indexPath) as { tasks: Task[] };
+  const mod = (await import(indexPath)) as { tasks: Task[] };
   return mod.tasks;
 }
 
@@ -85,44 +74,6 @@ async function claudeAuthStatus(): Promise<{
   };
 }
 
-function githubToolNames(values: string[] | undefined): string[] {
-  return (values ?? []).filter((name) => name.startsWith('mcp__github__')).sort();
-}
-
-function extractGithubToolNames(output: string): string[] {
-  return [...new Set(output.match(/\bmcp__github__[A-Za-z0-9_]+\b/g) ?? [])].sort();
-}
-
-function validateArmToolOutput(arm: Arm, cfg: { allowedTools?: string[] | undefined; disallowedTools: string[] }, output: string): {
-  pass: boolean;
-  observedGithubTools: string[];
-  unexpectedGithubTools: string[];
-  notes: string[];
-} {
-  const observedGithubTools = extractGithubToolNames(output);
-  const allowed = new Set(githubToolNames(cfg.allowedTools));
-  const disallowed = new Set(githubToolNames(cfg.disallowedTools));
-  const unexpectedGithubTools = observedGithubTools.filter((name) => !allowed.has(name) || disallowed.has(name));
-  const notes: string[] = [];
-
-  if (arm === 'baseline' && observedGithubTools.length > 0) {
-    notes.push('baseline reported GitHub MCP tools');
-  }
-  if ((arm === 'local-stdio' || arm === 'remote-http') && observedGithubTools.length === 0) {
-    notes.push(`${arm} reported no exact GitHub MCP tool names`);
-  }
-  if (unexpectedGithubTools.length > 0) {
-    notes.push(`${arm} reported GitHub tools outside its allow-list`);
-  }
-
-  return {
-    pass: notes.length === 0,
-    observedGithubTools,
-    unexpectedGithubTools,
-    notes,
-  };
-}
-
 // ---------------------------------------------------------------------------
 // run
 // ---------------------------------------------------------------------------
@@ -133,111 +84,108 @@ program
   .requiredOption('--run <name>', 'Named run namespace (results stored under experiments/<exp>/runs/<run>)')
   .requiredOption('--arm <arm>', 'Arm: baseline | local-stdio | remote-http')
   .option('--task <id>', 'Run a specific task by ID')
-  .option('--tier <n>', 'Run all tasks in this tier', v => parseInt(v, 10))
-  .requiredOption('--trials <n>', 'Number of trials per task', v => parseInt(v, 10))
-  .option('--trial <n>', 'Run only this trial number within the configured trial count', v => parseInt(v, 10))
-  .option('--model <model>', 'Claude model ID', 'claude-sonnet-4-6')
-  .option('--single-cli-command', 'Research mode: require one intended-CLI command per Bash tool call', false)
-  .action(async (opts: {
-    experiment: string;
-    run: string;
-    arm: string;
-    task?: string;
-    tier?: number;
-    trials: number;
-    trial?: number;
-    model: string;
-    singleCliCommand: boolean;
-  }) => {
-    const armParse = ArmSchema.safeParse(opts.arm);
-    if (!armParse.success) {
-      console.error(`Invalid arm "${opts.arm}". Must be one of: baseline, local-stdio, remote-http`);
-      process.exit(1);
-    }
-    const arm = armParse.data;
-    const rootDir = resolve(process.cwd());
-    await loadDotEnv(rootDir);
+  .option('--tier <n>', 'Run all tasks in this tier', intOption('--tier'))
+  .requiredOption('--trials <n>', 'Number of trials per task', intOption('--trials'))
+  .option('--trial <n>', 'Run only this trial number within the configured trial count', intOption('--trial'))
+  .option('--model <model>', 'Claude model ID', DEFAULT_MODEL)
+  .action(
+    async (opts: {
+      experiment: string;
+      run: string;
+      arm: string;
+      task?: string;
+      tier?: number;
+      trials: number;
+      trial?: number;
+      model: string;
+    }) => {
+      const armParse = ArmSchema.safeParse(opts.arm);
+      if (!armParse.success) {
+        console.error(`Invalid arm "${opts.arm}". Must be one of: baseline, local-stdio, remote-http`);
+        process.exit(1);
+      }
+      const arm = armParse.data;
+      const rootDir = resolve(process.cwd());
+      await loadDotEnv(rootDir);
 
-    let experiment;
-    try {
-      experiment = getExperiment(opts.experiment);
-    } catch (err) {
-      console.error(err instanceof Error ? err.message : String(err));
-      process.exit(1);
-    }
-
-    if (experiment.preflight) {
+      let experiment: ExperimentSpec;
       try {
-        await experiment.preflight([arm]);
+        experiment = getExperiment(opts.experiment);
       } catch (err) {
-        console.error('Preflight failed:', err instanceof Error ? err.message : String(err));
+        console.error(err instanceof Error ? err.message : String(err));
         process.exit(1);
       }
-    }
 
-    let tasks: Task[];
-    try {
-      tasks = await loadTasks(rootDir, experiment.tasksPath);
-    } catch (err) {
-      console.error(`Cannot load tasks for "${experiment.name}":`, err instanceof Error ? err.message : String(err));
-      process.exit(1);
-    }
-
-    let filtered = tasks;
-    if (opts.task) {
-      filtered = tasks.filter(t => t.id === opts.task);
-      if (filtered.length === 0) {
-        console.error(`Task "${opts.task}" not found.`);
-        process.exit(1);
-      }
-    } else if (opts.tier !== undefined) {
-      const tier = opts.tier;
-      filtered = tasks.filter(t => t.tier === tier);
-    }
-    filtered = filtered.filter(t => !t.applicableArms || t.applicableArms.includes(arm));
-    if (filtered.length === 0) {
-      if (opts.task) {
-        console.error(`Task "${opts.task}" is not applicable to arm "${arm}".`);
-        process.exit(1);
-      }
-      console.log(`No tasks apply to arm=${arm}${opts.tier !== undefined ? ` tier=${opts.tier}` : ''}.`);
-      return;
-    }
-    if (opts.trial !== undefined && (!Number.isInteger(opts.trial) || opts.trial < 1 || opts.trial > opts.trials)) {
-      console.error(`--trial must be an integer between 1 and --trials (${opts.trials}).`);
-      process.exit(1);
-    }
-
-    const trialNumbers = opts.trial !== undefined
-      ? [opts.trial]
-      : Array.from({ length: opts.trials }, (_, idx) => idx + 1);
-
-    for (const task of filtered) {
-      for (const n of trialNumbers) {
-        console.log(`→ ${experiment.name}/${opts.run}  ${task.id}  arm=${arm}  trial=${n}/${opts.trials}`);
+      if (experiment.preflight) {
         try {
-          const result = await runTrial({
-            experiment,
-            runName: opts.run,
-            arm,
-            task,
-            trialN: n,
-            rootDir,
-            model: opts.model,
-            requireSingleCliCommand: opts.singleCliCommand,
-          });
-          const icon = result.success.pass ? '✓' : '✗';
-          const validSurface = result.metrics.validToolSurface
-            && (!opts.singleCliCommand || result.metrics.singleCliCommandPerToolCall);
-          const valid = validSurface ? 'valid' : 'INVALID';
-          console.log(`  ${icon} score=${result.success.score.toFixed(2)}  ${valid}  tokens_in=${result.metrics.inputTokens}  turns=${result.metrics.turns}  time=${(result.metrics.wallClockMs / 1000).toFixed(1)}s`);
-          if (result.error) console.error(`  error: ${result.error}`);
+          await experiment.preflight([arm]);
         } catch (err) {
-          console.error(`  trial ${n} threw:`, err);
+          console.error('Preflight failed:', err instanceof Error ? err.message : String(err));
+          process.exit(1);
         }
       }
-    }
-  });
+
+      let tasks: Task[];
+      try {
+        tasks = await loadTasks(rootDir, experiment.tasksPath);
+      } catch (err) {
+        console.error(`Cannot load tasks for "${experiment.name}":`, err instanceof Error ? err.message : String(err));
+        process.exit(1);
+      }
+
+      let filtered = tasks;
+      if (opts.task) {
+        filtered = tasks.filter((t) => t.id === opts.task);
+        if (filtered.length === 0) {
+          console.error(`Task "${opts.task}" not found.`);
+          process.exit(1);
+        }
+      } else if (opts.tier !== undefined) {
+        const tier = opts.tier;
+        filtered = tasks.filter((t) => t.tier === tier);
+      }
+      filtered = filtered.filter((t) => !t.applicableArms || t.applicableArms.includes(arm));
+      if (filtered.length === 0) {
+        if (opts.task) {
+          console.error(`Task "${opts.task}" is not applicable to arm "${arm}".`);
+          process.exit(1);
+        }
+        console.log(`No tasks apply to arm=${arm}${opts.tier !== undefined ? ` tier=${opts.tier}` : ''}.`);
+        return;
+      }
+      if (opts.trial !== undefined && (!Number.isInteger(opts.trial) || opts.trial < 1 || opts.trial > opts.trials)) {
+        console.error(`--trial must be an integer between 1 and --trials (${opts.trials}).`);
+        process.exit(1);
+      }
+
+      const trialNumbers = opts.trial !== undefined ? [opts.trial] : Array.from({ length: opts.trials }, (_, idx) => idx + 1);
+
+      for (const task of filtered) {
+        for (const n of trialNumbers) {
+          console.log(`→ ${experiment.name}/${opts.run}  ${task.id}  arm=${arm}  trial=${n}/${opts.trials}`);
+          try {
+            const result = await runTrial({
+              experiment,
+              runName: opts.run,
+              arm,
+              task,
+              trialN: n,
+              rootDir,
+              model: opts.model,
+            });
+            const icon = result.success.pass ? '✓' : '✗';
+            const valid = result.metrics.validToolSurface ? 'valid' : 'INVALID';
+            console.log(
+              `  ${icon} score=${result.success.score.toFixed(2)}  ${valid}  tokens_in=${result.metrics.inputTokens}  turns=${result.metrics.turns}  time=${(result.metrics.wallClockMs / 1000).toFixed(1)}s`,
+            );
+            if (result.error) console.error(`  error: ${result.error}`);
+          } catch (err) {
+            console.error(`  trial ${n} threw:`, err);
+          }
+        }
+      }
+    },
+  );
 
 // ---------------------------------------------------------------------------
 // report
@@ -247,51 +195,50 @@ program
   .description('Generate a markdown report from stored results')
   .requiredOption('--experiment <name>', 'Experiment name')
   .requiredOption('--run <name>', 'Named run namespace')
-  .option('--tier <n>', 'Report on a specific tier', v => parseInt(v, 10))
+  .option('--tier <n>', 'Report on a specific tier', intOption('--tier'))
   .option('--all-tiers', 'Include all tiers', false)
   .option('--crossover-analysis', 'Include crossover analysis section', false)
-  .option('--single-cli-command', 'Research mode: chained CLI Bash calls count as invalid surface', false)
   .option('--include-cost', 'Append a USD cost appendix', false)
   .option('--output <path>', 'Write report to file instead of stdout')
-  .action(async (opts: {
-    experiment: string;
-    run: string;
-    tier?: number;
-    allTiers: boolean;
-    crossoverAnalysis: boolean;
-    singleCliCommand: boolean;
-    includeCost: boolean;
-    output?: string;
-  }) => {
-    const rootDir = resolve(process.cwd());
-    await loadDotEnv(rootDir);
-    // Resolve the spec so the report reads the experiment's storage directory.
-    const reportExperiment = getExperiment(opts.experiment).name;
-    const report = await generateReport({
-      rootDir,
-      experiment: reportExperiment,
-      runName: opts.run,
-      ...(opts.tier !== undefined ? { tier: opts.tier } : {}),
-      allTiers: opts.allTiers,
-      crossover: opts.crossoverAnalysis,
-      requireSingleCliCommand: opts.singleCliCommand,
-      includeCost: opts.includeCost,
-    });
+  .action(
+    async (opts: {
+      experiment: string;
+      run: string;
+      tier?: number;
+      allTiers: boolean;
+      crossoverAnalysis: boolean;
+      includeCost: boolean;
+      output?: string;
+    }) => {
+      const rootDir = resolve(process.cwd());
+      await loadDotEnv(rootDir);
+      // Resolve the spec so the report reads the experiment's storage directory.
+      const reportExperiment = getExperiment(opts.experiment).name;
+      const report = await generateReport({
+        rootDir,
+        experiment: reportExperiment,
+        runName: opts.run,
+        ...(opts.tier !== undefined ? { tier: opts.tier } : {}),
+        allTiers: opts.allTiers,
+        crossover: opts.crossoverAnalysis,
+        includeCost: opts.includeCost,
+      });
 
-    if (opts.output) {
-      await writeFile(opts.output, report, 'utf-8');
-      console.log(`Report written to ${opts.output}`);
-    } else {
-      process.stdout.write(report + '\n');
-    }
-  });
+      if (opts.output) {
+        await writeFile(opts.output, report, 'utf-8');
+        console.log(`Report written to ${opts.output}`);
+      } else {
+        process.stdout.write(report + '\n');
+      }
+    },
+  );
 
 // ---------------------------------------------------------------------------
 // recompute-metrics
 // ---------------------------------------------------------------------------
 async function collectFiles(dir: string, suffix: string): Promise<string[]> {
   const out: string[] = [];
-  let entries;
+  let entries: Dirent[];
   try {
     entries = await readdir(dir, { withFileTypes: true });
   } catch {
@@ -299,7 +246,7 @@ async function collectFiles(dir: string, suffix: string): Promise<string[]> {
   }
   for (const entry of entries) {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...await collectFiles(path, suffix));
+    if (entry.isDirectory()) out.push(...(await collectFiles(path, suffix)));
     else if (entry.name.endsWith(suffix)) out.push(path);
   }
   return out;
@@ -345,8 +292,8 @@ program
           continue;
         }
         const transcriptRaw = await readFile(transcriptPath, 'utf-8');
-        const result = JSON.parse(resultRaw) as { metrics?: unknown };
-        const metrics = parseTranscript(transcriptRaw.split('\n'), arm, experiment.classifier);
+        const result = JSON.parse(resultRaw) as { metrics?: Partial<Metrics> };
+        const metrics = parseTranscript(transcriptRaw.split('\n'), arm, experiment.classifier, experiment.arms[arm].allowedTools);
         const stderrPath = transcriptPath.replace(/\.jsonl$/, '.stderr.log');
         try {
           const stderrRaw = await readFile(stderrPath, 'utf-8');
@@ -354,7 +301,7 @@ program
         } catch {
           // Older or clean trials may not have a stderr artifact.
         }
-        result.metrics = metrics;
+        result.metrics = mergeRecomputedMetrics(result.metrics, metrics);
         await writeFile(resultPath, JSON.stringify(result, null, 2), 'utf-8');
         updated++;
       }
@@ -371,16 +318,17 @@ program
   .command('verify-arms')
   .description('Probe each arm and ask it what tools it sees — confirm isolation before running trials')
   .requiredOption('--experiment <name>', 'Experiment name')
-  .option('--model <model>', 'Claude model ID', 'claude-sonnet-4-6')
+  .option('--model <model>', 'Claude model ID', DEFAULT_MODEL)
   .option('--output <path>', 'Write structured verification artifact')
   .action(async (opts: { experiment: string; model: string; output?: string }) => {
     const rootDir = resolve(process.cwd());
     await loadDotEnv(rootDir);
     const experiment = getExperiment(opts.experiment);
     const arms: Arm[] = ['baseline', 'local-stdio', 'remote-http'];
-    const probe = experiment.name === 'github'
-      ? 'List the exact internal GitHub MCP tool names you have access to right now, using names like mcp__github__example. Return only the exact names, one per line. If you have none, write exactly: NO_GITHUB_MCP_TOOLS.'
-      : 'What tools do you have access to right now? List them specifically. If you have none, say so.';
+    const probe =
+      experiment.name === 'github'
+        ? 'List the exact internal GitHub MCP tool names you have access to right now, using names like mcp__github__example. Return only the exact names, one per line. If you have none, write exactly: NO_GITHUB_MCP_TOOLS.'
+        : 'What tools do you have access to right now? List them specifically. If you have none, say so.';
     let failures = 0;
     const artifact: {
       generatedAt: string;
@@ -398,8 +346,9 @@ program
         description: string;
         exitCode: number | null;
         output: string;
-        observedGithubTools?: string[];
-        unexpectedGithubTools?: string[];
+        loadedMcpTools?: string[];
+        unexpectedTools?: string[];
+        missingTools?: string[];
         policyNotes?: string[];
         pass: boolean;
       }>;
@@ -444,7 +393,7 @@ program
       console.log(`Description: ${cfg.description}`);
       console.log('='.repeat(60));
 
-      const args = buildClaudeArgs(cfg, probe, opts.model, rootDir, 'text');
+      const args = buildClaudeArgs(cfg, probe, opts.model, rootDir, 'stream-json');
       const agentEnv = experiment.buildAgentEnv ? experiment.buildAgentEnv(arm) : {};
       const childEnv = buildChildEnv(cfg.extraEnv, agentEnv);
 
@@ -455,19 +404,22 @@ program
           env: childEnv,
           stdin: 'ignore',
         });
-        const output = [result.stdout, result.stderr].filter(Boolean).join('\n') || '(no output)';
+        // Verdict comes from the tools Claude Code actually loaded (system/init);
+        // the model's own answer is kept only for the record.
+        const { initTools, answer } = parseVerifyTranscript(result.stdout);
+        const output = answer || result.stderr || '(no output)';
         console.log(output);
-        const policy = experiment.name === 'github'
-          ? validateArmToolOutput(arm, cfg, output)
-          : { pass: true, observedGithubTools: [], unexpectedGithubTools: [], notes: [] };
+        const policy = checkArmTools(arm, experiment.classifier.intendedMcpPrefix, cfg.allowedTools, initTools);
+        for (const note of policy.notes) console.log(`policy: ${note}`);
         const pass = result.exitCode === 0 && !/not logged in/i.test(output) && policy.pass;
         artifact.arms.push({
           arm,
           description: cfg.description,
           exitCode: result.exitCode ?? null,
           output,
-          observedGithubTools: policy.observedGithubTools,
-          unexpectedGithubTools: policy.unexpectedGithubTools,
+          loadedMcpTools: policy.observedTools,
+          unexpectedTools: policy.unexpectedTools,
+          missingTools: policy.missingTools,
           policyNotes: policy.notes,
           pass,
         });
